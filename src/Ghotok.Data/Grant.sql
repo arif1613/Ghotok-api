@@ -16,7 +16,7 @@ EXEC sp_addrolemember 'db_owner', 'GhotokApiUser'
 GO
 
 
---Grant permission for Fhotokapi app pool
+--Grant permission for Ghotokapi app pool
 
 IF NOT EXISTS (SELECT name FROM sys.server_principals WHERE name = 'IIS APPPOOL\GhotokApi AppPool')
 BEGIN
@@ -29,4 +29,20 @@ CREATE USER GhotokApiIISUser
   FOR LOGIN [IIS APPPOOL\GhotokApi AppPool]
 GO
 EXEC sp_addrolemember 'db_owner', 'GhotokApiIISUser'
+GO
+
+
+--Grant permission for GhotokApiGit app pool
+
+IF NOT EXISTS (SELECT name FROM sys.server_principals WHERE name = 'IIS APPPOOL\GhotakApiGit')
+BEGIN
+    CREATE LOGIN [IIS APPPOOL\GhotakApiGit] 
+      FROM WINDOWS WITH DEFAULT_DATABASE=[master], 
+      DEFAULT_LANGUAGE=[us_english]
+END
+GO
+CREATE USER GhotakApiGitIISUser 
+  FOR LOGIN [IIS APPPOOL\GhotakApiGit]
+GO
+EXEC sp_addrolemember 'db_owner', 'GhotakApiGitIISUser'
 GO
