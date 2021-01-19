@@ -5655,11 +5655,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Arif-DevOps\\GhotokApi\\src\\Ghotok.Data\\Ghotok.Data.csproj",
+      "projectUniqueName": "C:\\Ghotok-Github\\Api\\Ghotok-api\\src\\Ghotok.Data\\Ghotok.Data.csproj",
       "projectName": "Ghotok.Data",
-      "projectPath": "C:\\Arif-DevOps\\GhotokApi\\src\\Ghotok.Data\\Ghotok.Data.csproj",
+      "projectPath": "C:\\Ghotok-Github\\Api\\Ghotok-api\\src\\Ghotok.Data\\Ghotok.Data.csproj",
       "packagesPath": "C:\\Users\\aarif\\.nuget\\packages\\",
-      "outputPath": "C:\\Arif-DevOps\\GhotokApi\\src\\Ghotok.Data\\obj\\",
+      "outputPath": "C:\\Ghotok-Github\\Api\\Ghotok-api\\src\\Ghotok.Data\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Microsoft\\Xamarin\\NuGet\\"

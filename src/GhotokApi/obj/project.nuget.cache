@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "fRxXdrd315D3Q2vkQit+ucRryE3U42wBQr7riALxTjW3t+FtqzP6DXAgoGc2L2C4p6jBOiHLRNZWXZyCv/feKQ==",
+  "dgSpecHash": "AnKZ/wBAVz+B73hNQ3TPhtHe4NZuJ+HvJGH7VoPxc5tAJGG8WWmqWpez7CDGy1d/VwBC+A7uvSe3XmC8dUkBtg==",
   "success": true,
-  "projectFilePath": "C:\\Arif-DevOps\\GhotokApi\\src\\GhotokApi\\GhotokApi.csproj",
+  "projectFilePath": "C:\\Ghotok-Github\\Api\\Ghotok-api\\src\\GhotokApi\\GhotokApi.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\aarif\\.nuget\\packages\\mediatr\\9.0.0\\mediatr.9.0.0.nupkg.sha512",
     "C:\\Users\\aarif\\.nuget\\packages\\mediatr.extensions.microsoft.dependencyinjection\\9.0.0\\mediatr.extensions.microsoft.dependencyinjection.9.0.0.nupkg.sha512",
