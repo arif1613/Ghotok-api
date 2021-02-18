@@ -146,11 +146,15 @@ C:\Arif-DevOps\GhotokApi\src\GhotokApi\obj\Debug\netcoreapp3.1\GhotokApi.csproj.
 C:\Arif-DevOps\GhotokApi\src\GhotokApi\obj\Debug\netcoreapp3.1\GhotokApi.dll
 C:\Arif-DevOps\GhotokApi\src\GhotokApi\obj\Debug\netcoreapp3.1\GhotokApi.pdb
 C:\Arif-DevOps\GhotokApi\src\GhotokApi\obj\Debug\netcoreapp3.1\GhotokApi.genruntimeconfig.cache
+C:\Ghotok-Github\Api\Ghotok-api\src\GhotokApi\obj\Debug\netcoreapp3.1\GhotokApi.AssemblyInfoInputs.cache
+C:\Ghotok-Github\Api\Ghotok-api\src\GhotokApi\obj\Debug\netcoreapp3.1\GhotokApi.AssemblyInfo.cs
+C:\Ghotok-Github\Api\Ghotok-api\src\GhotokApi\obj\Debug\netcoreapp3.1\GhotokApi.csproj.CoreCompileInputs.cache
+C:\Ghotok-Github\Api\Ghotok-api\src\GhotokApi\obj\Debug\netcoreapp3.1\GhotokApi.MvcApplicationPartsAssemblyInfo.cache
+C:\Ghotok-Github\Api\Ghotok-api\src\GhotokApi\bin\Debug\netcoreapp3.1\web.config
 C:\Ghotok-Github\Api\Ghotok-api\src\GhotokApi\bin\Debug\netcoreapp3.1\appsettings.Development.json
 C:\Ghotok-Github\Api\Ghotok-api\src\GhotokApi\bin\Debug\netcoreapp3.1\appsettings.json
 C:\Ghotok-Github\Api\Ghotok-api\src\GhotokApi\bin\Debug\netcoreapp3.1\appsettings.Production.json
 C:\Ghotok-Github\Api\Ghotok-api\src\GhotokApi\bin\Debug\netcoreapp3.1\appsettings.Test.json
-C:\Ghotok-Github\Api\Ghotok-api\src\GhotokApi\bin\Debug\netcoreapp3.1\web.config
 C:\Ghotok-Github\Api\Ghotok-api\src\GhotokApi\bin\Debug\netcoreapp3.1\GhotokApi.exe
 C:\Ghotok-Github\Api\Ghotok-api\src\GhotokApi\bin\Debug\netcoreapp3.1\GhotokApi.deps.json
 C:\Ghotok-Github\Api\Ghotok-api\src\GhotokApi\bin\Debug\netcoreapp3.1\GhotokApi.runtimeconfig.json
@@ -207,11 +211,6 @@ C:\Ghotok-Github\Api\Ghotok-api\src\GhotokApi\bin\Debug\netcoreapp3.1\runtimes\w
 C:\Ghotok-Github\Api\Ghotok-api\src\GhotokApi\bin\Debug\netcoreapp3.1\Ghotok.Data.dll
 C:\Ghotok-Github\Api\Ghotok-api\src\GhotokApi\bin\Debug\netcoreapp3.1\Ghotok.Data.pdb
 C:\Ghotok-Github\Api\Ghotok-api\src\GhotokApi\obj\Debug\netcoreapp3.1\GhotokApi.csprojAssemblyReference.cache
-C:\Ghotok-Github\Api\Ghotok-api\src\GhotokApi\obj\Debug\netcoreapp3.1\GhotokApi.AssemblyInfoInputs.cache
-C:\Ghotok-Github\Api\Ghotok-api\src\GhotokApi\obj\Debug\netcoreapp3.1\GhotokApi.AssemblyInfo.cs
-C:\Ghotok-Github\Api\Ghotok-api\src\GhotokApi\obj\Debug\netcoreapp3.1\GhotokApi.csproj.CoreCompileInputs.cache
-C:\Ghotok-Github\Api\Ghotok-api\src\GhotokApi\obj\Debug\netcoreapp3.1\GhotokApi.MvcApplicationPartsAssemblyInfo.cs
-C:\Ghotok-Github\Api\Ghotok-api\src\GhotokApi\obj\Debug\netcoreapp3.1\GhotokApi.MvcApplicationPartsAssemblyInfo.cache
 C:\Ghotok-Github\Api\Ghotok-api\src\GhotokApi\obj\Debug\netcoreapp3.1\staticwebassets\GhotokApi.StaticWebAssets.Manifest.cache
 C:\Ghotok-Github\Api\Ghotok-api\src\GhotokApi\obj\Debug\netcoreapp3.1\staticwebassets\GhotokApi.StaticWebAssets.xml
 C:\Ghotok-Github\Api\Ghotok-api\src\GhotokApi\obj\Debug\netcoreapp3.1\scopedcss\bundle\GhotokApi.styles.css
@@ -220,3 +219,4 @@ C:\Ghotok-Github\Api\Ghotok-api\src\GhotokApi\obj\Debug\netcoreapp3.1\GhotokApi.
 C:\Ghotok-Github\Api\Ghotok-api\src\GhotokApi\obj\Debug\netcoreapp3.1\GhotokApi.dll
 C:\Ghotok-Github\Api\Ghotok-api\src\GhotokApi\obj\Debug\netcoreapp3.1\GhotokApi.pdb
 C:\Ghotok-Github\Api\Ghotok-api\src\GhotokApi\obj\Debug\netcoreapp3.1\GhotokApi.genruntimeconfig.cache
+C:\Ghotok-Github\Api\Ghotok-api\src\GhotokApi\obj\Debug\netcoreapp3.1\GhotokApi.MvcApplicationPartsAssemblyInfo.cs
