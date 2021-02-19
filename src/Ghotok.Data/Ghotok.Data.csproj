@@ -6,9 +6,26 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Sql\Create\UserDetailInfoView.Designer.cs" />
+    <Compile Remove="Sql\Create\UserDetailsView - Copy.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Sql\Create\UserDetailInfoView.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.9" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.9" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Sql\Create\UserShortInfoView.sql">
+      <SubType>Designer</SubType>
+      <LastGenOutput>UserDetailsView.Designer.cs</LastGenOutput>
+      <Generator>MSDataSetGenerator</Generator>
+    </None>
   </ItemGroup>
 
 </Project>

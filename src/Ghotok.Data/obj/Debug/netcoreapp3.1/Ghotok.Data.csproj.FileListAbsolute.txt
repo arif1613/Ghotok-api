@@ -16,13 +16,13 @@ C:\Arif-DevOps\GhotokApi\src\Ghotok.Data\obj\Debug\netcoreapp3.1\Ghotok.Data.Ass
 C:\Arif-DevOps\GhotokApi\src\Ghotok.Data\obj\Debug\netcoreapp3.1\Ghotok.Data.csproj.CoreCompileInputs.cache
 C:\Arif-DevOps\GhotokApi\src\Ghotok.Data\obj\Debug\netcoreapp3.1\Ghotok.Data.dll
 C:\Arif-DevOps\GhotokApi\src\Ghotok.Data\obj\Debug\netcoreapp3.1\Ghotok.Data.pdb
+C:\Ghotok-Github\Api\Ghotok-api\src\Ghotok.Data\obj\Debug\netcoreapp3.1\Ghotok.Data.AssemblyInfoInputs.cache
+C:\Ghotok-Github\Api\Ghotok-api\src\Ghotok.Data\obj\Debug\netcoreapp3.1\Ghotok.Data.AssemblyInfo.cs
+C:\Ghotok-Github\Api\Ghotok-api\src\Ghotok.Data\obj\Debug\netcoreapp3.1\Ghotok.Data.csproj.CoreCompileInputs.cache
 C:\Ghotok-Github\Api\Ghotok-api\src\Ghotok.Data\bin\Debug\netcoreapp3.1\Ghotok.Data.deps.json
 C:\Ghotok-Github\Api\Ghotok-api\src\Ghotok.Data\bin\Debug\netcoreapp3.1\Ghotok.Data.dll
 C:\Ghotok-Github\Api\Ghotok-api\src\Ghotok.Data\bin\Debug\netcoreapp3.1\Ghotok.Data.pdb
 C:\Ghotok-Github\Api\Ghotok-api\src\Ghotok.Data\obj\Debug\netcoreapp3.1\Ghotok.Data.csprojAssemblyReference.cache
-C:\Ghotok-Github\Api\Ghotok-api\src\Ghotok.Data\obj\Debug\netcoreapp3.1\Ghotok.Data.AssemblyInfoInputs.cache
-C:\Ghotok-Github\Api\Ghotok-api\src\Ghotok.Data\obj\Debug\netcoreapp3.1\Ghotok.Data.AssemblyInfo.cs
-C:\Ghotok-Github\Api\Ghotok-api\src\Ghotok.Data\obj\Debug\netcoreapp3.1\Ghotok.Data.csproj.CoreCompileInputs.cache
 C:\Ghotok-Github\Api\Ghotok-api\src\Ghotok.Data\obj\Debug\netcoreapp3.1\Ghotok.Data.dll
 C:\Ghotok-Github\Api\Ghotok-api\src\Ghotok.Data\obj\Debug\netcoreapp3.1\Ghotok.Data.pdb
 C:\Ghotak\Ghotok-api\src\Ghotok.Data\bin\Debug\netcoreapp3.1\Ghotok.Data.deps.json

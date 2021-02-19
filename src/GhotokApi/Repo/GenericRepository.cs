@@ -124,7 +124,7 @@ namespace GhotokApi.Repo
                     Convert.ToInt32(_configuration["RecentUserCacheMinute"])).GetAwaiter().GetResult();
             }
 
-            return query ?? null;
+            return query.ToList() ?? null;
         }
 
         public async Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> filter, string cacheKey, string includeProperties = null)
