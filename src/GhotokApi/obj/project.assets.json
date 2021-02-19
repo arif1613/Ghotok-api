@@ -5991,23 +5991,25 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\aarif\\.nuget\\packages\\": {},
-    "C:\\Microsoft\\Xamarin\\NuGet\\": {}
+    "C:\\Users\\35309\\.nuget\\packages\\": {},
+    "C:\\Microsoft\\Xamarin\\NuGet\\": {},
+    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Ghotok-Github\\Api\\Ghotok-api\\src\\GhotokApi\\GhotokApi.csproj",
+      "projectUniqueName": "C:\\Ghotak\\Ghotok-api\\src\\GhotokApi\\GhotokApi.csproj",
       "projectName": "GhotokApi",
-      "projectPath": "C:\\Ghotok-Github\\Api\\Ghotok-api\\src\\GhotokApi\\GhotokApi.csproj",
-      "packagesPath": "C:\\Users\\aarif\\.nuget\\packages\\",
-      "outputPath": "C:\\Ghotok-Github\\Api\\Ghotok-api\\src\\GhotokApi\\obj\\",
+      "projectPath": "C:\\Ghotak\\Ghotok-api\\src\\GhotokApi\\GhotokApi.csproj",
+      "packagesPath": "C:\\Users\\35309\\.nuget\\packages\\",
+      "outputPath": "C:\\Ghotak\\Ghotok-api\\src\\GhotokApi\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
-        "C:\\Microsoft\\Xamarin\\NuGet\\"
+        "C:\\Microsoft\\Xamarin\\NuGet\\",
+        "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
       ],
       "configFilePaths": [
-        "C:\\Users\\aarif\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\35309\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
       ],
@@ -6016,14 +6018,16 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "https://api.nuget.org/v3/index.json": {}
+        "http://nuget.pwcinternal.com/nuget": {},
+        "https://api.nuget.org/v3/index.json": {},
+        "https://pwc-se-it.pkgs.visualstudio.com/_packaging/PwcNugetFeed/nuget/v3/index.json": {}
       },
       "frameworks": {
         "netcoreapp3.1": {
           "targetAlias": "netcoreapp3.1",
           "projectReferences": {
-            "C:\\Ghotok-Github\\Api\\Ghotok-api\\src\\Ghotok.Data\\Ghotok.Data.csproj": {
-              "projectPath": "C:\\Ghotok-Github\\Api\\Ghotok-api\\src\\Ghotok.Data\\Ghotok.Data.csproj"
+            "C:\\Ghotak\\Ghotok-api\\src\\Ghotok.Data\\Ghotok.Data.csproj": {
+              "projectPath": "C:\\Ghotak\\Ghotok-api\\src\\Ghotok.Data\\Ghotok.Data.csproj"
             }
           }
         }
@@ -6095,7 +6099,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.100\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.103\\RuntimeIdentifierGraph.json"
       }
     }
   }
