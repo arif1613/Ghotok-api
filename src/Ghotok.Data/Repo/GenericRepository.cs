@@ -39,9 +39,9 @@ namespace Ghotok.Data.Repo
                 cacheKey = CreateCacheKey(typeof(TEntity), startIndex, chunkSize, isLookingForBride.ToString(), null);
             }
 
-            if (_cacheHelper.Exists(cacheKey).GetAwaiter().GetResult())
+            if (_cacheHelper.Exists(cacheKey))
             {
-                return _cacheHelper.Get<IEnumerable<TEntity>>(cacheKey).GetAwaiter().GetResult();
+                return _cacheHelper.Get<IEnumerable<TEntity>>(cacheKey);
             }
 
             IQueryable<TEntity> query = context.GetDbSet<TEntity>();
@@ -85,10 +85,10 @@ namespace Ghotok.Data.Repo
             {
                 if (query.Count() % Convert.ToInt32(_configuration["UserInfoCacheChunkSize"]) == 0)
                 {
-                    _cacheHelper.Add(query.ToList(), cacheKey, Convert.ToInt32(_configuration["AppUserCacheMinute"])).GetAwaiter().GetResult();
-                    if (_cacheHelper.Exists(CreateRestCacheKey(typeof(TEntity), isLookingForBride.ToString())).GetAwaiter().GetResult())
+                    _cacheHelper.Add(query.ToList(), cacheKey, Convert.ToInt32(_configuration["AppUserCacheMinute"]));
+                    if (_cacheHelper.Exists(CreateRestCacheKey(typeof(TEntity), isLookingForBride.ToString())))
                     {
-                        _cacheHelper.Clear(CreateRestCacheKey(typeof(TEntity), isLookingForBride.ToString())).GetAwaiter().GetResult();
+                        _cacheHelper.Clear(CreateRestCacheKey(typeof(TEntity), isLookingForBride.ToString()));
                     }
                 }
             }
@@ -103,9 +103,9 @@ namespace Ghotok.Data.Repo
 
         public IEnumerable<TEntity> GetRecent(Expression<Func<TEntity, bool>> filter,string includeProperties, bool isLookingForBride)
         {
-            if (_cacheHelper.Exists(CreateRestCacheKey(typeof(TEntity), isLookingForBride.ToString())).GetAwaiter().GetResult())
+            if (_cacheHelper.Exists(CreateRestCacheKey(typeof(TEntity), isLookingForBride.ToString())))
             {
-                return _cacheHelper.Get<IEnumerable<TEntity>>(CreateRestCacheKey(typeof(TEntity), isLookingForBride.ToString())).GetAwaiter().GetResult();
+                return _cacheHelper.Get<IEnumerable<TEntity>>(CreateRestCacheKey(typeof(TEntity), isLookingForBride.ToString()));
             }
             IQueryable<TEntity> query = context.GetDbSet<TEntity>();
 
@@ -130,11 +130,11 @@ namespace Ghotok.Data.Repo
             if (query == null) return null;
 
             //add to cache
-            if (!_cacheHelper.Exists(CreateRestCacheKey(typeof(TEntity), isLookingForBride.ToString())).GetAwaiter().GetResult())
+            if (!_cacheHelper.Exists(CreateRestCacheKey(typeof(TEntity), isLookingForBride.ToString())))
             {
                 _cacheHelper.Add<IEnumerable<TEntity>>(query.ToList(),
                     CreateRestCacheKey(typeof(TEntity), isLookingForBride.ToString()),
-                    Convert.ToInt32(_configuration["RecentUserCacheMinute"])).GetAwaiter().GetResult();
+                    Convert.ToInt32(_configuration["RecentUserCacheMinute"]));
             }
 
             return query.ToList() ?? null;

@@ -1,13 +1,13 @@
-﻿using System.Threading.Tasks;
+﻿
 
 namespace Ghotok.Data.Utils.Cache
 {
     public interface ICacheHelper
     {
-        Task Add<T>(T o, string key,int minutes) where T : class;
-        Task Clear(string key);
-        Task<bool> Exists(string key);
-        Task<T> Get<T>(string key) where T : class;
-        Task Update<T>(T NewObject, string key) where T : class;
+        void Add<T>(T o, string key,int minutes) where T : class;
+        void Clear(string key);
+        bool Exists(string key);
+        T Get<T>(string key) where T : class;
+        void Update<T>(T NewObject, string key) where T : class;
     }
 }

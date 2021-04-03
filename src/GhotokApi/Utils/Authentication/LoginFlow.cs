@@ -60,26 +60,16 @@ namespace GhotokApi.Utils.Authentication
 
             //Send Otp here
             var CacheKey = !model.RegisterByMobileNumber ? $"Otp_{ model.Email}" : $"Otp_ {model.MobileNumber}";
-            if (await _cacheHelper.Exists(CacheKey))
+            if (_cacheHelper.Exists(CacheKey))
             {
-                return await _cacheHelper.Get<OtpResponseModel>(CacheKey);
+                return _cacheHelper.Get<OtpResponseModel>(CacheKey);
             }
             var otp = _random.Next(1000, 9999);
-            await _cacheHelper.Add(new OtpResponseModel
+            _cacheHelper.Add(new OtpResponseModel
             {
                 Otp = otp.ToString()
             }, CacheKey, Convert.ToInt32(_configuration["OtpCaheMinute"]));
 
-
-            //Message sender
-            //if (model.RegisterByMobileNumber)
-            //{
-            //    await _otpSender.SendOtpMobileMessage(model,otp.ToString());
-            //}
-            //else
-            //{
-            //    await _otpSender.SendOtpEmailMessage(model,otp.ToString());
-            //}
             return new OtpResponseModel { Otp = otp.ToString() };
         }
 
@@ -108,13 +98,13 @@ namespace GhotokApi.Utils.Authentication
         public async Task<bool> IsOtpValidAsync(RegisterRequestModel model)
         {
             var cachekey = !model.OtpRequestModel.RegisterByMobileNumber ? $"Otp_{ model.OtpRequestModel.Email}" : $"Otp_ {model.OtpRequestModel.MobileNumber}";
-            if (!await _cacheHelper.Exists(cachekey))
+            if (!_cacheHelper.Exists(cachekey))
             {
                 return false;
             }
 
 
-            return Convert.ToInt32(_cacheHelper.Get<OtpResponseModel>(cachekey).GetAwaiter().GetResult().Otp) == Convert.ToInt32(model.Otp.Trim());
+            return Convert.ToInt32(_cacheHelper.Get<OtpResponseModel>(cachekey).Otp) == Convert.ToInt32(model.Otp.Trim());
         }
 
         public async Task RegisterUserAsync(AppUser user)
@@ -151,9 +141,9 @@ namespace GhotokApi.Utils.Authentication
             user.IsVarified = false;
             await _appUserService.UpdateAppUser(user);
             await _appUserService.SaveDatabse();
-            if (_cacheHelper.Exists(cachekey).GetAwaiter().GetResult())
+            if (_cacheHelper.Exists(cachekey))
             {
-                _cacheHelper.Update(user, cachekey).GetAwaiter().GetResult();
+                _cacheHelper.Update(user, cachekey);
             }
         }
 
@@ -198,9 +188,9 @@ namespace GhotokApi.Utils.Authentication
                     await _appUserService.SaveDatabse();
                     tokenResponseModel = GetToken(user, model);
 
-                    if (_cacheHelper.Exists(cachekey).GetAwaiter().GetResult())
+                    if (_cacheHelper.Exists(cachekey))
                     {
-                        _cacheHelper.Update(user, cachekey).GetAwaiter().GetResult();
+                        _cacheHelper.Update(user, cachekey);
                     }
                     return tokenResponseModel;
 
@@ -238,9 +228,9 @@ namespace GhotokApi.Utils.Authentication
             await _appUserService.UpdateAppUser(user);
             await _appUserService.SaveDatabse();
 
-            if (_cacheHelper.Exists(cachekey).GetAwaiter().GetResult())
+            if (_cacheHelper.Exists(cachekey))
             {
-                _cacheHelper.Update(user, cachekey).GetAwaiter().GetResult();
+                _cacheHelper.Update(user, cachekey);
             }
         }
 
