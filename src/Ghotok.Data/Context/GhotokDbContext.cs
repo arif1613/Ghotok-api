@@ -9,45 +9,30 @@ namespace Ghotok.Data.Context
     {
         public DbSet<AppUser> AppUsers { get; set; }
         public DbSet<User> Users { get; set; }
-        public virtual DbSet<UserShortInfo> UserShortInfos { get; set; }
+        //public virtual DbSet<UserShortInfo> UserShortInfos { get; set; }
 
         public GhotokDbContext(DbContextOptions<GhotokDbContext> options) : base(options)
         {
         }
 
-        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        //{
-        //    var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-        //    string dbPath = Path.Combine(FileSystem.CurrentDirectory, "OrdersDb.db3");
-        //    try
-        //    {
-        //        optionsBuilder.UseSqlite($"Filename={dbPath}");
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        Console.WriteLine(e);
-        //        throw e;
-        //    }
-        //}
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<UserShortInfo>(entity =>
-            {
-                entity.HasNoKey();
+            //modelBuilder.Entity<UserShortInfo>(entity =>
+            //{
+            //    entity.HasNoKey();
 
-                entity.ToView("UserShortInfo");
+            //    entity.ToView("UserShortInfo");
 
-                entity.Property(e => e.Id).HasColumnName("Id");
-                entity.Property(e => e.ContactNumber).HasColumnName("ContactNumber");
-                entity.Property(e => e.Dob).HasColumnName("Dob");
-                entity.Property(e => e.IsPictureUploaded).HasColumnName("IsPictureUploaded");
-                entity.Property(e => e.LookingForBride).HasColumnName("LookingForBride");
-                entity.Property(e => e.MaritalStatus).HasColumnName("MaritalStatus");
-                entity.Property(e => e.Name).HasColumnName("Name");
-                entity.Property(e => e.PictureName).HasColumnName("PictureName");
-                entity.Property(e => e.email).HasColumnName("email");
-            });
+            //    entity.Property(e => e.Id).HasColumnName("Id");
+            //    entity.Property(e => e.ContactNumber).HasColumnName("ContactNumber");
+            //    entity.Property(e => e.Dob).HasColumnName("Dob");
+            //    entity.Property(e => e.IsPictureUploaded).HasColumnName("IsPictureUploaded");
+            //    entity.Property(e => e.LookingForBride).HasColumnName("LookingForBride");
+            //    entity.Property(e => e.MaritalStatus).HasColumnName("MaritalStatus");
+            //    entity.Property(e => e.Name).HasColumnName("Name");
+            //    entity.Property(e => e.PictureName).HasColumnName("PictureName");
+            //    entity.Property(e => e.email).HasColumnName("email");
+            //});
         }
         public EntityState GetEntityState<TEntity>(TEntity entity) where TEntity : class
         {
