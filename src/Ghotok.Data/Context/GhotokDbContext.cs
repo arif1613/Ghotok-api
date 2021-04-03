@@ -1,8 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
 using Ghotok.Data.DataModels;
 using Ghotok.Data.DataModels.Views;
+using Microsoft.EntityFrameworkCore;
 
-namespace Ghotok.Data
+namespace Ghotok.Data.Context
 {
     public class GhotokDbContext : DbContext, IGhotokDbContext
     {
@@ -10,10 +11,24 @@ namespace Ghotok.Data
         public DbSet<User> Users { get; set; }
         public virtual DbSet<UserShortInfo> UserShortInfos { get; set; }
 
-
         public GhotokDbContext(DbContextOptions<GhotokDbContext> options) : base(options)
         {
         }
+
+        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        //{
+        //    var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        //    string dbPath = Path.Combine(FileSystem.CurrentDirectory, "OrdersDb.db3");
+        //    try
+        //    {
+        //        optionsBuilder.UseSqlite($"Filename={dbPath}");
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Console.WriteLine(e);
+        //        throw e;
+        //    }
+        //}
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -34,6 +49,38 @@ namespace Ghotok.Data
                 entity.Property(e => e.email).HasColumnName("email");
             });
         }
+        public EntityState GetEntityState<TEntity>(TEntity entity) where TEntity : class
+        {
+            return Entry(entity).State;
 
+        }
+
+        public void UpdateEntry<TEntity>(TEntity entity) where TEntity : class
+        {
+            Entry(entity).State = EntityState.Modified;
+        }
+
+        public void DeleteEntry<TEntity>(TEntity entity) where TEntity : class
+        {
+            Entry(entity).State = EntityState.Deleted;
+
+        }
+
+        public void SaveDatabase()
+        {
+            SaveChanges();
+
+        }
+
+        public void DisposeDatabase()
+        {
+            Dispose();
+        }
+
+        public DbSet<TEntity> GetDbSet<TEntity>() where TEntity : class
+        {
+            return Set<TEntity>();
+
+        }
     }
 }

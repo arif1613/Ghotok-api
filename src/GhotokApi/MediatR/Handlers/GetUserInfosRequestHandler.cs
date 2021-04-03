@@ -1,32 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
-using GhotokApi.Models;
+using Ghotok.Data.Repo;
+using Ghotok.Data.UnitOfWork;
 using GhotokApi.Models.RequestModels;
-using GhotokApi.Repo;
+using GhotokApi.Services;
 using MediatR;
-using Newtonsoft.Json;
 
 namespace GhotokApi.MediatR.Handlers
 {
     public class GetUserInfosRequestHandler : IRequestHandler<GetUserInfosRequest, IEnumerable<User>>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IUserService _userService;
 
-        public GetUserInfosRequestHandler(IUnitOfWork unitOfWork)
+        public GetUserInfosRequestHandler(IUserService userService)
         {
-            _unitOfWork = unitOfWork;
+            _userService = userService;
         }
+
 
         public async Task<IEnumerable<User>> Handle(GetUserInfosRequest request, CancellationToken cancellationToken)
         {
-            return _unitOfWork.UserRepository
-                .Get(r => r.LookingForBride == !request.UserInfosRequestModel.LookingForBride && r.IsPublished,
-                    r => r.OrderBy(q => q.Id).ThenBy(q => q.BasicInfo.Name),
-                    IncludeProperties.UserIncludingAllProperties,
+            return await _userService.GetUsers(r => r.LookingForBride == !request.UserInfosRequestModel.LookingForBride && r.IsPublished,
+                    request.UserInfosRequestModel.IsPublished,
+                    request.UserInfosRequestModel.HasOrderBy,request.UserInfosRequestModel.HasInclude,
                     request.UserInfosRequestModel.LookingForBride,request.UserInfosRequestModel.StartIndex, request.UserInfosRequestModel.ChunkSize);
         }
     }

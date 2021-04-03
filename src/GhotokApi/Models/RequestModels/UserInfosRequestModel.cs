@@ -14,5 +14,13 @@ namespace GhotokApi.Models.RequestModels
         [Range(0, Int32.MaxValue)]
         public int ChunkSize { get; set; }
 
+        [Required]
+        public bool IsPublished { get; set; }
+
+        [Required]
+        public bool HasOrderBy { get; set; }
+        [Required]
+        public bool HasInclude { get; set; }
+
     }
 }

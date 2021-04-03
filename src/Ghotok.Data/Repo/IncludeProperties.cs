@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace GhotokApi.Repo
+﻿namespace Ghotok.Data.Repo
 {
     public static class IncludeProperties
     {
@@ -16,7 +11,5 @@ namespace GhotokApi.Repo
         public static string UserIncludingBasicInfos = $"BasicInfo";
         public static string UserIncludingEducationAndJobInfos = $"EducationInfo,EducationInfo.Educations,EducationInfo.CurrentJob";
         public static string UserIncludingFamilyInfos = $"FamilyInfo,FamilyInfo.FamilyMembers";
-
-
     }
 }

@@ -1,46 +1,67 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Ghotok.Data;
-using Ghotok.Data.DataModels;
-using GhotokApi.Utils.Cache;
-using GhotokApi.Utils.DbOperations;
+using Ghotok.Data.Context;
+using Ghotok.Data.Utils.Cache;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Configuration;
 
-namespace GhotokApi.Repo
+namespace Ghotok.Data.Repo
 {
     public class GenericRepository<TEntity> : IRepository<TEntity> where TEntity : class
     {
-        internal GhotokDbContext context;
-        internal DbSet<TEntity> dbSet;
+        private readonly IGhotokDbContext context;
         private readonly ICacheHelper _cacheHelper;
         private readonly IConfiguration _configuration;
 
 
-        public GenericRepository(GhotokDbContext context, ICacheHelper cacheHelper, IConfiguration configuration)
+        public GenericRepository(IGhotokDbContext context, ICacheHelper cacheHelper, IConfiguration configuration)
         {
             this.context = context;
             _cacheHelper = cacheHelper;
             _configuration = configuration;
-            this.dbSet = context.Set<TEntity>();
         }
 
-        public virtual IEnumerable<TEntity> Get(Expression<Func<TEntity, bool>> filter, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy,
-            string includeProperties, bool? isLookingForBride = false, int startIndex = 0, int chunkSize = 0)
+        public IEnumerable<TEntity> Get(Expression<Func<TEntity, bool>> filter, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
+            Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null, bool? isLookingForBride=false,
+            int startIndex = 0, int chunkSize = 0, bool disableTracking = true)
         {
-
-            var cacheKey = CreateCacheKey(typeof(TEntity), startIndex, chunkSize, isLookingForBride.ToString(), includeProperties);
+            string cacheKey = null;
+            if (include!=null)
+            {
+                cacheKey = CreateCacheKey(typeof(TEntity), startIndex, chunkSize, isLookingForBride.ToString(), IncludeProperties.AppUserIncludingAllProperties);
+            }
+            else
+            {
+                cacheKey = CreateCacheKey(typeof(TEntity), startIndex, chunkSize, isLookingForBride.ToString(), null);
+            }
 
             if (_cacheHelper.Exists(cacheKey).GetAwaiter().GetResult())
             {
                 return _cacheHelper.Get<IEnumerable<TEntity>>(cacheKey).GetAwaiter().GetResult();
             }
 
-            IQueryable<TEntity> query = dbSet;
+            IQueryable<TEntity> query = context.GetDbSet<TEntity>();
+            
 
+            if (disableTracking)
+            {
+                query = query.AsNoTracking();
+            }
+
+            if (include != null)
+            {
+                query = include(query);
+            }
+
+            if (orderBy != null)
+            {
+                query = orderBy(query);
+                if (query == null) return null;
+            }
 
 
             if (filter != null)
@@ -55,23 +76,9 @@ namespace GhotokApi.Repo
                 }
             }
 
-            if (includeProperties != null)
-            {
-                foreach (var includeProperty in includeProperties.Split
-                    (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                {
-                    query = query.Include(includeProperty);
-                }
-            }
-
-
             if (query == null) return null;
 
-            if (orderBy != null)
-            {
-                query = orderBy(query);
-                if (query == null) return null;
-            }
+            
 
             //add to cache
             if (isLookingForBride != null)
@@ -87,7 +94,12 @@ namespace GhotokApi.Repo
             }
 
             return query.ToList() ?? null;
+
+
+
+
         }
+
 
         public IEnumerable<TEntity> GetRecent(Expression<Func<TEntity, bool>> filter,string includeProperties, bool isLookingForBride)
         {
@@ -95,9 +107,10 @@ namespace GhotokApi.Repo
             {
                 return _cacheHelper.Get<IEnumerable<TEntity>>(CreateRestCacheKey(typeof(TEntity), isLookingForBride.ToString())).GetAwaiter().GetResult();
             }
-            IQueryable<TEntity> query = dbSet;
+            IQueryable<TEntity> query = context.GetDbSet<TEntity>();
+
             query = query.Where(filter);
-            var totalRecords = query.CountAsync().GetAwaiter().GetResult();
+            var totalRecords = query.Count();
             var recentRecordsWithoutCahing = totalRecords % Convert.ToInt32(_configuration["UserInfoCacheChunkSize"]);
             var skip = (totalRecords - recentRecordsWithoutCahing);
             var take = (totalRecords - skip);
@@ -127,40 +140,60 @@ namespace GhotokApi.Repo
             return query.ToList() ?? null;
         }
 
-        public async Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> filter, string cacheKey, string includeProperties = null)
+        public IQueryable<TEntity> GetWithRawSql(FormattableString query, params object[] parameters)
         {
-            if (cacheKey != null)
-            {
-                if (await _cacheHelper.Exists(cacheKey))
-                {
-                    return await _cacheHelper.Get<TEntity>(cacheKey);
-                }
-            }
-
-            IQueryable<TEntity> query = dbSet;
-            query =  query.Where(filter);
-
-
-            if (includeProperties != null)
-            {
-                foreach (var includeProperty in includeProperties.Split
-                    (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                {
-                    query = query.Include(includeProperty);
-                }
-            }
-
-            if (query == null) return null;
-            var data = query.FirstOrDefault();
-
-            if (data != null)
-            {
-                await _cacheHelper.Add(data, cacheKey, Convert.ToInt32(_configuration["AppUserCacheMinute"]));
-            }
-            return data ?? null;
+            throw new NotImplementedException();
         }
 
-        private string CreateCacheKey(Type type, in int startIndex, in int chunkSize, in string isLookingForBride, in string includeProperties)
+        public virtual void Insert(TEntity entity)
+        {
+            try
+            {
+                if (context.GetEntityState(entity) != EntityState.Detached)
+                {
+                    context.GetDbSet<TEntity>().Attach(entity);
+                }
+                context.GetDbSet<TEntity>().Add(entity);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                throw e;
+            }
+        }
+
+        public void Insert(List<TEntity> entities)
+        {
+            try
+            {
+                if (context.GetEntityState(entities) == EntityState.Detached)
+                {
+                    context.GetDbSet<TEntity>().AttachRange(entities);
+                }
+                context.GetDbSet<TEntity>().AddRange(entities);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                throw e;
+            }
+        }
+
+        public void Update(TEntity entity)
+        {
+            context.GetDbSet<TEntity>().Attach(entity);
+            context.UpdateEntry(entity);
+        }
+
+        public virtual void Delete(TEntity entity)
+        {
+            context.DeleteEntry(entity);
+        }
+
+        
+        #region Private methods
+
+        private string CreateCacheKey(Type type, in int startIndex, in int chunkSize, in string isLookingForBride, string includeProperties)
         {
             var cacheKey = $"{type.Name}_{startIndex}_{chunkSize}_{isLookingForBride}";
             if (!string.IsNullOrEmpty(includeProperties))
@@ -174,49 +207,11 @@ namespace GhotokApi.Repo
 
             return cacheKey;
         }
-
-
         private string CreateRestCacheKey(Type type, in string isLookingForBride)
         {
             return $"{type.Name}_Other1_{isLookingForBride}";
         }
 
-        public virtual TEntity GetByID(object id)
-        {
-            return dbSet.Find(id);
-        }
-
-        public IQueryable<TEntity> GetWithRawSql(FormattableString query, params object[] parameters)
-        {
-            throw new NotImplementedException();
-        }
-
-
-
-        public virtual void Insert(TEntity entity)
-        {
-            dbSet.Add(entity);
-        }
-
-        public virtual void Delete(object id)
-        {
-            TEntity entityToDelete = dbSet.Find(id);
-            Delete(entityToDelete);
-        }
-
-        public virtual void Delete(TEntity entityToDelete)
-        {
-            if (context.Entry(entityToDelete).State == EntityState.Detached)
-            {
-                dbSet.Attach(entityToDelete);
-            }
-            dbSet.Remove(entityToDelete);
-        }
-
-        public virtual void Update(TEntity entityToUpdate)
-        {
-            dbSet.Attach(entityToUpdate);
-            context.Entry(entityToUpdate).State = EntityState.Modified;
-        }
+        #endregion
     }
 }

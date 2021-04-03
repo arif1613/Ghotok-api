@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
 using GhotokApi.MediatR.Handlers;
@@ -10,9 +8,7 @@ using GhotokApi.Models.SharedModels;
 using GhotokApi.Utils.Authentication;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Newtonsoft.Json;
 
 namespace GhotokApi.Controllers

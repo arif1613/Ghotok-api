@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 
-namespace GhotokApi.Utils.Cache
+namespace Ghotok.Data.Utils.Cache
 {
     public class CacheHelper : ICacheHelper
     {

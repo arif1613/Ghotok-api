@@ -1,14 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
 using GhotokApi.MediatR.Handlers;
 using GhotokApi.Models;
 using GhotokApi.Models.RequestModels;
-using GhotokApi.Repo;
+using GhotokApi.Models.ResponseModels;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -156,7 +154,12 @@ namespace GhotokApi.Controllers
             {
                 UserInfosRequestModel = model
             });
-            return Ok(JsonConvert.SerializeObject(users));
+            var usersResponse = users.ToList();
+            return Ok(JsonConvert.SerializeObject(new UserInfosResponseModel
+            {
+                Count = usersResponse.Count(),
+                Users = usersResponse.ToList()
+            }));
         }
 
         [Route("getrecentuserinfos")]
@@ -173,7 +176,13 @@ namespace GhotokApi.Controllers
                 UserInfosRequestModel = model
             });
 
-            return Ok(JsonConvert.SerializeObject(users));
+
+            var usersResponse = users.ToList();
+            return Ok(JsonConvert.SerializeObject(new RecentUserInfosResponseModel
+            {
+                Count = usersResponse.Count(),
+                RecentUsers = usersResponse.ToList()
+            }));
         }
     }
 }

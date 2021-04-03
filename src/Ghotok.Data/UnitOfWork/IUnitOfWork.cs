@@ -1,6 +1,7 @@
 ﻿using Ghotok.Data.DataModels;
+using Ghotok.Data.Repo;
 
-namespace GhotokApi.Repo
+namespace Ghotok.Data.UnitOfWork
 {
     public interface IUnitOfWork
     {

@@ -220,11 +220,11 @@ C:\Ghotok-Github\Api\Ghotok-api\src\GhotokApi\obj\Debug\netcoreapp3.1\GhotokApi.
 C:\Ghotok-Github\Api\Ghotok-api\src\GhotokApi\obj\Debug\netcoreapp3.1\GhotokApi.dll
 C:\Ghotok-Github\Api\Ghotok-api\src\GhotokApi\obj\Debug\netcoreapp3.1\GhotokApi.pdb
 C:\Ghotok-Github\Api\Ghotok-api\src\GhotokApi\obj\Debug\netcoreapp3.1\GhotokApi.genruntimeconfig.cache
+C:\Ghotak\Ghotok-api\src\GhotokApi\bin\Debug\netcoreapp3.1\web.config
 C:\Ghotak\Ghotok-api\src\GhotokApi\bin\Debug\netcoreapp3.1\appsettings.Development.json
 C:\Ghotak\Ghotok-api\src\GhotokApi\bin\Debug\netcoreapp3.1\appsettings.json
 C:\Ghotak\Ghotok-api\src\GhotokApi\bin\Debug\netcoreapp3.1\appsettings.Production.json
 C:\Ghotak\Ghotok-api\src\GhotokApi\bin\Debug\netcoreapp3.1\appsettings.Test.json
-C:\Ghotak\Ghotok-api\src\GhotokApi\bin\Debug\netcoreapp3.1\web.config
 C:\Ghotak\Ghotok-api\src\GhotokApi\bin\Debug\netcoreapp3.1\GhotokApi.exe
 C:\Ghotak\Ghotok-api\src\GhotokApi\bin\Debug\netcoreapp3.1\GhotokApi.deps.json
 C:\Ghotak\Ghotok-api\src\GhotokApi\bin\Debug\netcoreapp3.1\GhotokApi.runtimeconfig.json

@@ -1,19 +1,20 @@
 ﻿using System;
-using Ghotok.Data;
+using Ghotok.Data.Context;
 using Ghotok.Data.DataModels;
-using GhotokApi.Utils.Cache;
+using Ghotok.Data.Repo;
+using Ghotok.Data.Utils.Cache;
 using Microsoft.Extensions.Configuration;
 
-namespace GhotokApi.Repo
+namespace Ghotok.Data.UnitOfWork
 {
     public class UnitOfWork : IUnitOfWork, IDisposable
     {
-        private GhotokDbContext _dbContext;
+        private IGhotokDbContext _dbContext;
         private GenericRepository<AppUser> _appusers;
         private GenericRepository<User> _users;
         private readonly ICacheHelper _cacheHelper;
         private readonly IConfiguration _configuration;
-        public UnitOfWork(GhotokDbContext dbContext, ICacheHelper cacheHelper, IConfiguration configuration)
+        public UnitOfWork(IGhotokDbContext dbContext, ICacheHelper cacheHelper, IConfiguration configuration)
         {
             _dbContext = dbContext;
             _cacheHelper = cacheHelper;
@@ -28,7 +29,7 @@ namespace GhotokApi.Repo
             {
                 if (disposing)
                 {
-                    _dbContext.Dispose();
+                    _dbContext.DisposeDatabase();
                 }
             }
             this.disposed = true;
@@ -55,7 +56,7 @@ namespace GhotokApi.Repo
         }
         public void Commit()
         {
-            _dbContext.SaveChanges();
+            _dbContext.SaveDatabase();
         }
     }
 }

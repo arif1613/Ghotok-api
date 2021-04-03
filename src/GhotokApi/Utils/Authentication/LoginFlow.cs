@@ -1,15 +1,15 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
+using Ghotok.Data.Repo;
+using Ghotok.Data.UnitOfWork;
+using Ghotok.Data.Utils.Cache;
 using GhotokApi.JwtTokenGenerator;
 using GhotokApi.MediatR.Handlers;
 using GhotokApi.Models.RequestModels;
 using GhotokApi.Models.ResponseModels;
 using GhotokApi.Models.SharedModels;
-using GhotokApi.Repo;
-using GhotokApi.Utils.Cache;
-using GhotokApi.Utils.DbOperations;
+using GhotokApi.Services;
 using GhotokApi.Utils.Otp;
 using MediatR;
 using Microsoft.Extensions.Configuration;
@@ -19,10 +19,11 @@ namespace GhotokApi.Utils.Authentication
     public class LoginFlow : ILoginFlow
     {
         private readonly ICacheHelper _cacheHelper;
-        private readonly IUnitOfWork _unitOfWork;
         private readonly IOtpSender _otpSender;
         private readonly IConfiguration _configuration;
         private readonly IMediator _mediator;
+        private readonly IAppUserService _appUserService;
+
 
 
 
@@ -30,10 +31,9 @@ namespace GhotokApi.Utils.Authentication
 
         private readonly Random _random = new Random();
 
-        public LoginFlow(ICacheHelper cacheHelper, IUnitOfWork unitOfWork, IOtpSender otpSender, IConfiguration configuration, IMediator mediator)
+        public LoginFlow(ICacheHelper cacheHelper, IOtpSender otpSender, IConfiguration configuration, IMediator mediator)
         {
             _cacheHelper = cacheHelper;
-            _unitOfWork = unitOfWork;
             _otpSender = otpSender;
             _configuration = configuration;
             _mediator = mediator;
@@ -47,9 +47,9 @@ namespace GhotokApi.Utils.Authentication
             {
                 if (model.RegisterByMobileNumber)
                 {
-                    return _unitOfWork.AppUseRepository.GetAsync(r => r.MobileNumber == model.MobileNumber, model.MobileNumber, null).GetAwaiter().GetResult() != null;
+                    return _appUserService.GetAppUser(r => r.MobileNumber == model.MobileNumber) != null;
                 }
-                return _unitOfWork.AppUseRepository.GetAsync(r => r.Email == model.Email, model.Email, null).GetAwaiter().GetResult() != null;
+                return _appUserService.GetAppUser(r => r.Email == model.Email) != null;
             });
         }
 
@@ -87,22 +87,20 @@ namespace GhotokApi.Utils.Authentication
 
         public async Task<bool> IsUserLoggedInAsync(OtpRequestModel model)
         {
-            return await Task.Run(() =>
-            {
-                AppUser user;
-                if (model.RegisterByMobileNumber)
-                {
-                    user = _unitOfWork.AppUseRepository
-                        .GetAsync(r => r.MobileNumber == model.MobileNumber && r.RegisterByMobileNumber == model.RegisterByMobileNumber && r.Password == model.Password && r.LoggedInDevices <= 3,
-                            model.MobileNumber).GetAwaiter().GetResult();
-                    return user != null;
-                }
 
-                user = _unitOfWork.AppUseRepository
-                    .GetAsync(r => r.Email == model.Email && r.RegisterByMobileNumber == model.RegisterByMobileNumber && r.Password == model.Password && r.LoggedInDevices <= 3,
-                        model.Email).GetAwaiter().GetResult();
+            AppUser user;
+            if (model.RegisterByMobileNumber)
+            {
+                user = await _appUserService.GetAppUser(r => r.MobileNumber == model.MobileNumber &&
+                                                             r.RegisterByMobileNumber == model.RegisterByMobileNumber &&
+                                                                 r.Password == model.Password && r.LoggedInDevices <= 3);
                 return user != null;
-            });
+            }
+
+            user = await _appUserService.GetAppUser(r => r.Email == model.Email &&
+                                                         r.RegisterByMobileNumber == model.RegisterByMobileNumber && r.Password == model.Password &&
+                                                         r.LoggedInDevices <= 3);
+            return user != null;
 
         }
 
@@ -130,7 +128,7 @@ namespace GhotokApi.Utils.Authentication
 
                 if (response == "Done")
                 {
-                    _unitOfWork.Commit();
+                    await _appUserService.SaveDatabse();
 
                 }
             }
@@ -143,144 +141,129 @@ namespace GhotokApi.Utils.Authentication
 
         public async Task UnregisterUserAsync(OtpRequestModel model)
         {
-            await Task.Run(() =>
-            {
-                var user = model.RegisterByMobileNumber
-                    ? _unitOfWork.AppUseRepository.GetAsync(r => r.MobileNumber == model.MobileNumber, model.MobileNumber).GetAwaiter().GetResult()
-                    : _unitOfWork.AppUseRepository.GetAsync(r => r.Email == model.Email, model.Email).GetAwaiter().GetResult();
-                if (user == null) return;
+            var user = model.RegisterByMobileNumber
+                ? await _appUserService.GetAppUser(r => r.MobileNumber == model.MobileNumber)
+                : await _appUserService.GetAppUser(r => r.Email == model.Email);
+            if (user == null) return;
 
-                var cachekey = model.RegisterByMobileNumber ? model.MobileNumber : model.Email;
-                user.LoggedInDevices = 0;
-                user.IsVarified = false;
-                _unitOfWork.AppUseRepository.Update(user);
-                _unitOfWork.Commit();
-                if (_cacheHelper.Exists(cachekey).GetAwaiter().GetResult())
-                {
-                    _cacheHelper.Update(user, cachekey).GetAwaiter().GetResult();
-                }
-            });
+            var cachekey = model.RegisterByMobileNumber ? model.MobileNumber : model.Email;
+            user.LoggedInDevices = 0;
+            user.IsVarified = false;
+            await _appUserService.UpdateAppUser(user);
+            await _appUserService.SaveDatabse();
+            if (_cacheHelper.Exists(cachekey).GetAwaiter().GetResult())
+            {
+                _cacheHelper.Update(user, cachekey).GetAwaiter().GetResult();
+            }
         }
 
         public async Task<TokenResponseModel> LogInUserAsync(OtpRequestModel model)
         {
             AppUser user;
             TokenResponseModel tokenResponseModel;
-            return await Task.Run(() =>
-            {
 
-                user = model.RegisterByMobileNumber
-                    ? _unitOfWork.AppUseRepository
-                        .GetAsync(
-                            r => r.MobileNumber == model.MobileNumber &&
-                                 r.RegisterByMobileNumber == model.RegisterByMobileNumber &&
-                                 r.Password == model.Password, model.MobileNumber).GetAwaiter().GetResult()
-                    : _unitOfWork.AppUseRepository
-                        .GetAsync(
-                            r => r.Email == model.Email && r.RegisterByMobileNumber == model.RegisterByMobileNumber &&
-                                 r.Password == model.Password, model.Email).GetAwaiter().GetResult();
-                if (user == null) return null;
-                var cachekey = model.RegisterByMobileNumber ? model.MobileNumber : model.Email;
+            user = model.RegisterByMobileNumber
+                ? await _appUserService.GetAppUser(
+                        r => r.MobileNumber == model.MobileNumber &&
+                             r.RegisterByMobileNumber == model.RegisterByMobileNumber &&
+                             r.Password == model.Password)
+                : await _appUserService.GetAppUser(
+                    r => r.Email == model.Email && r.RegisterByMobileNumber == model.RegisterByMobileNumber &&
+                                                        r.Password == model.Password);
+            if (user == null) return null;
+            var cachekey = model.RegisterByMobileNumber ? model.MobileNumber : model.Email;
+
+            try
+            {
+                //Check token
+                if (user.UserRole == AppRole.PremiumUser.ToString())
+                {
+                    if (user.ValidTill < DateTime.UtcNow)
+                    {
+                        user.UserRole = AppRole.User.ToString();
+                        user.ValidTill = DateTime.UtcNow + TimeSpan.FromDays(3650);
+                    }
+                }
 
                 try
                 {
-                    //Check token
-                    if (user.UserRole == AppRole.PremiumUser.ToString())
-                    {
-                        if (user.ValidTill < DateTime.UtcNow)
-                        {
-                            user.UserRole = AppRole.User.ToString();
-                            user.ValidTill = DateTime.UtcNow + TimeSpan.FromDays(3650);
-                        }
-                    }
-
-                    try
-                    {
-                        if (user.LoggedInDevices >= 3)
-                        {
-                            return null;
-                        }
-
-                        user.LoggedInDevices = user.LoggedInDevices + 1;
-                        user.IsLoggedin = true;
-                        _unitOfWork.AppUseRepository.Update(user);
-                        _unitOfWork.Commit();
-                        tokenResponseModel = GetToken(user, model);
-
-                        if (_cacheHelper.Exists(cachekey).GetAwaiter().GetResult())
-                        {
-                            _cacheHelper.Update(user, cachekey).GetAwaiter().GetResult();
-                        }
-                        return tokenResponseModel;
-
-                    }
-                    catch (Exception e)
+                    if (user.LoggedInDevices >= 3)
                     {
                         return null;
                     }
 
+                    user.LoggedInDevices = user.LoggedInDevices + 1;
+                    user.IsLoggedin = true;
+                    await _appUserService.UpdateAppUser(user);
+                    await _appUserService.SaveDatabse();
+                    tokenResponseModel = GetToken(user, model);
+
+                    if (_cacheHelper.Exists(cachekey).GetAwaiter().GetResult())
+                    {
+                        _cacheHelper.Update(user, cachekey).GetAwaiter().GetResult();
+                    }
+                    return tokenResponseModel;
+
                 }
                 catch (Exception e)
                 {
-                    throw e;
+                    return null;
                 }
-            });
+
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
 
         public async Task LogOutUserAsync(OtpRequestModel model)
         {
-            await Task.Run(() =>
+
+            var user = model.RegisterByMobileNumber
+                ? await _appUserService.GetAppUser(
+                    r => r.MobileNumber == model.MobileNumber &&
+                         r.RegisterByMobileNumber == model.RegisterByMobileNumber &&
+                         r.Password == model.Password)
+                : await _appUserService.GetAppUser(
+                    r => r.Email == model.Email && r.RegisterByMobileNumber == model.RegisterByMobileNumber &&
+                         r.Password == model.Password);
+
+            if (user == null) return;
+
+            var cachekey = model.RegisterByMobileNumber ? model.MobileNumber : model.Email;
+
+            user.LoggedInDevices = user.LoggedInDevices <= 0 ? 0 : user.LoggedInDevices - 1;
+            user.IsLoggedin = user.LoggedInDevices != 0;
+            await _appUserService.UpdateAppUser(user);
+            await _appUserService.SaveDatabse();
+
+            if (_cacheHelper.Exists(cachekey).GetAwaiter().GetResult())
             {
-                var user = model.RegisterByMobileNumber
-                    ? _unitOfWork.AppUseRepository
-                        .GetAsync(
-                            r => r.MobileNumber == model.MobileNumber &&
-                                 r.RegisterByMobileNumber == model.RegisterByMobileNumber &&
-                                 r.Password == model.Password, model.MobileNumber).GetAwaiter().GetResult()
-                    : _unitOfWork.AppUseRepository
-                        .GetAsync(
-                            r => r.Email == model.Email && r.RegisterByMobileNumber == model.RegisterByMobileNumber &&
-                                 r.Password == model.Password, model.Email).GetAwaiter().GetResult();
-
-                if (user == null) return;
-
-                var cachekey = model.RegisterByMobileNumber ? model.MobileNumber : model.Email;
-
-                user.LoggedInDevices = user.LoggedInDevices <= 0 ? 0 : user.LoggedInDevices - 1;
-                user.IsLoggedin= user.LoggedInDevices == 0 ? false :true;
-                _unitOfWork.AppUseRepository.Update(user);
-                _unitOfWork.Commit();
-
-                if (_cacheHelper.Exists(cachekey).GetAwaiter().GetResult())
-                {
-                    _cacheHelper.Update(user, cachekey).GetAwaiter().GetResult();
-                }
-            });
+                _cacheHelper.Update(user, cachekey).GetAwaiter().GetResult();
+            }
         }
 
         public async Task<AppUser> GetUserAsync(OtpRequestModel model)
         {
-            AppUser user;
-            return await Task.Run(() =>
+            try
             {
-                try
-                {
-                    user = model.RegisterByMobileNumber
-                        ? _unitOfWork.AppUseRepository
-                            .GetAsync(r => r.MobileNumber == model.MobileNumber && r.RegisterByMobileNumber == model.RegisterByMobileNumber && r.IsVarified, model.MobileNumber)
-                            .GetAwaiter().GetResult()
-                        : _unitOfWork.AppUseRepository
-                            .GetAsync(r => r.Email == model.Email && r.RegisterByMobileNumber == model.RegisterByMobileNumber && r.IsVarified, model.Email).GetAwaiter()
-                            .GetResult();
+                var user = model.RegisterByMobileNumber
+                    ? await _appUserService.GetAppUser(
+                        r => r.MobileNumber == model.MobileNumber &&
+                             r.RegisterByMobileNumber == model.RegisterByMobileNumber &&
+                             r.Password == model.Password)
+                    : await _appUserService.GetAppUser(
+                        r => r.Email == model.Email && r.RegisterByMobileNumber == model.RegisterByMobileNumber &&
+                             r.Password == model.Password);
 
-                    return user ?? null;
-                }
-                catch (Exception e)
-                {
-                    throw e;
-                }
+                return user ?? null;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
 
-            });
         }
 
         public TokenResponseModel GetToken(AppUser user, OtpRequestModel model)

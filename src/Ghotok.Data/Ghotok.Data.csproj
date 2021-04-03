@@ -6,6 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="GhotokDbContext.cs" />
+    <Compile Remove="IGhotokDbContext.cs" />
     <Compile Remove="Sql\Create\UserDetailInfoView.Designer.cs" />
     <Compile Remove="Sql\Create\UserDetailsView - Copy.Designer.cs" />
   </ItemGroup>

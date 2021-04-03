@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace GhotokApi.Utils.Cache
+namespace Ghotok.Data.Utils.Cache
 {
     public interface ICacheHelper
     {

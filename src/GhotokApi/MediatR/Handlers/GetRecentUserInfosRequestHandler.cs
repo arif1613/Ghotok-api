@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
-using GhotokApi.Models;
+using Ghotok.Data.Repo;
+using Ghotok.Data.UnitOfWork;
 using GhotokApi.Models.RequestModels;
-using GhotokApi.Repo;
 using MediatR;
-using Newtonsoft.Json;
 
 namespace GhotokApi.MediatR.Handlers
 {

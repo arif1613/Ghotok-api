@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
-using GhotokApi.Repo;
+using Ghotok.Data.Repo;
+using Ghotok.Data.UnitOfWork;
 using MediatR;
 
 namespace GhotokApi.MediatR.Handlers
@@ -26,7 +24,6 @@ namespace GhotokApi.MediatR.Handlers
                 try
                 {
                     _unitOfWork.UserRepository.Delete(request.UserTobeDeleted);
-                    _unitOfWork.Commit();
                     return "Done";
                 }
                 catch (Exception e)

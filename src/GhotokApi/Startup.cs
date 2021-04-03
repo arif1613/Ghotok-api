@@ -1,18 +1,17 @@
 using System;
 using System.Collections.Generic;
-using System.Net.NetworkInformation;
-using System.Reflection;
 using System.Threading.Tasks;
-using Ghotok.Data;
+using Ghotok.Data.Context;
+using Ghotok.Data.Repo;
+using Ghotok.Data.UnitOfWork;
+using Ghotok.Data.Utils.Cache;
 using GhotokApi.JwtTokenGenerator;
 using GhotokApi.MediatR.Handlers;
 using GhotokApi.Models.SharedModels;
-using GhotokApi.Repo;
+using GhotokApi.Services;
 using GhotokApi.Utils.Authentication;
-using GhotokApi.Utils.Cache;
 using GhotokApi.Utils.Otp;
 using MediatR;
-using MediatR.Pipeline;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -50,12 +49,25 @@ namespace GhotokApi
                 options.AutomaticAuthentication = false;
             });
             AddDbContext(services);
-            //register services
+
+
             services.AddMemoryCache();
             services.AddScoped<ICacheHelper, CacheHelper>();
-            //services.AddScoped<IGhotokDbContext,GhotokDbContext>();
+
+            //Register Repos
             services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
+
+
+            //Register UnitOfWork
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+
+            //register services
+            services.AddScoped<IAppUserService, AppUserService>();
+            services.AddScoped<IUserService,UserService>();
+
+
+            //Register Utils
             services.AddScoped<ILoginFlow, LoginFlow>();
             services.AddScoped<IOtpSender, OtpSender>();
 
@@ -97,17 +109,19 @@ namespace GhotokApi
 
         private void AddDbContext(IServiceCollection services)
         {
-            //services.AddScoped<IGhotokDbContext>(() =>
-            //{
-            //    return new GhotokDbContext(new DbContextOptionsBuilder<GhotokDbContext>()
-            //        .UseSqlServer(Configuration["GhotokDbConnectionString"],
-            //            x => x.EnableRetryOnFailure(5)).Options, IsAdAuth);
-            //}, Lifestyle.Transient);
-            services.AddDbContext<GhotokDbContext>(options =>
-                options.UseSqlServer(Configuration["GhotokDbConnectionString"], sqlServerOptionsAction: sqlOptions =>
-                {
-                    sqlOptions.EnableRetryOnFailure(5);
-                }));
+            services.AddScoped<IGhotokDbContext>((options) =>
+            {
+                return new GhotokDbContext(new DbContextOptionsBuilder<GhotokDbContext>()
+                    .UseSqlServer(Configuration["GhotokDbConnectionString"],
+                        x => x.EnableRetryOnFailure(5)).Options);
+            });
+
+
+            //services.AddDbContext<GhotokDbContext>(options =>
+            //    options.UseSqlServer(Configuration["GhotokDbConnectionString"], sqlServerOptionsAction: sqlOptions =>
+            //    {
+            //        sqlOptions.EnableRetryOnFailure(5);
+            //    }));
         }
 
         private void AddSwagger(IServiceCollection services)

@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using GhotokApi.Repo;
-using Microsoft.AspNetCore.Http;
+﻿using Ghotok.Data.Repo;
+using Ghotok.Data.UnitOfWork;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GhotokApi.Controllers

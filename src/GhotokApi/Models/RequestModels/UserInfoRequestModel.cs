@@ -7,6 +7,7 @@ namespace GhotokApi.Models.RequestModels
     {
         [Required]
         public Guid UserId { get; set; }
+        public bool HasInclude { get; set; }
 
     }
 }
