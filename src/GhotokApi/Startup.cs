@@ -7,6 +7,7 @@ using Ghotok.Data.UnitOfWork;
 using Ghotok.Data.Utils.Cache;
 using GhotokApi.JwtTokenGenerator;
 using GhotokApi.MediatR.Handlers;
+using GhotokApi.MediatR.NotificationHandlers;
 using GhotokApi.Models.SharedModels;
 using GhotokApi.Services;
 using GhotokApi.Utils.Authentication;
@@ -97,8 +98,8 @@ namespace GhotokApi
             services.AddMediatR(typeof(RegisterUserRequest));
             services.AddMediatR(typeof(LoginUserRequest));
 
-            //save
-            services.AddMediatR(typeof(ComitDatabaseRequest));
+            //Notification
+            services.AddMediatR(typeof(ComitDatabaseNotification));
 
 
 

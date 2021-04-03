@@ -41,5 +41,9 @@
     <ProjectReference Include="..\Ghotok.Data\Ghotok.Data.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\NotificationModels\" />
+  </ItemGroup>
+
 
 </Project>

@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
 using Ghotok.Data.Repo;
 using Ghotok.Data.UnitOfWork;
+using GhotokApi.MediatR.NotificationHandlers;
 using GhotokApi.Models.SharedModels;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GhotokApi.Controllers
@@ -15,10 +18,13 @@ namespace GhotokApi.Controllers
     public class AdminController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMediator _mediator;
 
-        public AdminController(IUnitOfWork unitOfWork)
+
+        public AdminController(IUnitOfWork unitOfWork, IMediator mediator)
         {
             _unitOfWork = unitOfWork;
+            _mediator = mediator;
         }
 
         [HttpGet]
@@ -165,7 +171,7 @@ namespace GhotokApi.Controllers
 
             try
             {
-                _unitOfWork.Commit();
+                await _mediator.Publish(new ComitDatabaseNotification());
 
             }
             catch (Exception e)
@@ -306,7 +312,8 @@ namespace GhotokApi.Controllers
 
             try
             {
-                _unitOfWork.Commit();
+                await _mediator.Publish(new ComitDatabaseNotification(),default(CancellationToken));
+
 
             }
             catch (Exception e)

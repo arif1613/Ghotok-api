@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
 using GhotokApi.MediatR.Handlers;
+using GhotokApi.MediatR.NotificationHandlers;
 using GhotokApi.Models;
 using GhotokApi.Models.RequestModels;
 using GhotokApi.Models.ResponseModels;
@@ -51,7 +53,7 @@ namespace GhotokApi.Controllers
 
         [Route("adduserinfo")]
         [HttpPost]
-        public async Task<IActionResult> AddUserinfo([FromBody] User model)
+        public async Task<IActionResult> AddUserinfo([FromBody] User model, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
@@ -66,7 +68,7 @@ namespace GhotokApi.Controllers
 
                 if (response == "Done")
                 {
-                    await _mediator.Send(new ComitDatabaseRequest());
+                    await _mediator.Publish(new ComitDatabaseNotification(), cancellationToken);
                 }
 
 
@@ -81,7 +83,7 @@ namespace GhotokApi.Controllers
 
         [Route("updateuserinfo")]
         [HttpPost]
-        public async Task<IActionResult> UpdateUserinfo([FromBody] User model)
+        public async Task<IActionResult> UpdateUserinfo([FromBody] User model, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
@@ -96,10 +98,11 @@ namespace GhotokApi.Controllers
 
                 if (response == "Done")
                 {
-                    await _mediator.Send(new ComitDatabaseRequest());
+                    await _mediator.Publish(new ComitDatabaseNotification(), cancellationToken);
+
                 }
 
-               
+
 
                 return BadRequest(ErrorCodes.CouldNotUpdateData.ToString());
             }
@@ -111,7 +114,7 @@ namespace GhotokApi.Controllers
 
         [Route("deleteuserinfo")]
         [HttpPost]
-        public async Task<IActionResult> DeleteUserinfo([FromBody] User model)
+        public async Task<IActionResult> DeleteUserinfo([FromBody] User model, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
@@ -126,10 +129,10 @@ namespace GhotokApi.Controllers
 
                 if (response == "Done")
                 {
-                    await _mediator.Send(new ComitDatabaseRequest());
+                    await _mediator.Publish(new ComitDatabaseNotification(), cancellationToken);
                 }
 
-              
+
 
                 return BadRequest(ErrorCodes.CouldNotUpdateData.ToString());
             }

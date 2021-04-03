@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
 using Ghotok.Data.Repo;
 using Ghotok.Data.UnitOfWork;
+using GhotokApi.MediatR.NotificationHandlers;
 using MediatR;
 
 namespace GhotokApi.MediatR.Handlers
@@ -11,10 +12,13 @@ namespace GhotokApi.MediatR.Handlers
     public class AddUserInfoRequestHandler : IRequestHandler<AddUserInfoRequest, string>
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMediator _mediator;
 
-        public AddUserInfoRequestHandler(IUnitOfWork unitOfWork)
+
+        public AddUserInfoRequestHandler(IUnitOfWork unitOfWork, IMediator mediator)
         {
             _unitOfWork = unitOfWork;
+            _mediator = mediator;
         }
 
         public async Task<string> Handle(AddUserInfoRequest request, CancellationToken cancellationToken)
@@ -24,7 +28,7 @@ namespace GhotokApi.MediatR.Handlers
                 try
                 {
                     _unitOfWork.UserRepository.Insert(request.UserToAdd);
-                    _unitOfWork.Commit();
+                    await _mediator.Publish(new ComitDatabaseNotification(), cancellationToken);
                     return "Done";
                 }
                 catch (Exception e)

@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
 using GhotokApi.MediatR.Handlers;
+using GhotokApi.MediatR.NotificationHandlers;
 using GhotokApi.Models;
 using GhotokApi.Models.RequestModels;
 using GhotokApi.Models.SharedModels;
@@ -57,7 +59,7 @@ namespace GhotokApi.Controllers
         [Route("register")]
         [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> RegisterUser([FromBody] RegisterRequestModel inputModel)
+        public async Task<IActionResult> RegisterUser([FromBody] RegisterRequestModel inputModel,CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
@@ -118,7 +120,7 @@ namespace GhotokApi.Controllers
                     });
                     if (res == "Done")
                     {
-                        await _mediator.Send(new ComitDatabaseRequest());
+                        await _mediator.Publish(new ComitDatabaseNotification(), cancellationToken);
                     }
                     else
                     {
