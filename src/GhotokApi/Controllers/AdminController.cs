@@ -5,10 +5,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
 using Ghotok.Data.UnitOfWork;
-using GhotokApi.Models.NotificationModels;
+using GhotokApi.MediatR.NotificationHandlers;
+using GhotokApi.Models.ResponseModels;
 using GhotokApi.Models.SharedModels;
+using GhotokApi.Services;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace GhotokApi.Controllers
 {
@@ -17,13 +20,44 @@ namespace GhotokApi.Controllers
     public class AdminController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IAppUserService _appUserService;
+
         private readonly IMediator _mediator;
 
 
-        public AdminController(IUnitOfWork unitOfWork, IMediator mediator)
+        public AdminController(IUnitOfWork unitOfWork, IMediator mediator, IAppUserService appUserService)
         {
             _unitOfWork = unitOfWork;
             _mediator = mediator;
+            _appUserService = appUserService;
+        }
+
+        [HttpGet]
+        [Route("getgrooms")]
+        public async Task<IActionResult> GetGrooms()
+        {
+            var users = await _appUserService.GetAppUsers(r => r.IsVarified == true, true, 
+                true, true, true, 0, 0);
+            var appUserResponse = new AppUsersResponseModel
+            {
+                Count = users.Count,
+                AppUsers = users
+            };
+            return Ok(JsonConvert.SerializeObject(appUserResponse));
+        }
+
+        [HttpGet]
+        [Route("getbrides")]
+        public async Task<IActionResult> GetBrides()
+        {
+            var users = await _appUserService.GetAppUsers(r => r.IsVarified == true, true, 
+                true, true, false, 0, 0);
+            var appUserResponse = new AppUsersResponseModel
+            {
+                Count = users.Count,
+                AppUsers = users
+            };
+            return Ok(JsonConvert.SerializeObject(appUserResponse));
         }
 
         [HttpGet]

@@ -2,7 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Ghotok.Data.UnitOfWork;
-using GhotokApi.Models.NotificationModels;
 using MediatR;
 
 namespace GhotokApi.MediatR.NotificationHandlers
@@ -35,5 +34,9 @@ namespace GhotokApi.MediatR.NotificationHandlers
         }
     }
 
-    
+    public class ComitDatabaseNotification : INotification
+    {
+    }
+
+
 }

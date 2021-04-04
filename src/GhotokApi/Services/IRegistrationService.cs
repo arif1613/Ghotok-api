@@ -7,7 +7,7 @@ namespace GhotokApi.Services
     public interface IRegistrationService
     {
         Task<bool> IsUserRegisteredAsync(OtpRequestModel model);
-        Task RegisterUserAsync(AppUser user);
+        Task<AppUser> RegisterUserAsync(RegisterRequestModel model);
         Task UnregisterUserAsync(OtpRequestModel model);
     }
 }

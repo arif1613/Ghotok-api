@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
 using Ghotok.Data.UnitOfWork;
-using GhotokApi.Models.NotificationModels;
+using GhotokApi.MediatR.NotificationHandlers;
 using MediatR;
 
 namespace GhotokApi.MediatR.Handlers

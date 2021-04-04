@@ -34,11 +34,17 @@ namespace GhotokApi.Services
                     r => r.LookingForBride == isLookingForBride && r.User.IsPublished == isPublished,
                     orderBy: source => source.OrderBy(r => r.User.BasicInfo.Name),
                     include: s => s
-                        .Include(a => a.User.BasicInfo)
-                        .Include(a => a.User.EducationInfo).ThenInclude(b => b.Educations)
-                        .Include(a => a.User.EducationInfo).ThenInclude(b => b.CurrentJob)
-                        .Include(a => a.User.FamilyInfo).ThenInclude(d => d.FamilyMembers),
+                        .Include(r => r.User)
+                        .ThenInclude(a => a.BasicInfo)
+                        .Include(r => r.User)
+                        .ThenInclude(b => b.EducationInfo).ThenInclude(b => b.Educations)
+                        .Include(r => r.User)
+                        .ThenInclude(b => b.EducationInfo).ThenInclude(b => b.CurrentJob)
+                        .Include(r => r.User)
+                        .ThenInclude(c => c.FamilyInfo).ThenInclude(c => c.FamilyMembers),
                     isLookingForBride, startIndex, chunkSize, true));
+                return appUsers.ToList();
+
             }
 
             if (hasInclude)
@@ -52,6 +58,8 @@ namespace GhotokApi.Services
                         .Include(a => a.User.EducationInfo).ThenInclude(b => b.CurrentJob)
                         .Include(a => a.User.FamilyInfo).ThenInclude(d => d.FamilyMembers),
                     isLookingForBride, startIndex, chunkSize, true));
+                return appUsers.ToList();
+
 
             }
 
@@ -62,9 +70,15 @@ namespace GhotokApi.Services
                     orderBy: source => source.OrderBy(r => r.User.BasicInfo.Name),
                     null,
                     isLookingForBride, startIndex, chunkSize, true));
+                return appUsers.ToList();
+
             }
 
+            appUsers = await Task.Run(() => _unitOfWork.AppUseRepository.Get(
+                r => r.LookingForBride == isLookingForBride && r.User.IsPublished == isPublished,
+                null, null, isLookingForBride, startIndex, chunkSize, true));
             return appUsers.ToList();
+
         }
 
         public async Task<AppUser> GetAppUser(Expression<Func<AppUser, bool>> filter, bool hasInclude = false, bool isLookingForBride = false)
@@ -79,10 +93,14 @@ namespace GhotokApi.Services
                      r => r.LookingForBride == isLookingForBride,
                      null,
                      include: s => s
-                         .Include(a => a.User.BasicInfo)
-                         .Include(a => a.User.EducationInfo).ThenInclude(b => b.Educations)
-                         .Include(a => a.User.EducationInfo).ThenInclude(b => b.CurrentJob)
-                         .Include(a => a.User.FamilyInfo).ThenInclude(d => d.FamilyMembers),
+                         .Include(r => r.User)
+                         .ThenInclude(a => a.BasicInfo)
+                         .Include(r => r.User)
+                         .ThenInclude(b => b.EducationInfo).ThenInclude(b => b.Educations)
+                         .Include(r => r.User)
+                         .ThenInclude(b => b.EducationInfo).ThenInclude(b => b.CurrentJob)
+                         .Include(r => r.User)
+                         .ThenInclude(c => c.FamilyInfo).ThenInclude(c => c.FamilyMembers),
                      isLookingForBride));
 
                 if (appUsers.Any())

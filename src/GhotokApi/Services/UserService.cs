@@ -102,7 +102,7 @@ namespace GhotokApi.Services
             return User;
         }
 
-        public async Task<List<User>> GetRecentUsers(Expression<Func<User, bool>> filter, bool hasOrderBy = false, bool hasInclude = false, bool isLookingForBride = false)
+        public async Task<List<User>> GetRecentUsers(Expression<Func<User, bool>> filter,  bool isLookingForBride = false)
         {
             IEnumerable<User> Users = new List<User>();
             Users = await Task.Run(() => _unitOfWork.UserRepository.GetRecent(

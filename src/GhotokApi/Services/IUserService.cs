@@ -11,7 +11,7 @@ namespace GhotokApi.Services
         Task<List<User>> GetUsers(Expression<Func<User, bool>> filter, bool isPublished, bool hasOrderBy=false,bool hasInclude=false,
            bool isLookingForBride = false, int startIndex = 0, int chunkSize = 0);
         Task<User> GetUser(Expression<Func<User, bool>> filter, bool hasInclude = false, bool isLookingForBride=false);
-        Task<List<User>> GetRecentUsers(Expression<Func<User, bool>> filter, bool hasOrderBy = false, bool hasInclude = false, bool isLookingForBride=false);
+        Task<List<User>> GetRecentUsers(Expression<Func<User, bool>> filter, bool isLookingForBride=false);
         Task InsertUser(User User);
         Task InsertUsers(List<User> Users);
         Task UpdateUser(User User);

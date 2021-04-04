@@ -5,6 +5,7 @@
         RequiredFieldsMissing,
         UserAlreadyRegistered,
         UserAlreadyLoggedin,
+        UserAlreadyLoggedinInMOreThanThreeDevices,
         InvalidOtp,
         RecordNotFound,
         CouldNotCreateData,

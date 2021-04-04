@@ -7,7 +7,7 @@ using Ghotok.Data.UnitOfWork;
 using Ghotok.Data.Utils.Cache;
 using GhotokApi.JwtTokenGenerator;
 using GhotokApi.MediatR.Handlers;
-using GhotokApi.Models.NotificationModels;
+using GhotokApi.MediatR.NotificationHandlers;
 using GhotokApi.Models.SharedModels;
 using GhotokApi.Services;
 using GhotokApi.Utils.Authentication;
@@ -66,6 +66,9 @@ namespace GhotokApi
             //register services
             services.AddScoped<IAppUserService, AppUserService>();
             services.AddScoped<IUserService,UserService>();
+            services.AddScoped<IRegistrationService, RegistrationService>();
+            services.AddScoped<IOtpService, OtpService>();
+            services.AddScoped<ITokenService,TokenService>();
 
 
             //Register Utils
@@ -90,6 +93,7 @@ namespace GhotokApi
 
             //update
             services.AddMediatR(typeof(UpdateUserInfoRequest));
+            services.AddMediatR(typeof(UpdateAppUserRequest));
 
             //delete
             services.AddMediatR(typeof(DeleteUserInfoRequest));

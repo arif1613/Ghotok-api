@@ -10,9 +10,10 @@ namespace GhotokApi.Utils.Authentication
         Task<bool> IsUserRegisteredAsync(OtpRequestModel model);
         Task<OtpResponseModel> GetOtpAsync(OtpRequestModel model);
 
-        Task<bool> IsUserLoggedInAsync(OtpRequestModel model);
         
         Task<bool> IsOtpValidAsync(RegisterRequestModel model);
+        Task<bool> IsUserLoggedInAsync(OtpRequestModel model);
+
 
         Task RegisterUserAsync(AppUser user);
         Task UnregisterUserAsync(OtpRequestModel model);

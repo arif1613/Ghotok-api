@@ -3,10 +3,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
 using GhotokApi.MediatR.Handlers;
+using GhotokApi.MediatR.NotificationHandlers;
 using GhotokApi.Models;
-using GhotokApi.Models.NotificationModels;
 using GhotokApi.Models.RequestModels;
 using GhotokApi.Models.SharedModels;
+using GhotokApi.Services;
 using GhotokApi.Utils.Authentication;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -19,14 +20,18 @@ namespace GhotokApi.Controllers
     [ApiController]
     public class AuthenticationController : ControllerBase
     {
-        private readonly ILoginFlow _loginFlow;
-        private readonly IMediator _mediator;
+        private readonly IRegistrationService _registrationService;
+        private readonly ILoginService _loginService;
 
+        private readonly IOtpService _otpService;
+        private readonly ITokenService _tokenService;
 
-        public AuthenticationController(ILoginFlow loginFlow, IMediator mediator)
+        public AuthenticationController(IRegistrationService registrationService, IOtpService otpService, ITokenService tokenService, ILoginService loginService)
         {
-            _loginFlow = loginFlow;
-            _mediator = mediator;
+            _registrationService = registrationService;
+            _otpService = otpService;
+            _tokenService = tokenService;
+            _loginService = loginService;
         }
 
         [Route("getotp")]
@@ -41,12 +46,12 @@ namespace GhotokApi.Controllers
             }
             try
             {
-                if (await _loginFlow.IsUserRegisteredAsync(inputModel))
+                if (await _registrationService.IsUserRegisteredAsync(inputModel))
                 {
                     return BadRequest(ErrorCodes.UserAlreadyRegistered.ToString());
                 }
 
-                return Ok(JsonConvert.SerializeObject(await _loginFlow.GetOtpAsync(inputModel)));
+                return Ok(JsonConvert.SerializeObject(await _otpService.GetOtpAsync(inputModel)));
             }
             catch (Exception e)
             {
@@ -59,8 +64,9 @@ namespace GhotokApi.Controllers
         [Route("register")]
         [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> RegisterUser([FromBody] RegisterRequestModel inputModel,CancellationToken cancellationToken)
+        public async Task<IActionResult> RegisterUser([FromBody] RegisterRequestModel inputModel)
         {
+            AppUser appUser;
             if (!ModelState.IsValid)
             {
                 return BadRequest(ErrorCodes.InvalidInput.ToString());
@@ -68,84 +74,25 @@ namespace GhotokApi.Controllers
 
             try
             {
-                if (!await _loginFlow.IsOtpValidAsync(inputModel))
+                if (!await _otpService.IsOtpValidAsync(inputModel))
                 {
                     return BadRequest(ErrorCodes.InvalidOtp.ToString());
                 }
 
-                var role = AppRole.User.ToString();
-
-                if (inputModel.OtpRequestModel.MobileNumber == "0729958708" && inputModel.OtpRequestModel.CountryCode == "+46")
+                if (!await _registrationService.IsUserRegisteredAsync(inputModel.OtpRequestModel))
                 {
-                    role = AppRole.Admin.ToString();
-                }
-
-
-                var validtill = GetValidTill(role);
-                var userToRegister = new AppUser
-                {
-                    Id = Guid.NewGuid(),
-                    MobileNumber = inputModel.OtpRequestModel.MobileNumber,
-                    CountryCode = inputModel.OtpRequestModel.CountryCode,
-                    LoggedInDevices = 1,
-                    IsLoggedin = true,
-                    IsVarified = true,
-                    UserRole = role,
-                    ValidFrom = DateTime.UtcNow,
-                    ValidTill = validtill,
-                    RegisterByMobileNumber = inputModel.OtpRequestModel.RegisterByMobileNumber,
-                    Email = inputModel.OtpRequestModel.Email,
-                    LookingForBride = inputModel.IsLookingForBride,
-                    Password = inputModel.OtpRequestModel.Password,
-                    LanguageChoice = Language.English,
-                    User = new User
+                    appUser = await _registrationService.RegisterUserAsync(inputModel);
+                    if (appUser == null)
                     {
-                        Id = Guid.NewGuid(),
-                        MobileNumber = inputModel.OtpRequestModel.MobileNumber,
-                        CountryCode = inputModel.OtpRequestModel.CountryCode,
-                        Email = inputModel.OtpRequestModel.Email,
-                        ValidFrom = DateTime.UtcNow,
-                        ValidTill = validtill,
-                        RegisterByMobileNumber = inputModel.OtpRequestModel.RegisterByMobileNumber,
-                        LanguageChoice = Language.English,
-                        PictureName = Guid.NewGuid().ToString()
+                        return BadRequest(ErrorCodes.CouldNotCreateData.ToString());
                     }
-                };
-
-                if (!await _loginFlow.IsUserRegisteredAsync(inputModel.OtpRequestModel))
-                {
-                    var res = await _mediator.Send(new RegisterUserRequest
-                    {
-                        UserToRegister = userToRegister
-                    });
-                    if (res == "Done")
-                    {
-                        await _mediator.Publish(new ComitDatabaseNotification(), cancellationToken);
-                    }
-                    else
-                    {
-                        return BadRequest(ErrorCodes.GenericError.ToString());
-                    }
-
                 }
                 else
                 {
-                    var user = await _mediator.Send(new GetAppUserRequest
-                    {
-                        OtpRequestModel = inputModel.OtpRequestModel
-                    });
-
-                    if (user != null && user.LoggedInDevices < 3)
-                    {
-                        await _loginFlow.LogInUserAsync(inputModel.OtpRequestModel);
-                    }
-                    else
-                    {
-                        return BadRequest(ErrorCodes.UserAlreadyLoggedin.ToString());
-                    }
+                    return BadRequest(ErrorCodes.UserAlreadyRegistered.ToString());
                 }
 
-                var tokenresponse = _loginFlow.GetToken(userToRegister, inputModel.OtpRequestModel);
+                var tokenresponse = _tokenService.GetToken(appUser, inputModel.OtpRequestModel);
 
                 return Ok(JsonConvert.SerializeObject(tokenresponse));
             }
@@ -155,14 +102,6 @@ namespace GhotokApi.Controllers
             }
         }
 
-        private DateTime GetValidTill(string role)
-        {
-            if (role == AppRole.PremiumUser.ToString())
-            {
-                return DateTime.UtcNow + TimeSpan.FromDays(90);
-            }
-            return DateTime.UtcNow + TimeSpan.FromDays(3650);
-        }
 
 
 
@@ -173,33 +112,32 @@ namespace GhotokApi.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ErrorCodes.InvalidInput);
+                return BadRequest(ErrorCodes.InvalidInput.ToString());
             }
 
-            var user = await _mediator.Send(new GetAppUserRequest
-            {
-                OtpRequestModel = inputModel
-            });
-            if (user == null)
+            if (!await _registrationService.IsUserRegisteredAsync(inputModel))
             {
                 return BadRequest(ErrorCodes.UserIsNotRegistered.ToString());
             }
-            if (user.Password != inputModel.Password)
+
+            if (await _loginService.IsUserLoggedOutAsync(inputModel))
             {
-                return BadRequest(ErrorCodes.InvalidInput.ToString());
+                return BadRequest(ErrorCodes.UserLoggedOut.ToString());
             }
 
             try
             {
-
-                await _loginFlow.LogOutUserAsync(inputModel);
+                var user=await _loginService.LogOutUserAsync(inputModel);
+                if (user == null)
+                {
+                    return BadRequest(ErrorCodes.CouldNotUpdateData.ToString());
+                }
                 return Ok(JsonConvert.SerializeObject(user));
-
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Console.WriteLine(e);
-                throw;
+                return BadRequest(ErrorCodes.CouldNotUpdateData.ToString());
+
             }
         }
 
@@ -213,31 +151,29 @@ namespace GhotokApi.Controllers
                 return BadRequest(ErrorCodes.InvalidInput);
             }
 
-            var user = await _mediator.Send(new GetAppUserRequest
-            {
-                OtpRequestModel = inputModel
-            });
-            if (user == null)
+            if (!await _registrationService.IsUserRegisteredAsync(inputModel))
             {
                 return BadRequest(ErrorCodes.UserIsNotRegistered.ToString());
             }
-            if (user.Password != inputModel.Password)
+
+            if (await _loginService.IsUserLoggedInAsync(inputModel))
             {
-                return BadRequest(ErrorCodes.InvalidInput.ToString());
+                return BadRequest(ErrorCodes.UserAlreadyLoggedinInMOreThanThreeDevices.ToString());
             }
-            if (user.LoggedInDevices >= 3)
+
+            var user = await _loginService.LogInUserAsync(inputModel);
+            if (user == null)
             {
-                return BadRequest(ErrorCodes.UserAlreadyLoggedin.ToString());
+                return BadRequest(ErrorCodes.CouldNotCreateData.ToString());
             }
+           
+            
             try
             {
-                var tokenresponse = await _mediator.Send(new LoginUserRequest
-                {
-                    OtpRequestModel = inputModel
-                });
+                var tokenresponse = await _tokenService.GetToken(user, inputModel);
                 if (tokenresponse == null)
                 {
-                    return BadRequest(ErrorCodes.RecordNotFound.ToString());
+                    return BadRequest(ErrorCodes.CouldNotCreateData.ToString());
                 }
                 //Check token
                 return Ok(JsonConvert.SerializeObject(tokenresponse));
@@ -259,108 +195,103 @@ namespace GhotokApi.Controllers
             }
             try
             {
-                var user = await _mediator.Send(new GetAppUserRequest
+
+                if (!await _registrationService.IsUserRegisteredAsync(inputModel))
                 {
-                    OtpRequestModel = inputModel
-                });
-                if (user != null)
-                {
-                    await _loginFlow.UnregisterUserAsync(inputModel);
-                    user.IsVarified = false;
-                    user.LoggedInDevices = 0;
-                    return Ok(JsonConvert.SerializeObject(user));
+                    return BadRequest(ErrorCodes.UserIsNotRegistered.ToString());
                 }
 
+                await _registrationService.UnregisterUserAsync(inputModel);
+                return Ok();
+
+            }
+            catch (Exception e)
+            {
                 return BadRequest(ErrorCodes.RecordNotFound.ToString());
             }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
         }
 
-        [Route("gettoken")]
-        [HttpPost]
-        public async Task<IActionResult> GetToken([FromBody] OtpRequestModel inputModel)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ErrorCodes.InvalidInput);
-            }
-            try
-            {
-                var user = await _mediator.Send(new GetAppUserRequest
-                {
-                    OtpRequestModel = inputModel
-                });
-                if (user == null)
-                {
-                    return BadRequest(ErrorCodes.RecordNotFound.ToString());
-                }
-                var tokenresponse = _loginFlow.GetToken(new AppUser
-                {
-                    Id = user.Id,
-                    MobileNumber = inputModel.MobileNumber,
-                    CountryCode = inputModel.CountryCode,
-                    LoggedInDevices = user.LoggedInDevices,
-                    IsVarified = true,
-                    UserRole = user.UserRole,
-                    ValidFrom = DateTime.UtcNow,
-                    ValidTill = user.ValidTill,
-                    LookingForBride = user.LookingForBride,
-                    LanguageChoice = Language.English
-                }, inputModel);
-                return Ok(JsonConvert.SerializeObject(tokenresponse.Token));
-            }
-            catch (Exception e)
-            {
-                return Ok(e.Message);
-            }
-        }
+        //[Route("gettoken")]
+        //[HttpPost]
+        //public async Task<IActionResult> GetToken([FromBody] OtpRequestModel inputModel)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ErrorCodes.InvalidInput);
+        //    }
+        //    try
+        //    {
+        //        var user = await _mediator.Send(new GetAppUserRequest
+        //        {
+        //            OtpRequestModel = inputModel
+        //        });
+        //        if (user == null)
+        //        {
+        //            return BadRequest(ErrorCodes.RecordNotFound.ToString());
+        //        }
+        //        var tokenresponse = _loginFlow.GetToken(new AppUser
+        //        {
+        //            Id = user.Id,
+        //            MobileNumber = inputModel.MobileNumber,
+        //            CountryCode = inputModel.CountryCode,
+        //            LoggedInDevices = user.LoggedInDevices,
+        //            IsVarified = true,
+        //            UserRole = user.UserRole,
+        //            ValidFrom = DateTime.UtcNow,
+        //            ValidTill = user.ValidTill,
+        //            LookingForBride = user.LookingForBride,
+        //            LanguageChoice = Language.English
+        //        }, inputModel);
+        //        return Ok(JsonConvert.SerializeObject(tokenresponse.Token));
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        return Ok(e.Message);
+        //    }
+        //}
 
-        [Route("newlogin")]
-        [HttpPost]
-        public async Task<IActionResult> NewLogin([FromBody] OtpRequestModel inputModel)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ErrorCodes.InvalidInput.ToString());
-            }
+        //[Route("newlogin")]
+        //[HttpPost]
+        //public async Task<IActionResult> NewLogin([FromBody] OtpRequestModel inputModel)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ErrorCodes.InvalidInput.ToString());
+        //    }
 
-            var user = await _mediator.Send(new GetAppUserRequest
-            {
-                OtpRequestModel = inputModel
-            });
-            if (user == null)
-            {
-                return BadRequest(ErrorCodes.UserIsNotRegistered.ToString());
-            }
-            if (user.Password != inputModel.Password)
-            {
-                return BadRequest(ErrorCodes.InvalidInput.ToString());
-            }
-            if (user.LoggedInDevices >= 3)
-            {
-                return BadRequest(ErrorCodes.UserAlreadyLoggedin.ToString());
-            }
+        //    var user = await _mediator.Send(new GetAppUserRequest
+        //    {
+        //        OtpRequestModel = inputModel
+        //    });
+        //    if (user == null)
+        //    {
+        //        return BadRequest(ErrorCodes.UserIsNotRegistered.ToString());
+        //    }
+        //    if (user.Password != inputModel.Password)
+        //    {
+        //        return BadRequest(ErrorCodes.InvalidInput.ToString());
+        //    }
+        //    if (user.LoggedInDevices >= 3)
+        //    {
+        //        return BadRequest(ErrorCodes.UserAlreadyLoggedin.ToString());
+        //    }
 
-            try
-            {
-                var tokenresponse = await _mediator.Send(new LoginUserRequest
-                {
-                    OtpRequestModel = inputModel
-                });
+        //    try
+        //    {
+        //        var tokenresponse = await _mediator.Send(new LoginUserRequest
+        //        {
+        //            OtpRequestModel = inputModel
+        //        });
 
-                if (tokenresponse != null) return Ok(JsonConvert.SerializeObject(tokenresponse));
-            }
-            catch (Exception e)
-            {
-                return Ok(e.Message);
-            }
+        //        if (tokenresponse != null) return Ok(JsonConvert.SerializeObject(tokenresponse));
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        return Ok(e.Message);
+        //    }
 
-            return BadRequest(ErrorCodes.UserAlreadyLoggedin.ToString());
-        }
+        //    return BadRequest(ErrorCodes.UserAlreadyLoggedin.ToString());
+        //}
 
     }
 }

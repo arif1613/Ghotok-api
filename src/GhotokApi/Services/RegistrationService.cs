@@ -3,61 +3,146 @@ using System.Linq;
 using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
 using Ghotok.Data.UnitOfWork;
+using Ghotok.Data.Utils.Cache;
 using GhotokApi.MediatR.Handlers;
-using GhotokApi.Models.NotificationModels;
+using GhotokApi.MediatR.NotificationHandlers;
 using GhotokApi.Models.RequestModels;
+using GhotokApi.Models.SharedModels;
 using MediatR;
 
 namespace GhotokApi.Services
 {
-    public class RegistrationService:IRegistrationService
+    public class RegistrationService : IRegistrationService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMediator _mediator;
-
-
-        public RegistrationService(IUnitOfWork unitOfWork, IMediator mediator)
+        private readonly ICacheHelper _cacheHelper;
+        public RegistrationService(IUnitOfWork unitOfWork, IMediator mediator, ICacheHelper cacheHelper)
         {
             _unitOfWork = unitOfWork;
             _mediator = mediator;
+            _cacheHelper = cacheHelper;
         }
-
         public async Task<bool> IsUserRegisteredAsync(OtpRequestModel model)
         {
-            return await Task.Run(()=>
+            return await Task.Run(() =>
             {
                 if (model.RegisterByMobileNumber)
                 {
-                    return _unitOfWork.AppUseRepository.Get(r => r.MobileNumber == model.MobileNumber).FirstOrDefault()!=null;
+                    return _unitOfWork.AppUseRepository.Get(r => r.MobileNumber == model.MobileNumber).FirstOrDefault() != null;
                 }
                 return _unitOfWork.AppUseRepository.Get(r => r.Email == model.Email).FirstOrDefault() != null;
             });
         }
-
-        public async Task RegisterUserAsync(AppUser user)
+        public async Task<AppUser> RegisterUserAsync(RegisterRequestModel inputModel)
         {
+            var role = AppRole.User.ToString();
+
+            if (inputModel.OtpRequestModel.MobileNumber == "0729958708" && inputModel.OtpRequestModel.CountryCode == "+46")
+            {
+                role = AppRole.Admin.ToString();
+            }
+            var validtill = GetValidTill(role);
+            var userToRegister = new AppUser
+            {
+                Id = Guid.NewGuid(),
+                MobileNumber = inputModel.OtpRequestModel.MobileNumber,
+                CountryCode = inputModel.OtpRequestModel.CountryCode,
+                LoggedInDevices = 1,
+                IsLoggedin = true,
+                IsVarified = true,
+                UserRole = role,
+                ValidFrom = DateTime.UtcNow,
+                ValidTill = validtill,
+                RegisterByMobileNumber = inputModel.OtpRequestModel.RegisterByMobileNumber,
+                Email = inputModel.OtpRequestModel.Email,
+                LookingForBride = inputModel.IsLookingForBride,
+                Password = inputModel.OtpRequestModel.Password,
+                LanguageChoice = Language.English,
+                User = new User
+                {
+                    Id = Guid.NewGuid(),
+                    MobileNumber = inputModel.OtpRequestModel.MobileNumber,
+                    CountryCode = inputModel.OtpRequestModel.CountryCode,
+                    Email = inputModel.OtpRequestModel.Email,
+                    ValidFrom = DateTime.UtcNow,
+                    ValidTill = validtill,
+                    RegisterByMobileNumber = inputModel.OtpRequestModel.RegisterByMobileNumber,
+                    LanguageChoice = Language.English,
+                    PictureName = Guid.NewGuid().ToString()
+                }
+            };
             try
             {
                 var response = await _mediator.Send(new AddAppUserRequest
                 {
-                    AppUserToAdd = user
+                    AppUserToAdd = userToRegister
                 });
 
                 if (response == "Done")
                 {
                     await _mediator.Publish(new ComitDatabaseNotification());
-
                 }
             }
             catch (Exception e)
             {
                 throw e;
             }
+            return userToRegister;
+        }
+        public async Task UnregisterUserAsync(OtpRequestModel model)
+        {
+            await Task.Run(async () =>
+            {
+                var user = model.RegisterByMobileNumber
+                    ? _unitOfWork.AppUseRepository.Get(r => r.MobileNumber == model.MobileNumber).FirstOrDefault()
+                    : _unitOfWork.AppUseRepository.Get(r => r.Email == model.Email).FirstOrDefault();
+                if (user == null) return;
+
+                var cachekey = model.RegisterByMobileNumber ? model.MobileNumber : model.Email;
+                user.LoggedInDevices = 0;
+                user.IsVarified = false;
+
+
+                try
+                {
+                    var response = await _mediator.Send(new UpdateAppUserRequest
+                    {
+                        AppUserTobeUpdated = user
+
+                    });
+
+                    if (response == "Done")
+                    {
+                        await _mediator.Publish(new ComitDatabaseNotification());
+
+                    }
+                    if (_cacheHelper.Exists(cachekey))
+                    {
+                        _cacheHelper.Update(user, cachekey);
+                    }
+                }
+                catch (Exception e)
+                {
+                    throw e;
+                }
+
+            });
+
+        }
+        private DateTime GetValidTill(string role)
+        {
+            if (role == AppRole.PremiumUser.ToString())
+            {
+                return DateTime.UtcNow + TimeSpan.FromDays(90);
+            }
+
+            if (role == AppRole.Admin.ToString())
+            {
+                return DateTime.UtcNow + TimeSpan.FromDays(3650);
+            }
+            return DateTime.UtcNow + TimeSpan.FromDays(365);
         }
 
-        public Task UnregisterUserAsync(OtpRequestModel model)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
