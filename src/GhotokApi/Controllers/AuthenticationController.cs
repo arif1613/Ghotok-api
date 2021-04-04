@@ -3,8 +3,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
 using GhotokApi.MediatR.Handlers;
-using GhotokApi.MediatR.NotificationHandlers;
 using GhotokApi.Models;
+using GhotokApi.Models.NotificationModels;
 using GhotokApi.Models.RequestModels;
 using GhotokApi.Models.SharedModels;
 using GhotokApi.Utils.Authentication;
@@ -149,7 +149,7 @@ namespace GhotokApi.Controllers
 
                 return Ok(JsonConvert.SerializeObject(tokenresponse));
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return BadRequest(ErrorCodes.GenericError.ToString());
             }

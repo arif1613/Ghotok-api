@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Ghotok.Data.UnitOfWork;
+using GhotokApi.Models.NotificationModels;
 using MediatR;
 
 namespace GhotokApi.MediatR.NotificationHandlers
@@ -17,7 +18,9 @@ namespace GhotokApi.MediatR.NotificationHandlers
 
         public async Task Handle(ComitDatabaseNotification request, CancellationToken cancellationToken)
         {
-            
+
+             await Task.Run(() =>
+            {
                 try
                 {
                     _unitOfWork.Commit();
@@ -26,10 +29,11 @@ namespace GhotokApi.MediatR.NotificationHandlers
                 {
                     throw e;
                 }
+            }, cancellationToken);
+
+
         }
     }
 
-    public class ComitDatabaseNotification : INotification
-    {
-    }
+    
 }

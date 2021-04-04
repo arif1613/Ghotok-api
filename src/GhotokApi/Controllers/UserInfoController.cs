@@ -4,8 +4,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
 using GhotokApi.MediatR.Handlers;
-using GhotokApi.MediatR.NotificationHandlers;
 using GhotokApi.Models;
+using GhotokApi.Models.NotificationModels;
 using GhotokApi.Models.RequestModels;
 using GhotokApi.Models.ResponseModels;
 using MediatR;
@@ -75,7 +75,7 @@ namespace GhotokApi.Controllers
                 return BadRequest(ErrorCodes.CouldNotCreateData.ToString());
 
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return BadRequest(ErrorCodes.CouldNotCreateData.ToString());
             }

@@ -20,9 +20,13 @@ namespace GhotokApi.MediatR.Handlers
 
         public async Task<IEnumerable<User>> Handle(GetRecentUserInfosRequest request, CancellationToken cancellationToken)
         {
-            return _unitOfWork.UserRepository.GetRecent(
-                r => r.LookingForBride == !request.UserInfosRequestModel.LookingForBride,
-                IncludeProperties.UserIncludingAllProperties,request.UserInfosRequestModel.LookingForBride);
+            return await Task.Run(() =>
+            {
+                return _unitOfWork.UserRepository.GetRecent(
+                    r => r.LookingForBride == !request.UserInfosRequestModel.LookingForBride,
+                    IncludeProperties.UserIncludingAllProperties, request.UserInfosRequestModel.LookingForBride);
+            }, cancellationToken);
+        
         }
     }
 

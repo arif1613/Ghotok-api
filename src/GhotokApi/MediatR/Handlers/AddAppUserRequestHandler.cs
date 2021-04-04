@@ -2,7 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
-using Ghotok.Data.Repo;
 using Ghotok.Data.UnitOfWork;
 using MediatR;
 
@@ -19,7 +18,7 @@ namespace GhotokApi.MediatR.Handlers
 
         public async Task<string> Handle(AddAppUserRequest request, CancellationToken cancellationToken)
         {
-            return await Task.Run(async () =>
+            return await Task.Run(() =>
             {
                 try
                 {

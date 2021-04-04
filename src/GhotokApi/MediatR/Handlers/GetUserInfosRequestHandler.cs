@@ -1,10 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
-using Ghotok.Data.Repo;
-using Ghotok.Data.UnitOfWork;
 using GhotokApi.Models.RequestModels;
 using GhotokApi.Services;
 using MediatR;

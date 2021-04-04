@@ -7,7 +7,7 @@ using Ghotok.Data.UnitOfWork;
 using Ghotok.Data.Utils.Cache;
 using GhotokApi.JwtTokenGenerator;
 using GhotokApi.MediatR.Handlers;
-using GhotokApi.MediatR.NotificationHandlers;
+using GhotokApi.Models.NotificationModels;
 using GhotokApi.Models.SharedModels;
 using GhotokApi.Services;
 using GhotokApi.Utils.Authentication;

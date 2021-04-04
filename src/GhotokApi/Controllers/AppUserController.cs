@@ -1,5 +1,4 @@
-﻿using Ghotok.Data.Repo;
-using Ghotok.Data.UnitOfWork;
+﻿using Ghotok.Data.UnitOfWork;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GhotokApi.Controllers

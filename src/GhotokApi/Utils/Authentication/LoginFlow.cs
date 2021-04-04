@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
-using Ghotok.Data.Repo;
-using Ghotok.Data.UnitOfWork;
 using Ghotok.Data.Utils.Cache;
 using GhotokApi.JwtTokenGenerator;
 using GhotokApi.MediatR.Handlers;
@@ -57,20 +55,24 @@ namespace GhotokApi.Utils.Authentication
 
         public async Task<OtpResponseModel> GetOtpAsync(OtpRequestModel model)
         {
-
-            //Send Otp here
-            var CacheKey = !model.RegisterByMobileNumber ? $"Otp_{ model.Email}" : $"Otp_ {model.MobileNumber}";
-            if (_cacheHelper.Exists(CacheKey))
+            return await Task.Run(() =>
             {
-                return _cacheHelper.Get<OtpResponseModel>(CacheKey);
-            }
-            var otp = _random.Next(1000, 9999);
-            _cacheHelper.Add(new OtpResponseModel
-            {
-                Otp = otp.ToString()
-            }, CacheKey, Convert.ToInt32(_configuration["OtpCaheMinute"]));
+                //Send Otp here
+                var CacheKey = !model.RegisterByMobileNumber ? $"Otp_{ model.Email}" : $"Otp_ {model.MobileNumber}";
+                if (_cacheHelper.Exists(CacheKey))
+                {
+                    return _cacheHelper.Get<OtpResponseModel>(CacheKey);
+                }
+                var otp = _random.Next(1000, 9999);
+                _cacheHelper.Add(new OtpResponseModel
+                {
+                    Otp = otp.ToString()
+                }, CacheKey, Convert.ToInt32(_configuration["OtpCaheMinute"]));
 
-            return new OtpResponseModel { Otp = otp.ToString() };
+                return new OtpResponseModel { Otp = otp.ToString() };
+            });
+
+
         }
 
 
@@ -97,14 +99,17 @@ namespace GhotokApi.Utils.Authentication
 
         public async Task<bool> IsOtpValidAsync(RegisterRequestModel model)
         {
-            var cachekey = !model.OtpRequestModel.RegisterByMobileNumber ? $"Otp_{ model.OtpRequestModel.Email}" : $"Otp_ {model.OtpRequestModel.MobileNumber}";
-            if (!_cacheHelper.Exists(cachekey))
+            return await Task.Run(() =>
             {
-                return false;
-            }
+                var cachekey = !model.OtpRequestModel.RegisterByMobileNumber ? $"Otp_{ model.OtpRequestModel.Email}" : $"Otp_ {model.OtpRequestModel.MobileNumber}";
+                if (!_cacheHelper.Exists(cachekey))
+                {
+                    return false;
+                }
 
+                return Convert.ToInt32(_cacheHelper.Get<OtpResponseModel>(cachekey).Otp) == Convert.ToInt32(model.Otp.Trim());
+            });
 
-            return Convert.ToInt32(_cacheHelper.Get<OtpResponseModel>(cachekey).Otp) == Convert.ToInt32(model.Otp.Trim());
         }
 
         public async Task RegisterUserAsync(AppUser user)
@@ -197,7 +202,7 @@ namespace GhotokApi.Utils.Authentication
                 }
                 catch (Exception e)
                 {
-                    return null;
+                    throw e;
                 }
 
             }

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace GhotokApi.Models.ResponseModels
+﻿namespace GhotokApi.Models.ResponseModels
 {
     public class BaseResponseModel
     {
