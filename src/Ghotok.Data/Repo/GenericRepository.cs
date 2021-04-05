@@ -62,8 +62,6 @@ namespace Ghotok.Data.Repo
                 }
             }
 
-           
-
             if (include != null)
             {
                 query = include(query);
@@ -75,13 +73,7 @@ namespace Ghotok.Data.Repo
                 if (query == null) return null;
             }
 
-
-           
-
             if (query == null) return null;
-
-            
-
             //add to cache
             if (isLookingForBride != null)
             {
@@ -96,10 +88,6 @@ namespace Ghotok.Data.Repo
             }
 
             return query.ToList() ?? null;
-
-
-
-
         }
 
 

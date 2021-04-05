@@ -8,18 +8,27 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Utils\Authentication\**" />
     <Compile Remove="Utils\Cache\**" />
     <Compile Remove="Utils\Config\**" />
     <Compile Remove="Utils\Database\**" />
+    <Content Remove="Utils\Authentication\**" />
     <Content Remove="Utils\Cache\**" />
     <Content Remove="Utils\Config\**" />
     <Content Remove="Utils\Database\**" />
+    <EmbeddedResource Remove="Utils\Authentication\**" />
     <EmbeddedResource Remove="Utils\Cache\**" />
     <EmbeddedResource Remove="Utils\Config\**" />
     <EmbeddedResource Remove="Utils\Database\**" />
+    <None Remove="Utils\Authentication\**" />
     <None Remove="Utils\Cache\**" />
     <None Remove="Utils\Config\**" />
     <None Remove="Utils\Database\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="MediatR\Handlers\LoginUserRequestHandler.cs" />
+    <Compile Remove="MediatR\Handlers\RegisterUserRequestHandler.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,15 +1,10 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
-using GhotokApi.MediatR.Handlers;
-using GhotokApi.MediatR.NotificationHandlers;
 using GhotokApi.Models;
 using GhotokApi.Models.RequestModels;
-using GhotokApi.Models.SharedModels;
 using GhotokApi.Services;
-using GhotokApi.Utils.Authentication;
-using MediatR;
+//using GhotokApi.Utils.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -96,7 +91,7 @@ namespace GhotokApi.Controllers
 
                 return Ok(JsonConvert.SerializeObject(tokenresponse));
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return BadRequest(ErrorCodes.GenericError.ToString());
             }

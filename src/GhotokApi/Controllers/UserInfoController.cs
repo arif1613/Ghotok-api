@@ -8,6 +8,7 @@ using GhotokApi.MediatR.NotificationHandlers;
 using GhotokApi.Models;
 using GhotokApi.Models.RequestModels;
 using GhotokApi.Models.ResponseModels;
+using GhotokApi.Services;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -18,12 +19,13 @@ namespace GhotokApi.Controllers
     [ApiController]
     public class UserInfoController : ControllerBase
     {
-        private readonly IMediator _mediator;
+        private readonly IUserService _userService;
 
-        public UserInfoController(IMediator mediator)
+        public UserInfoController(IUserService userService)
         {
-            _mediator = mediator;
+            _userService = userService;
         }
+
 
         [Route("getuserinfo")]
         [HttpPost]
@@ -35,10 +37,7 @@ namespace GhotokApi.Controllers
             }
             try
             {
-                var user = await _mediator.Send(new GetUserInfoRequest
-                {
-                    UserInfoRequestModel = requestmodel
-                }, cancellationToken);
+                var user = await _userService.GetUser(r => r.Id == requestmodel.UserId, requestmodel.HasInclude);
                 return Ok(JsonConvert.SerializeObject(user));
 
 
@@ -61,18 +60,8 @@ namespace GhotokApi.Controllers
             }
             try
             {
-                var response = await _mediator.Send(new AddUserInfoRequest
-                {
-                    UserToAdd = model
-                });
-
-                if (response == "Done")
-                {
-                    await _mediator.Publish(new ComitDatabaseNotification(), cancellationToken);
-                }
-
-
-                return BadRequest(ErrorCodes.CouldNotCreateData.ToString());
+                await _userService.InsertUser(model);
+                return Ok();
 
             }
             catch (Exception)
@@ -91,20 +80,8 @@ namespace GhotokApi.Controllers
             }
             try
             {
-                var response = await _mediator.Send(new UpdateUserInfoRequest
-                {
-                    UserTobeUpdated = model
-                });
-
-                if (response == "Done")
-                {
-                    await _mediator.Publish(new ComitDatabaseNotification(), cancellationToken);
-
-                }
-
-
-
-                return BadRequest(ErrorCodes.CouldNotUpdateData.ToString());
+                 await _userService.UpdateUser(model);
+                 return Ok("User is updated");
             }
             catch (Exception e)
             {
@@ -122,19 +99,9 @@ namespace GhotokApi.Controllers
             }
             try
             {
-                var response = await _mediator.Send(new DeleteUserInfoRequest
-                {
-                    UserTobeDeleted = model
-                });
+                await _userService.DeleteUser(model);
 
-                if (response == "Done")
-                {
-                    await _mediator.Publish(new ComitDatabaseNotification(), cancellationToken);
-                }
-
-
-
-                return BadRequest(ErrorCodes.CouldNotUpdateData.ToString());
+                return Ok("User is deleted");
             }
             catch (Exception e)
             {
@@ -153,15 +120,18 @@ namespace GhotokApi.Controllers
                 return BadRequest(ErrorCodes.InvalidInput.ToString());
             }
 
-            var users = await _mediator.Send(new GetUserInfosRequest
+            var users =await _userService.GetUsers(r => r.IsPublished && r.LookingForBride == model.LookingForBride,
+                model.IsPublished, model.HasOrderBy
+                , model.HasInclude, model.LookingForBride, model.StartIndex, model.ChunkSize);
+
+            if (!users.Any())
             {
-                UserInfosRequestModel = model
-            }, cancellationToken);
-            var usersResponse = users.ToList();
+                return NotFound(ErrorCodes.RecordNotFound.ToString());
+            }
             return Ok(JsonConvert.SerializeObject(new UserInfosResponseModel
             {
-                Count = usersResponse.Count(),
-                Users = usersResponse.ToList()
+                Count = users.Count(),
+                Users = users
             }));
         }
 
@@ -174,17 +144,18 @@ namespace GhotokApi.Controllers
                 return BadRequest(ErrorCodes.InvalidInput.ToString());
             }
 
-            var users = await _mediator.Send(new GetRecentUserInfosRequest
+            var users = await _userService.GetRecentUsers(
+                r => r.IsPublished && r.LookingForBride == model.LookingForBride, model.LookingForBride);
+
+            if (!users.Any())
             {
-                UserInfosRequestModel = model
-            }, cancellationToken);
+                return NotFound(ErrorCodes.RecordNotFound.ToString());
+            }
 
-
-            var usersResponse = users.ToList();
             return Ok(JsonConvert.SerializeObject(new RecentUserInfosResponseModel
             {
-                Count = usersResponse.Count(),
-                RecentUsers = usersResponse.ToList()
+                Count = users.Count(),
+                RecentUsers = users.ToList()
             }));
         }
     }

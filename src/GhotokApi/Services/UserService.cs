@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
 using Ghotok.Data.Repo;
 using Ghotok.Data.UnitOfWork;
+using GhotokApi.MediatR.Handlers;
+using GhotokApi.MediatR.NotificationHandlers;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace GhotokApi.Services
@@ -14,10 +17,13 @@ namespace GhotokApi.Services
     {
 
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMediator _mediator;
 
-        public UserService(IUnitOfWork unitOfWork)
+
+        public UserService(IUnitOfWork unitOfWork, IMediator mediator)
         {
             _unitOfWork = unitOfWork;
+            _mediator = mediator;
         }
 
 
@@ -75,7 +81,7 @@ namespace GhotokApi.Services
 
         public async Task<User> GetUser(Expression<Func<User, bool>> filter, bool hasInclude = false, bool isLookingForBride = false)
         {
-            User user=null;
+            User user = null;
             IEnumerable<User> users;
 
 
@@ -110,7 +116,7 @@ namespace GhotokApi.Services
             return user;
         }
 
-        public async Task<List<User>> GetRecentUsers(Expression<Func<User, bool>> filter,  bool isLookingForBride = false)
+        public async Task<List<User>> GetRecentUsers(Expression<Func<User, bool>> filter, bool isLookingForBride = false)
         {
             var users = await Task.Run(() => _unitOfWork.UserRepository.GetRecent(
                 r => r.LookingForBride == isLookingForBride && r.IsPublished,
@@ -120,22 +126,54 @@ namespace GhotokApi.Services
 
         public async Task InsertUser(User User)
         {
-            await Task.Run(() => _unitOfWork.UserRepository.Insert(User));
+            var result = await _mediator.Send(new AddUserInfoRequest
+            {
+                UserToAdd = User
+            });
+
+            if (result == "Done")
+            {
+                await _mediator.Publish(new ComitDatabaseNotification());
+            }
         }
 
         public async Task InsertUsers(List<User> Users)
         {
-            await Task.Run(() => _unitOfWork.UserRepository.Insert(Users));
+            var result = await _mediator.Send(new AddUserInfosRequest
+            {
+                UsersToAdd = Users
+            });
+
+            if (result == "Done")
+            {
+                await _mediator.Publish(new ComitDatabaseNotification());
+            }
         }
 
         public async Task UpdateUser(User User)
         {
-            await Task.Run(() => _unitOfWork.UserRepository.Update(User));
+            var result = await _mediator.Send(new UpdateUserInfoRequest
+            {
+                UserTobeUpdated = User
+            });
+
+            if (result == "Done")
+            {
+                await _mediator.Publish(new ComitDatabaseNotification());
+            }
         }
 
         public async Task DeleteUser(User User)
         {
-            await Task.Run(() => _unitOfWork.UserRepository.Delete(User));
+            var result = await _mediator.Send(new DeleteUserInfoRequest
+            {
+                UserTobeDeleted = User
+            });
+
+            if (result == "Done")
+            {
+                await _mediator.Publish(new ComitDatabaseNotification());
+            }
         }
 
         public async Task SaveDatabse()

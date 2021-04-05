@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
 using Ghotok.Data.Repo;
 using Ghotok.Data.UnitOfWork;
+using GhotokApi.MediatR.Handlers;
+using GhotokApi.MediatR.NotificationHandlers;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace GhotokApi.Services
@@ -17,10 +20,13 @@ namespace GhotokApi.Services
     {
 
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMediator _mediator;
 
-        public AppUserService(IUnitOfWork unitOfWork)
+
+        public AppUserService(IUnitOfWork unitOfWork, IMediator mediator)
         {
             _unitOfWork = unitOfWork;
+            _mediator = mediator;
         }
 
 
@@ -83,6 +89,7 @@ namespace GhotokApi.Services
 
         public async Task<AppUser> GetAppUser(Expression<Func<AppUser, bool>> filter, bool hasInclude = false, bool isLookingForBride = false)
         {
+
             AppUser appUser = new AppUser();
             IEnumerable<AppUser> appUsers = new List<AppUser>();
 
@@ -90,18 +97,18 @@ namespace GhotokApi.Services
             if (hasInclude)
             {
                 appUsers = await Task.Run(() => _unitOfWork.AppUseRepository.Get(
-                     r => r.LookingForBride == isLookingForBride,
-                     null,
-                     include: s => s
-                         .Include(r => r.User)
-                         .ThenInclude(a => a.BasicInfo)
-                         .Include(r => r.User)
-                         .ThenInclude(b => b.EducationInfo).ThenInclude(b => b.Educations)
-                         .Include(r => r.User)
-                         .ThenInclude(b => b.EducationInfo).ThenInclude(b => b.CurrentJob)
-                         .Include(r => r.User)
-                         .ThenInclude(c => c.FamilyInfo).ThenInclude(c => c.FamilyMembers),
-                     isLookingForBride));
+                    r => r.LookingForBride == isLookingForBride,
+                    null,
+                    include: s => s
+                        .Include(r => r.User)
+                        .ThenInclude(a => a.BasicInfo)
+                        .Include(r => r.User)
+                        .ThenInclude(b => b.EducationInfo).ThenInclude(b => b.Educations)
+                        .Include(r => r.User)
+                        .ThenInclude(b => b.EducationInfo).ThenInclude(b => b.CurrentJob)
+                        .Include(r => r.User)
+                        .ThenInclude(c => c.FamilyInfo).ThenInclude(c => c.FamilyMembers),
+                    isLookingForBride));
 
                 if (appUsers.Any())
                 {
@@ -134,22 +141,54 @@ namespace GhotokApi.Services
 
         public async Task InsertAppUser(AppUser appUser)
         {
-            await Task.Run(() => _unitOfWork.AppUseRepository.Insert(appUser));
+            var result = await _mediator.Send(new AddAppUserRequest
+            {
+                AppUserToAdd = appUser
+            });
+
+            if (result == "Done")
+            {
+                await _mediator.Publish(new ComitDatabaseNotification());
+            }
         }
 
         public async Task InsertAppUsers(List<AppUser> appUsers)
         {
-            await Task.Run(() => _unitOfWork.AppUseRepository.Insert(appUsers));
+            var result = await _mediator.Send(new AddAppUsersRequest
+            {
+                 AppUsersToAdd = appUsers
+            });
+
+            if (result == "Done")
+            {
+                await _mediator.Publish(new ComitDatabaseNotification());
+            }
         }
 
         public async Task UpdateAppUser(AppUser appUser)
         {
-            await Task.Run(() => _unitOfWork.AppUseRepository.Update(appUser));
+            var result = await _mediator.Send(new UpdateAppUserRequest
+            {
+                AppUserTobeUpdated =  appUser
+            });
+
+            if (result == "Done")
+            {
+                await _mediator.Publish(new ComitDatabaseNotification());
+            }
         }
 
         public async Task DeleteAppUser(AppUser appUser)
         {
-            await Task.Run(() => _unitOfWork.AppUseRepository.Delete(appUser));
+            var result = await _mediator.Send(new DeleteAppUserRequest
+            {
+                AppUserTobeDeleted =  appUser
+            });
+
+            if (result == "Done")
+            {
+                await _mediator.Publish(new ComitDatabaseNotification());
+            }
         }
 
         public async Task SaveDatabse()

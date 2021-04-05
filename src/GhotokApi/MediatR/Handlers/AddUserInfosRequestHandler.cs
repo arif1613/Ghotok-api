@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
@@ -7,22 +8,23 @@ using MediatR;
 
 namespace GhotokApi.MediatR.Handlers
 {
-    public class AddAppUserRequestHandler : IRequestHandler<AddAppUserRequest, string>
+    public class AddUserInfosRequestHandler : IRequestHandler<AddUserInfosRequest, string>
     {
         private readonly IUnitOfWork _unitOfWork;
 
-        public AddAppUserRequestHandler(IUnitOfWork unitOfWork)
+
+        public AddUserInfosRequestHandler(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<string> Handle(AddAppUserRequest request, CancellationToken cancellationToken)
+        public async Task<string> Handle(AddUserInfosRequest request, CancellationToken cancellationToken)
         {
-            return await Task.Run(() =>
+            return await Task.Run(async () =>
             {
                 try
                 {
-                    _unitOfWork.AppUseRepository.Insert(request.AppUserToAdd);
+                    _unitOfWork.UserRepository.Insert(request.UsersToAdd);
                     return "Done";
                 }
                 catch (Exception e)
@@ -32,14 +34,10 @@ namespace GhotokApi.MediatR.Handlers
                
             });
         }
-
-       
     }
 
-    public class AddAppUserRequest : IRequest<string>
+    public class AddUserInfosRequest : IRequest<string>
     {
-        public AppUser AppUserToAdd{ get; set; }
+        public List<User> UsersToAdd{ get; set; }
     }
-
-
 }

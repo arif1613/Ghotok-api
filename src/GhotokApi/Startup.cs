@@ -10,7 +10,6 @@ using GhotokApi.MediatR.Handlers;
 using GhotokApi.MediatR.NotificationHandlers;
 using GhotokApi.Models.SharedModels;
 using GhotokApi.Services;
-using GhotokApi.Utils.Authentication;
 using GhotokApi.Utils.Otp;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -51,18 +50,12 @@ namespace GhotokApi
             });
             AddDbContext(services);
 
-
             services.AddMemoryCache();
             services.AddScoped<ICacheHelper, CacheHelper>();
-
             //Register Repos
             services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
-
-
             //Register UnitOfWork
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-
             //register services
             services.AddScoped<IAppUserService, AppUserService>();
             services.AddScoped<IUserService,UserService>();
@@ -71,14 +64,11 @@ namespace GhotokApi
             services.AddScoped<IOtpService, OtpService>();
             services.AddScoped<ITokenService,TokenService>();
 
-
             //Register Utils
-            services.AddScoped<ILoginFlow, LoginFlow>();
             services.AddScoped<IOtpSender, OtpSender>();
-
             //MediatR
             BuildMediator(services);
-
+            
             AddSwagger(services);
             AddAuthentication(services);
             services.AddControllers();
@@ -86,29 +76,19 @@ namespace GhotokApi
 
         private static IMediator BuildMediator(IServiceCollection services)
         {
-            //get
-            services.AddMediatR(typeof(GetAppUserRequest));
-            services.AddMediatR(typeof(GetUserInfosRequest));
-            services.AddMediatR(typeof(GetUserInfoRequest));
-            services.AddMediatR(typeof(GetRecentUserInfosRequest));
-
+            //add
+            services.AddMediatR(typeof(AddAppUserRequest));
+            services.AddMediatR(typeof(AddAppUsersRequest));
+            services.AddMediatR(typeof(AddUserInfoRequest));
+            services.AddMediatR(typeof(AddUserInfosRequest));
             //update
             services.AddMediatR(typeof(UpdateUserInfoRequest));
             services.AddMediatR(typeof(UpdateAppUserRequest));
-
             //delete
             services.AddMediatR(typeof(DeleteUserInfoRequest));
-
-            //add
-            services.AddMediatR(typeof(RegisterUserRequest));
-            services.AddMediatR(typeof(LoginUserRequest));
-
+            services.AddMediatR(typeof(DeleteAppUserRequest));
             //Notification
             services.AddMediatR(typeof(ComitDatabaseNotification));
-
-
-
-
             var provider = services.BuildServiceProvider();
             return provider.GetRequiredService<IMediator>();
         }

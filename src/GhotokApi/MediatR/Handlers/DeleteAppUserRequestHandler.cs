@@ -7,22 +7,22 @@ using MediatR;
 
 namespace GhotokApi.MediatR.Handlers
 {
-    public class AddAppUserRequestHandler : IRequestHandler<AddAppUserRequest, string>
+    public class DeleteAppUserRequestHandler : IRequestHandler<DeleteAppUserRequest, string>
     {
         private readonly IUnitOfWork _unitOfWork;
 
-        public AddAppUserRequestHandler(IUnitOfWork unitOfWork)
+        public DeleteAppUserRequestHandler(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<string> Handle(AddAppUserRequest request, CancellationToken cancellationToken)
+        public async Task<string> Handle(DeleteAppUserRequest request, CancellationToken cancellationToken)
         {
             return await Task.Run(() =>
             {
                 try
                 {
-                    _unitOfWork.AppUseRepository.Insert(request.AppUserToAdd);
+                    _unitOfWork.AppUseRepository.Delete(request.AppUserTobeDeleted);
                     return "Done";
                 }
                 catch (Exception e)
@@ -30,16 +30,12 @@ namespace GhotokApi.MediatR.Handlers
                     return e.Message;
                 }
                
-            });
+            }, cancellationToken);
         }
-
-       
     }
 
-    public class AddAppUserRequest : IRequest<string>
+    public class DeleteAppUserRequest : IRequest<string>
     {
-        public AppUser AppUserToAdd{ get; set; }
+        public AppUser AppUserTobeDeleted { get; set; }
     }
-
-
 }
