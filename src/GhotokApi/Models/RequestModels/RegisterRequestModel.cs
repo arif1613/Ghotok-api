@@ -4,6 +4,7 @@ namespace GhotokApi.Models.RequestModels
 {
     public class RegisterRequestModel
     {
+
         [Required]
         public string Otp { get; set; }
 

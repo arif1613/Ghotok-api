@@ -92,11 +92,11 @@ namespace GhotokApi.Controllers
                     return BadRequest(ErrorCodes.UserAlreadyRegistered.ToString());
                 }
 
-                var tokenresponse = _tokenService.GetToken(appUser, inputModel.OtpRequestModel);
+                var tokenresponse =await _tokenService.GetToken(appUser, inputModel.OtpRequestModel);
 
                 return Ok(JsonConvert.SerializeObject(tokenresponse));
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 return BadRequest(ErrorCodes.GenericError.ToString());
             }

@@ -24,23 +24,24 @@ namespace GhotokApi.Services
         public async Task<List<User>> GetUsers(Expression<Func<User, bool>> filter, bool isPublished, bool hasOrderBy = false, bool hasInclude = false, bool isLookingForBride = false,
             int startIndex = 0, int chunkSize = 0)
         {
-            IEnumerable<User> Users = new List<User>();
+            IEnumerable<User> users;
             if (hasInclude && hasOrderBy)
             {
-                Users = await Task.Run(() => _unitOfWork.UserRepository.Get(
+                users = await Task.Run(() => _unitOfWork.UserRepository.Get(
                     r => r.LookingForBride == isLookingForBride && r.IsPublished == isPublished,
-                    orderBy: source => source.OrderBy(r => r.BasicInfo.Name),
+                    orderBy: source => source.OrderByDescending(r => r.ValidFrom),
                     include: s => s
                         .Include(a => a.BasicInfo)
-                        .Include(a => a.EducationInfo).ThenInclude(b=>b.Educations)
+                        .Include(a => a.EducationInfo).ThenInclude(b => b.Educations)
                         .Include(a => a.EducationInfo).ThenInclude(b => b.CurrentJob)
-                        .Include(a => a.FamilyInfo).ThenInclude(d=>d.FamilyMembers),
+                        .Include(a => a.FamilyInfo).ThenInclude(d => d.FamilyMembers),
                     isLookingForBride, startIndex, chunkSize, true));
+                return users.ToList();
             }
 
             if (hasInclude)
             {
-                Users = await Task.Run(() => _unitOfWork.UserRepository.Get(
+                users = await Task.Run(() => _unitOfWork.UserRepository.Get(
                     r => r.LookingForBride == isLookingForBride && r.IsPublished == isPublished,
                     null,
                     include: s => s
@@ -49,32 +50,39 @@ namespace GhotokApi.Services
                         .Include(a => a.EducationInfo).ThenInclude(b => b.CurrentJob)
                         .Include(a => a.FamilyInfo).ThenInclude(d => d.FamilyMembers),
                     isLookingForBride, startIndex, chunkSize, true));
+                return users.ToList();
+
 
             }
 
             if (hasOrderBy)
             {
-                Users = await Task.Run(() => _unitOfWork.UserRepository.Get(
+                users = await Task.Run(() => _unitOfWork.UserRepository.Get(
                     r => r.LookingForBride == isLookingForBride && r.IsPublished == isPublished,
                     orderBy: source => source.OrderBy(r => r.BasicInfo.Name),
                     null,
                     isLookingForBride, startIndex, chunkSize, true));
+                return users.ToList();
+
             }
 
-            return Users.ToList();
+
+            users = await Task.Run(() => _unitOfWork.UserRepository.Get(
+                r => r.LookingForBride == isLookingForBride && r.IsPublished == isPublished,
+                null, null, isLookingForBride, startIndex, chunkSize, true));
+            return users.ToList();
         }
 
         public async Task<User> GetUser(Expression<Func<User, bool>> filter, bool hasInclude = false, bool isLookingForBride = false)
         {
-            User User = new User();
-            IEnumerable<User> Users = new List<User>();
+            User user=null;
+            IEnumerable<User> users;
 
 
             if (hasInclude)
             {
-                Users = await Task.Run(() => _unitOfWork.UserRepository.Get(
-                     r => r.LookingForBride == isLookingForBride,
-                     null,
+                users = await Task.Run(() => _unitOfWork.UserRepository.Get(
+                     filter, null,
                      include: s => s
                          .Include(a => a.BasicInfo)
                          .Include(a => a.EducationInfo).ThenInclude(b => b.Educations)
@@ -82,33 +90,32 @@ namespace GhotokApi.Services
                          .Include(a => a.FamilyInfo).ThenInclude(d => d.FamilyMembers),
                      isLookingForBride));
 
-                if (Users.Any())
+                if (users.Any())
                 {
-                    User = Users.FirstOrDefault();
+                    user = users.FirstOrDefault();
                 }
 
             }
             else
             {
-                Users = await Task.Run(() => _unitOfWork.UserRepository.Get(
+                users = await Task.Run(() => _unitOfWork.UserRepository.Get(
                     r => r.LookingForBride == isLookingForBride, null, null, isLookingForBride));
 
-                if (Users.Any())
+                if (users.Any())
                 {
-                    User = Users.FirstOrDefault();
+                    user = users.FirstOrDefault();
                 }
             }
 
-            return User;
+            return user;
         }
 
         public async Task<List<User>> GetRecentUsers(Expression<Func<User, bool>> filter,  bool isLookingForBride = false)
         {
-            IEnumerable<User> Users = new List<User>();
-            Users = await Task.Run(() => _unitOfWork.UserRepository.GetRecent(
-                 r => r.LookingForBride == isLookingForBride && r.IsPublished,
-                 IncludeProperties.UserIncludingAllProperties, isLookingForBride));
-            return Users.ToList();
+            var users = await Task.Run(() => _unitOfWork.UserRepository.GetRecent(
+                r => r.LookingForBride == isLookingForBride && r.IsPublished,
+                IncludeProperties.UserIncludingAllProperties, isLookingForBride));
+            return users.ToList();
         }
 
         public async Task InsertUser(User User)

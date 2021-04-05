@@ -27,7 +27,7 @@ namespace GhotokApi.Controllers
 
         [Route("getuserinfo")]
         [HttpPost]
-        public async Task<IActionResult> GetUserinfo([FromBody] UserInfoRequestModel requestmodel)
+        public async Task<IActionResult> GetUserinfo([FromBody] UserInfoRequestModel requestmodel,CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
@@ -38,7 +38,7 @@ namespace GhotokApi.Controllers
                 var user = await _mediator.Send(new GetUserInfoRequest
                 {
                     UserInfoRequestModel = requestmodel
-                });
+                }, cancellationToken);
                 return Ok(JsonConvert.SerializeObject(user));
 
 
@@ -146,7 +146,7 @@ namespace GhotokApi.Controllers
 
         [Route("getuserinfos")]
         [HttpPost]
-        public async Task<IActionResult> GetUserInfos([FromBody] UserInfosRequestModel model)
+        public async Task<IActionResult> GetUserInfos([FromBody] UserInfosRequestModel model,CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
@@ -156,7 +156,7 @@ namespace GhotokApi.Controllers
             var users = await _mediator.Send(new GetUserInfosRequest
             {
                 UserInfosRequestModel = model
-            });
+            }, cancellationToken);
             var usersResponse = users.ToList();
             return Ok(JsonConvert.SerializeObject(new UserInfosResponseModel
             {
@@ -167,7 +167,7 @@ namespace GhotokApi.Controllers
 
         [Route("getrecentuserinfos")]
         [HttpPost]
-        public async Task<IActionResult> GetRecentUserInfos([FromBody] UserInfosRequestModel model)
+        public async Task<IActionResult> GetRecentUserInfos([FromBody] UserInfosRequestModel model,CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
@@ -177,7 +177,7 @@ namespace GhotokApi.Controllers
             var users = await _mediator.Send(new GetRecentUserInfosRequest
             {
                 UserInfosRequestModel = model
-            });
+            }, cancellationToken);
 
 
             var usersResponse = users.ToList();

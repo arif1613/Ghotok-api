@@ -67,6 +67,7 @@ namespace GhotokApi
             services.AddScoped<IAppUserService, AppUserService>();
             services.AddScoped<IUserService,UserService>();
             services.AddScoped<IRegistrationService, RegistrationService>();
+            services.AddScoped<ILoginService,LoginService>();
             services.AddScoped<IOtpService, OtpService>();
             services.AddScoped<ITokenService,TokenService>();
 

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
 using GhotokApi.JwtTokenGenerator;
 using GhotokApi.Models.RequestModels;
@@ -13,8 +10,6 @@ namespace GhotokApi.Services
     {
         public async Task<TokenResponseModel> GetToken(AppUser user, OtpRequestModel model)
         {
-            
-
             return await Task.Run(() =>
             {
                 var token = new JwtTokenBuilder()
@@ -26,6 +21,13 @@ namespace GhotokApi.Services
                     .AddRole(user.UserRole)
                     .AddExpiry(user.ValidTill)
                     .Build();
+
+                var t= new TokenResponseModel
+                {
+                    Token = token.Value,
+                    AppUser = user,
+                    OtpRequestModel = model
+                };
                 return new TokenResponseModel
                 {
                     Token = token.Value,

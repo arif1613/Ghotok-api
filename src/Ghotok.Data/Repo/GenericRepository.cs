@@ -45,12 +45,24 @@ namespace Ghotok.Data.Repo
             }
 
             IQueryable<TEntity> query = context.GetDbSet<TEntity>();
-            
-
             if (disableTracking)
             {
                 query = query.AsNoTracking();
             }
+
+            if (filter != null)
+            {
+                if (startIndex == 0 && chunkSize == 0)
+                {
+                    query = query.Where(filter);
+                }
+                else
+                {
+                    query = query.Where(filter).Skip(startIndex).Take(chunkSize);
+                }
+            }
+
+           
 
             if (include != null)
             {
@@ -64,17 +76,7 @@ namespace Ghotok.Data.Repo
             }
 
 
-            if (filter != null)
-            {
-                if (startIndex == 0 && chunkSize == 0)
-                {
-                    query = query.Where(filter);
-                }
-                else
-                {
-                    query = query.Where(filter).Skip(startIndex).Take(chunkSize);
-                }
-            }
+           
 
             if (query == null) return null;
 
