@@ -6,6 +6,7 @@ namespace GhotokApi.Models.RequestModels
 {
     public class UserInfoRequestModel
     {
-        public IEnumerable<KeyValuePair<string, string>> Filters { get; set; }
+        public IEnumerable<IDictionary<string, string>> Filters { get; set; }
+        public bool HasInclude { get; set; }
     }
 }

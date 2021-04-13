@@ -10,7 +10,9 @@ using Ghotok.Data.DataModels;
 using Ghotok.Data.Repo;
 using Ghotok.Data.UnitOfWork;
 using Ghotok.Data.Utils.Cache;
+using GhotokApi.Models.RequestModels;
 using GhotokApi.Services;
+using GhotokApi.Utils.FilterBuilder;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -23,6 +25,8 @@ namespace Ghotok.Api.Test.ServiceTests
     {
         private Mock<IUnitOfWork> _unitOfWorkMock;
         private Mock<IMediator> _mediatorMock;
+        private Mock<IFilterBuilder> _filterBuilderMock;
+
         private IConfiguration Configuration;
         private CacheHelper CacheHelper;
         private IEnumerable<AppUser> appUsers;
@@ -33,6 +37,7 @@ namespace Ghotok.Api.Test.ServiceTests
         {
             _unitOfWorkMock = UnitOfWorkTestHelpers.MockAppuserUnitOfWork();
             _mediatorMock = CommonTestHelpers.MockComponent<IMediator>();
+            _filterBuilderMock = CommonTestHelpers.MockComponent<IFilterBuilder>();
             CacheHelper = CommonTestHelpers.GetCacheHelper();
             Configuration = CommonTestHelpers.GetConfiguration();
 
@@ -50,36 +55,70 @@ namespace Ghotok.Api.Test.ServiceTests
                 Password = $"12345{r}",
                 UserRole = $"role{r}"
             });
-
-            //var AppUserDbSet = RepositoryTestHelper.CreateMockDbSet(AppUsers.AsQueryable());
-            //var DbContext = RepositoryTestHelper.MockContext<IGhotokDbContext>();
-            //DbContext.Setup(r => r.GetDbSet<AppUser>()).Returns(AppUserDbSet.Object);
-
-
-            //var appUserRepo = new GenericRepository<AppUser>(DbContext.Object,CacheHelper,Configuration);
-
-            //appUserRepo.Setup(expression: r => r.Get(r=>r.IsLoggedin)).Returns(new List<AppUser>());
-            //_unitOfWorkMock
-            //    .Setup(r => r.AppUseRepository.Get(It.IsAny<Expression<Func<AppUser, bool>>>(), null, null, false, 0,
-            //        10,
-            //        true)).Returns(appUsers);
-
         }
 
         [TestMethod]
         [TestCategory("AppUser service")]
-        public void AppUser_Repo_Will_Return_Valid_AppUsers()
+        public void AppUser_Repo_Will_Return_Valid_AppUsers_Groom()
         {
-            //_unitOfWorkMock
-            //    .Setup(r => r.AppUseRepository.Get(
-            //        true)).Returns(appUsers.Where(p => p.LookingForBride == false));
-
-            var appUserService = new AppUserService(_unitOfWorkMock.Object,_mediatorMock.Object);
-            var result = appUserService.GetAppUser(null,false,false).GetAwaiter().GetResult();
+            var dic=new Dictionary<string,string>();
+            dic.Add("IsLookingForBride", "true");
+            var appUserService = new AppUserService(_unitOfWorkMock.Object, _mediatorMock.Object, _filterBuilderMock.Object);
+            var result = appUserService.GetAppUsers(new AppUserInfosRequestModel
+            {
+                ChunkSize = 0,
+                HasInclude = false,
+                HasOrderBy = false,
+                Filters = new List<IDictionary<string, string>>
+                {
+                    dic
+                }
+            }).GetAwaiter().GetResult();
             Assert.IsNotNull(result);
-            //Assert.AreEqual(result.IsLoggedin,true);
-            Assert.AreEqual(result.MobileNumber, "mobilenumber 10");
+            Assert.AreEqual(result.Count,30);
 
+            Assert.AreEqual(result.FirstOrDefault().MobileNumber, "mobilenumber 0");
+        }
+
+        [TestMethod]
+        [TestCategory("AppUser service")]
+        public void AppUser_Repo_Will_Return_Valid_AppUsers_Bride()
+        {
+            var dic = new Dictionary<string, string>();
+            dic.Add("IsLookingForBride", "false");
+            var appUserService = new AppUserService(_unitOfWorkMock.Object, _mediatorMock.Object, _filterBuilderMock.Object);
+            var result = appUserService.GetAppUsers(new AppUserInfosRequestModel
+            {
+                ChunkSize = 0,
+                HasInclude = false,
+                HasOrderBy = false,
+                Filters = new List<IDictionary<string, string>>
+                {
+                    dic
+                }
+            }).GetAwaiter().GetResult();
+            Assert.IsNotNull(result);
+            Assert.AreEqual(result.Count, 30);
+
+            Assert.AreEqual(result.FirstOrDefault().MobileNumber, "mobilenumber 0");
+        }
+
+        [TestMethod]
+        [TestCategory("AppUser service")]
+        public void AppUser_Repo_Will_Return_Valid_AppUser()
+        {
+           var appUserService = new AppUserService(_unitOfWorkMock.Object,_mediatorMock.Object, _filterBuilderMock.Object);
+            var result = appUserService.GetAppUser().GetAwaiter().GetResult();
+            Assert.IsNotNull(result);
+            Assert.AreEqual(result.MobileNumber, "mobilenumber 0");
+        }
+
+        [TestCleanup]
+        public void ClenUp()
+        {
+            _unitOfWorkMock.Reset();
+            _mediatorMock.Reset();
+            _filterBuilderMock.Reset();
         }
 
 

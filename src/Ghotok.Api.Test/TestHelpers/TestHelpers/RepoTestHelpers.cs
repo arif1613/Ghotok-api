@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using Ghotok.Data.Context;
 using Ghotok.Data.DataModels;
 using Ghotok.Data.Repo;
@@ -18,7 +19,22 @@ namespace Ghotok.Api.Test.TestHelpers.TestHelpers
 
         public static Mock<IRepository<AppUser>> AppuserMockRepo()
         {
-            var appUsers = Enumerable.Range(0, 50).Select(r => new AppUser
+            var brides = Enumerable.Range(0, 50).Select(r => new AppUser
+            {
+                CountryCode = $"CountryCode {r}",
+                Email = $"Email {r}",
+                Id = Guid.NewGuid(),
+                IsLoggedin = true,
+                IsVarified = true,
+                LanguageChoice = Language.English,
+                LoggedInDevices = 0,
+                LookingForBride = false,
+                MobileNumber = $"mobilenumber {r}",
+                Password = $"12345{r}",
+                UserRole = $"role{r}"
+            });
+
+            var grooms = Enumerable.Range(0, 30).Select(r => new AppUser
             {
                 CountryCode = $"CountryCode {r}",
                 Email = $"Email {r}",
@@ -33,27 +49,16 @@ namespace Ghotok.Api.Test.TestHelpers.TestHelpers
                 UserRole = $"role{r}"
             });
 
-            appUsers.ToList().AddRange(Enumerable.Range(51,100).Select(r=>new AppUser
-            {
-                CountryCode = $"CountryCode {r}",
-                Email = $"Email {r}",
-                Id = Guid.NewGuid(),
-                IsLoggedin = true,
-                IsVarified = true,
-                LanguageChoice = Language.English,
-                LoggedInDevices = 0,
-                LookingForBride = false,
-                MobileNumber = $"mobilenumber {r}",
-                Password = $"12345{r}",
-                UserRole = $"role{r}"
-            }));
 
             GhotokContextMock = ContextTestHelpers.MockContext<IGhotokDbContext>();
-            AppUserMockSet = ContextTestHelpers.CreateMockDbSet(appUsers.AsQueryable());
+            AppUserMockSet = ContextTestHelpers.CreateMockDbSet(brides.AsQueryable());
             GhotokContextMock.Setup(r => r.GetDbSet<AppUser>()).Returns(AppUserMockSet.Object);
             AppUserRepo = new Mock<IRepository<AppUser>>();
-            AppUserRepo.Setup(r => r.Get(null,null,null,It.IsAny<bool>(),0,0,true))
-                .Returns(appUsers.ToList());
+            AppUserRepo.Setup(r => r.Get(It.IsAny<IEnumerable<Expression<Func<AppUser,bool>>>>(),null,null,It.IsAny<bool>(),0,0,true))
+                .Returns(brides.ToList());
+
+            AppUserRepo.Setup(r => r.Get(It.IsAny<IEnumerable<Expression<Func<AppUser, bool>>>>(), null, null, false, 0, 0, true))
+                .Returns(grooms.ToList());
 
             return AppUserRepo;
         }

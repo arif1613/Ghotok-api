@@ -121,8 +121,7 @@ namespace GhotokApi.Controllers
                 return BadRequest(ErrorCodes.InvalidInput.ToString());
             }
 
-            var users =await _userService.GetUsers(model,
-                model.HasOrderBy, model.HasInclude, model.StartIndex,model.ChunkSize);
+            var users =await _userService.GetUsers(model);
 
             if (!users.Any())
             {

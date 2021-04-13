@@ -6,8 +6,11 @@ using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
 using Ghotok.Data.Repo;
 using Ghotok.Data.UnitOfWork;
+using GhotokApi.Common;
 using GhotokApi.MediatR.Handlers;
 using GhotokApi.MediatR.NotificationHandlers;
+using GhotokApi.Models.RequestModels;
+using GhotokApi.Utils.FilterBuilder;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,26 +24,34 @@ namespace GhotokApi.Services
 
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMediator _mediator;
+        private readonly IFilterBuilder _filterBuilder;
 
 
-        public AppUserService(IUnitOfWork unitOfWork, IMediator mediator)
+        public AppUserService(IUnitOfWork unitOfWork, IMediator mediator, IFilterBuilder filterBuilder)
         {
             _unitOfWork = unitOfWork;
             _mediator = mediator;
+            _filterBuilder = filterBuilder;
         }
 
 
-        public async Task<List<AppUser>> GetAppUsers(Expression<Func<AppUser, bool>> filter=null, bool isPublished=true, bool hasOrderBy = false, bool hasInclude = false, bool isLookingForBride = false,
-            int startIndex = 0, int chunkSize = 0)
+        public async Task<List<AppUser>> GetAppUsers(AppUserInfosRequestModel model)
         {
+            var isLookingForBride = false;
+
+            var constructedFilters = _filterBuilder.ConstructAppUserFilterCriteria(model.Filters);
+            foreach (var filter in constructedFilters)
+            {
+                if (filter.Key == AppUserFilter.IslookingForBride)
+                {
+                    isLookingForBride = Convert.ToBoolean(filter.Value);
+                }
+            }
             IEnumerable<AppUser> appUsers = null;
-            if (hasInclude && hasOrderBy)
+            if (model.HasInclude && model.HasOrderBy)
             {
                 appUsers = await Task.Run(() => _unitOfWork.AppUseRepository.Get(
-                    new List<Expression<Func<AppUser, bool>>>
-                    {
-                        r=>r.IsVarified
-                    },
+                   _filterBuilder.GetAppUserFilter(model.Filters),
                     orderBy: source => source.OrderBy(r => r.User.BasicInfo.Name),
                     include: s => s
                         .Include(r => r.User)
@@ -51,50 +62,41 @@ namespace GhotokApi.Services
                         .ThenInclude(b => b.EducationInfo).ThenInclude(b => b.CurrentJob)
                         .Include(r => r.User)
                         .ThenInclude(c => c.FamilyInfo).ThenInclude(c => c.FamilyMembers),
-                    isLookingForBride, startIndex, chunkSize, true));
+                    isLookingForBride,model.StartIndex,model.ChunkSize, true));
                 return appUsers.ToList();
 
             }
 
-            if (hasInclude)
+            if (model.HasInclude)
             {
                 appUsers = await Task.Run(() => _unitOfWork.AppUseRepository.Get(
-                    new List<Expression<Func<AppUser, bool>>>
-                    {
-                        r=>r.IsVarified
-                    },
+                    _filterBuilder.GetAppUserFilter(model.Filters),
                     null,
                     include: s => s
                         .Include(a => a.User.BasicInfo)
                         .Include(a => a.User.EducationInfo).ThenInclude(b => b.Educations)
                         .Include(a => a.User.EducationInfo).ThenInclude(b => b.CurrentJob)
                         .Include(a => a.User.FamilyInfo).ThenInclude(d => d.FamilyMembers),
-                    isLookingForBride, startIndex, chunkSize, true));
+                    isLookingForBride, model.StartIndex, model.ChunkSize, true));
                 return appUsers.ToList();
 
 
             }
 
-            if (hasOrderBy)
+            if (model.HasOrderBy)
             {
                 appUsers = await Task.Run(() => _unitOfWork.AppUseRepository.Get(
-                    new List<Expression<Func<AppUser, bool>>>
-                    {
-                        r=>r.IsVarified
-                    },
+                    _filterBuilder.GetAppUserFilter(model.Filters),
                     orderBy: source => source.OrderBy(r => r.User.BasicInfo.Name),
                     null,
-                    isLookingForBride, startIndex, chunkSize, true));
+                    isLookingForBride, model.StartIndex, model.ChunkSize, true));
                 return appUsers.ToList();
 
             }
 
             appUsers = await Task.Run(() => _unitOfWork.AppUseRepository.Get(
-                new List<Expression<Func<AppUser, bool>>>
-                {
-                    r=>r.IsVarified
-                },
-                null, null, isLookingForBride, startIndex, chunkSize, true));
+                null,
+                null, null, isLookingForBride, model.StartIndex, model.ChunkSize, true));
             return appUsers.ToList();
 
         }
@@ -134,10 +136,7 @@ namespace GhotokApi.Services
             else
             {
                 appUsers = await Task.Run(() => _unitOfWork.AppUseRepository.Get(
-                    new List<Expression<Func<AppUser, bool>>>
-                    {
-                        r=>r.IsVarified
-                    },
+                    null,
                     null, null, isLookingForBride));
 
                 if (appUsers.Any())

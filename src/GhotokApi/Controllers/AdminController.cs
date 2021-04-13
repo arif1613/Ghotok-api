@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
 using Ghotok.Data.UnitOfWork;
 using GhotokApi.MediatR.NotificationHandlers;
+using GhotokApi.Models.RequestModels;
 using GhotokApi.Models.ResponseModels;
 using GhotokApi.Models.SharedModels;
 using GhotokApi.Services;
@@ -32,26 +33,11 @@ namespace GhotokApi.Controllers
             _appUserService = appUserService;
         }
 
-        [HttpGet]
-        [Route("getgrooms")]
-        public async Task<IActionResult> GetGrooms()
+        [HttpPost]
+        [Route("getappusers")]
+        public async Task<IActionResult> GetGrooms([FromBody] AppUserInfosRequestModel model)
         {
-            var users = await _appUserService.GetAppUsers(r => r.IsVarified == true, true, 
-                true, true, true, 0, 0);
-            var appUserResponse = new AppUsersResponseModel
-            {
-                Count = users.Count,
-                AppUsers = users
-            };
-            return Ok(JsonConvert.SerializeObject(appUserResponse));
-        }
-
-        [HttpGet]
-        [Route("getbrides")]
-        public async Task<IActionResult> GetBrides()
-        {
-            var users = await _appUserService.GetAppUsers(r => r.IsVarified == true, true, 
-                true, true, false, 0, 0);
+            var users = await _appUserService.GetAppUsers(model);
             var appUserResponse = new AppUsersResponseModel
             {
                 Count = users.Count,
@@ -75,7 +61,6 @@ namespace GhotokApi.Controllers
         public async Task<IActionResult> BulkInsertGroomData([FromBody] int totalrecord)
         {
             var appusers = new List<AppUser>();
-            var users = new List<User>();
 
 
             for (int i = 0; i < totalrecord; i++)
