@@ -3,19 +3,20 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
+using GhotokApi.Models.RequestModels;
 
 namespace GhotokApi.Services
 {
     public interface IUserService
     {
-        Task<List<User>> GetUsers(Expression<Func<User, bool>> filter, bool isPublished, bool hasOrderBy=false,bool hasInclude=false,
-           bool isLookingForBride = false, int startIndex = 0, int chunkSize = 0);
-        Task<User> GetUser(Expression<Func<User, bool>> filter, bool hasInclude = false, bool isLookingForBride=false);
-        Task<List<User>> GetRecentUsers(Expression<Func<User, bool>> filter, bool isLookingForBride=false);
-        Task InsertUser(User User);
-        Task InsertUsers(List<User> Users);
-        Task UpdateUser(User User);
-        Task DeleteUser(User User);
+        Task<List<User>> GetUsers(UserInfosRequestModel model, bool hasOrderBy=false,bool hasInclude=false,
+           int startIndex = 0, int chunkSize = 0);
+        Task<User> GetUser(UserInfoRequestModel model, bool hasInclude = false);
+        Task<List<User>> GetRecentUsers(UserInfosRequestModel model);
+        Task InsertUser(User user);
+        Task InsertUsers(List<User> users);
+        Task UpdateUser(User user);
+        Task DeleteUser(User user);
         Task SaveDatabse();
     }
 }

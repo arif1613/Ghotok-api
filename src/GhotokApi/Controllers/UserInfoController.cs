@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
+using GhotokApi.Common;
 using GhotokApi.MediatR.Handlers;
 using GhotokApi.MediatR.NotificationHandlers;
 using GhotokApi.Models;
@@ -37,7 +38,7 @@ namespace GhotokApi.Controllers
             }
             try
             {
-                var user = await _userService.GetUser(r => r.Id == requestmodel.UserId, requestmodel.HasInclude);
+                var user = await _userService.GetUser(requestmodel);
                 return Ok(JsonConvert.SerializeObject(user));
 
 
@@ -120,9 +121,8 @@ namespace GhotokApi.Controllers
                 return BadRequest(ErrorCodes.InvalidInput.ToString());
             }
 
-            var users =await _userService.GetUsers(r => r.IsPublished && r.LookingForBride == model.LookingForBride,
-                model.IsPublished, model.HasOrderBy
-                , model.HasInclude, model.LookingForBride, model.StartIndex, model.ChunkSize);
+            var users =await _userService.GetUsers(model,
+                model.HasOrderBy, model.HasInclude, model.StartIndex,model.ChunkSize);
 
             if (!users.Any())
             {
@@ -144,8 +144,7 @@ namespace GhotokApi.Controllers
                 return BadRequest(ErrorCodes.InvalidInput.ToString());
             }
 
-            var users = await _userService.GetRecentUsers(
-                r => r.IsPublished && r.LookingForBride == model.LookingForBride, model.LookingForBride);
+            var users = await _userService.GetRecentUsers(model);
 
             if (!users.Any())
             {

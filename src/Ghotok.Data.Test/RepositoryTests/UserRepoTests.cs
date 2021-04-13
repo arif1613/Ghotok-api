@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using Ghotok.Data.Context;
 using Ghotok.Data.DataModels;
@@ -84,7 +85,10 @@ namespace Ghotok.Data.Test.RepositoryTests
         public void User_Repo_Will_Return_Valid_Users()
         {
             var UserRepo=new GenericRepository<User>(_mockDbContext.Object,CacheHelper,Configuration);
-            var result = UserRepo.Get(r => r.IsPublished);
+            var result = UserRepo.Get(new List<Expression<Func<User, bool>>>
+            {
+                r=>r.IsPublished
+            });
             Assert.IsNotNull(result);
             Assert.AreEqual(result.Count(),105);
         }
@@ -94,7 +98,10 @@ namespace Ghotok.Data.Test.RepositoryTests
         public void User_Repo_Will_Return_Valid_Ordered_Users()
         {
             var UserRepo = new GenericRepository<User>(_mockDbContext.Object, CacheHelper, Configuration);
-            var result = UserRepo.Get(r => r.IsPublished,orderBy:source=>source.OrderByDescending(r=>r.Email));
+            var result = UserRepo.Get(new List<Expression<Func<User, bool>>>
+            {
+                r=>r.IsPublished
+            },orderBy:source=>source.OrderByDescending(r=>r.Email));
             Assert.IsNotNull(result);
             Assert.AreEqual(result.Count(), 105);
             Assert.AreEqual(result.ToList()[10].Email,"Email 9");
@@ -105,7 +112,10 @@ namespace Ghotok.Data.Test.RepositoryTests
         public void User_Repo_Will_Return_Valid_Total_Users()
         {
             var UserRepo = new GenericRepository<User>(_mockDbContext.Object, CacheHelper, Configuration);
-            var result = UserRepo.Get(r => r.IsPublished, orderBy: null,null,false,10,5);
+            var result = UserRepo.Get(new List<Expression<Func<User, bool>>>
+            {
+                r=>r.IsPublished
+            }, orderBy: null,null,false,10,5);
             Assert.IsNotNull(result);
             Assert.AreEqual(result.Count(), 5);
             Assert.AreEqual(result.ToList()[1].MobileNumber, "mobilenumber 11");
@@ -116,7 +126,10 @@ namespace Ghotok.Data.Test.RepositoryTests
         public void User_Repo_Will_Return_Valid_Users_With_Included_Properties()
         {
             var UserRepo = new GenericRepository<User>(_mockDbContext.Object, CacheHelper, Configuration);
-            var result = UserRepo.Get(r => r.IsPublished, orderBy: null,
+            var result = UserRepo.Get(new List<Expression<Func<User, bool>>>
+                {
+                    r=>r.IsPublished
+                }, orderBy: null,
                 source => source.Include(r => r.BasicInfo).Include(r => r.EducationInfo).ThenInclude(a => a.Educations)
                     .Include(r=>r.EducationInfo).ThenInclude(b=>b.CurrentJob),
                 false, 0, 5);
@@ -137,7 +150,10 @@ namespace Ghotok.Data.Test.RepositoryTests
         public void User_Repo_Will_Return_Valid_Recent_Users()
         {
             var UserRepo = new GenericRepository<User>(_mockDbContext.Object, CacheHelper, Configuration);
-            var result = UserRepo.GetRecent(r => r.IsPublished,null,true);
+            var result = UserRepo.GetRecent(new List<Expression<Func<User, bool>>>
+            {
+                r=>r.IsPublished
+            }, null,true);
             Assert.IsNotNull(result);
             Assert.AreEqual(result.Count(), 5);
         }

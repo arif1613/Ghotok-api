@@ -9,11 +9,11 @@ namespace Ghotok.Data.Repo
 {
     public interface IRepository<TEntity> where TEntity : class
     {
-        IEnumerable<TEntity> Get(Expression<Func<TEntity, bool>> filter,
+        IEnumerable<TEntity> Get(IEnumerable<Expression<Func<TEntity, bool>>> filters,
             Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy=null, Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null,
              bool? isLookingForBride = false, int startIndex = 0, int chunkSize = 0, bool disableTracking = true);
 
-        IEnumerable<TEntity> GetRecent(Expression<Func<TEntity, bool>> filter,string includeProperties, bool isLookingForBride);
+        IEnumerable<TEntity> GetRecent(IEnumerable<Expression<Func<TEntity, bool>>> filters, string includeProperties, bool isLookingForBride);
         IQueryable<TEntity> GetWithRawSql(FormattableString query, params object[] parameters);
 
         void Insert(TEntity entity);

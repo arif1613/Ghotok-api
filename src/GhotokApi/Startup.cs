@@ -10,6 +10,7 @@ using GhotokApi.MediatR.Handlers;
 using GhotokApi.MediatR.NotificationHandlers;
 using GhotokApi.Models.SharedModels;
 using GhotokApi.Services;
+using GhotokApi.Utils.FilterBuilder;
 using GhotokApi.Utils.Otp;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -66,6 +67,8 @@ namespace GhotokApi
 
             //Register Utils
             services.AddScoped<IOtpSender, OtpSender>();
+            services.AddScoped<IFilterBuilder,FilterBuilder>();
+
             //MediatR
             BuildMediator(services);
             

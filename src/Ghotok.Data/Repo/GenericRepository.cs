@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Ghotok.Data.Context;
+using Ghotok.Data.DataModels;
 using Ghotok.Data.Utils.Cache;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
@@ -25,11 +26,12 @@ namespace Ghotok.Data.Repo
             _configuration = configuration;
         }
 
-        public IEnumerable<TEntity> Get(Expression<Func<TEntity, bool>> filter, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
+        public IEnumerable<TEntity> Get(IEnumerable<Expression<Func<TEntity, bool>>> filters, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
             Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null, bool? isLookingForBride=false,
             int startIndex = 0, int chunkSize = 0, bool disableTracking = true)
         {
             string cacheKey = null;
+            
             if (include!=null)
             {
                 cacheKey = CreateCacheKey(typeof(TEntity), startIndex, chunkSize, isLookingForBride.ToString(), IncludeProperties.AppUserIncludingAllProperties);
@@ -50,17 +52,19 @@ namespace Ghotok.Data.Repo
                 query = query.AsNoTracking();
             }
 
-            if (filter != null)
+            if (filters != null)
             {
                 if (startIndex == 0 && chunkSize == 0)
                 {
-                    query = query.Where(filter);
+                    query = query.AndAll(filters);
                 }
                 else
                 {
-                    query = query.Where(filter).Skip(startIndex).Take(chunkSize);
+                    query = query.AndAll(filters).Skip(startIndex).Take(chunkSize);
                 }
             }
+
+            
 
             if (include != null)
             {
@@ -91,7 +95,7 @@ namespace Ghotok.Data.Repo
         }
 
 
-        public IEnumerable<TEntity> GetRecent(Expression<Func<TEntity, bool>> filter,string includeProperties, bool isLookingForBride)
+        public IEnumerable<TEntity> GetRecent(IEnumerable<Expression<Func<TEntity, bool>>> filters, string includeProperties, bool isLookingForBride)
         {
             if (_cacheHelper.Exists(CreateRestCacheKey(typeof(TEntity), isLookingForBride.ToString())))
             {
@@ -99,7 +103,7 @@ namespace Ghotok.Data.Repo
             }
             IQueryable<TEntity> query = context.GetDbSet<TEntity>();
 
-            query = query.Where(filter);
+            query = query.AndAll(filters);
             var totalRecords = query.Count();
             var recentRecordsWithoutCahing = totalRecords % Convert.ToInt32(_configuration["UserInfoCacheChunkSize"]);
             var skip = (totalRecords - recentRecordsWithoutCahing);

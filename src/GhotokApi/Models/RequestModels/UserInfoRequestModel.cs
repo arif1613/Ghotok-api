@@ -1,13 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace GhotokApi.Models.RequestModels
 {
     public class UserInfoRequestModel
     {
-        [Required]
-        public Guid UserId { get; set; }
-        public bool HasInclude { get; set; }
-
+        public IEnumerable<KeyValuePair<string, string>> Filters { get; set; }
     }
 }

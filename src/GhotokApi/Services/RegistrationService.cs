@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
 using Ghotok.Data.UnitOfWork;
@@ -29,9 +31,15 @@ namespace GhotokApi.Services
             {
                 if (model.RegisterByMobileNumber)
                 {
-                    return _unitOfWork.AppUseRepository.Get(r => r.MobileNumber == model.MobileNumber).FirstOrDefault() != null;
+                    return _unitOfWork.AppUseRepository.Get(new List<Expression<Func<AppUser, bool>>>
+                    {
+                        r=>r.MobileNumber==model.MobileNumber
+                    }).FirstOrDefault() != null;
                 }
-                return _unitOfWork.AppUseRepository.Get(r => r.Email == model.Email).FirstOrDefault() != null;
+                return _unitOfWork.AppUseRepository.Get(new List<Expression<Func<AppUser, bool>>>
+                {
+                    r=>r.Email==model.Email
+                }).FirstOrDefault() != null;
             });
         }
         public async Task<AppUser> RegisterUserAsync(RegisterRequestModel inputModel)
@@ -94,9 +102,16 @@ namespace GhotokApi.Services
         {
             await Task.Run(async () =>
             {
+               
                 var user = model.RegisterByMobileNumber
-                    ? _unitOfWork.AppUseRepository.Get(r => r.MobileNumber == model.MobileNumber).FirstOrDefault()
-                    : _unitOfWork.AppUseRepository.Get(r => r.Email == model.Email).FirstOrDefault();
+                    ? _unitOfWork.AppUseRepository.Get(new List<Expression<Func<AppUser, bool>>>
+                    {
+                        r=>r.MobileNumber==model.MobileNumber
+                    }).FirstOrDefault()
+                    : _unitOfWork.AppUseRepository.Get(new List<Expression<Func<AppUser, bool>>>
+                    {
+                        r=>r.Email==model.Email
+                    }).FirstOrDefault();
                 if (user == null) return;
 
                 var cachekey = model.RegisterByMobileNumber ? model.MobileNumber : model.Email;

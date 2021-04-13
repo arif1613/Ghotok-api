@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using Ghotok.Data.Context;
 using Ghotok.Data.DataModels;
@@ -56,7 +57,10 @@ namespace Ghotok.Data.Test.RepositoryTests
         public void AppUser_Repo_Will_Return_Valid_AppUsers()
         {
             var appUserRepo=new GenericRepository<AppUser>(_mockDbContext.Object,CacheHelper,Configuration);
-            var result = appUserRepo.Get(r => r.IsLoggedin);
+            var result = appUserRepo.Get(new List<Expression<Func<AppUser, bool>>>
+            {
+                r=>r.IsLoggedin
+            });
             Assert.IsNotNull(result);
             Assert.AreEqual(result.Count(),100);
         }
@@ -66,7 +70,10 @@ namespace Ghotok.Data.Test.RepositoryTests
         public void AppUser_Repo_Will_Return_Valid_Ordered_AppUsers()
         {
             var appUserRepo = new GenericRepository<AppUser>(_mockDbContext.Object, CacheHelper, Configuration);
-            var result = appUserRepo.Get(r => r.IsLoggedin,orderBy:source=>source.OrderByDescending(r=>r.Email));
+            var result = appUserRepo.Get(new List<Expression<Func<AppUser, bool>>>
+            {
+                r=>r.IsLoggedin
+            }, orderBy:source=>source.OrderByDescending(r=>r.Email));
             Assert.IsNotNull(result);
             Assert.AreEqual(result.Count(), 100);
             Assert.AreEqual(result.ToList()[10].Email,"Email 9");
@@ -77,7 +84,10 @@ namespace Ghotok.Data.Test.RepositoryTests
         public void AppUser_Repo_Will_Return_Valid_Total_AppUsers()
         {
             var appUserRepo = new GenericRepository<AppUser>(_mockDbContext.Object, CacheHelper, Configuration);
-            var result = appUserRepo.Get(r => r.IsLoggedin, orderBy: null,null,false,10,5);
+            var result = appUserRepo.Get(new List<Expression<Func<AppUser, bool>>>
+            {
+                r=>r.IsLoggedin
+            }, orderBy: null,null,false,10,5);
             Assert.IsNotNull(result);
             Assert.AreEqual(result.Count(), 5);
             Assert.AreEqual(result.ToList()[1].MobileNumber, "mobilenumber 11");

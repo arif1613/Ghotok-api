@@ -30,14 +30,17 @@ namespace GhotokApi.Services
         }
 
 
-        public async Task<List<AppUser>> GetAppUsers(Expression<Func<AppUser, bool>> filter, bool isPublished, bool hasOrderBy = false, bool hasInclude = false, bool isLookingForBride = false,
+        public async Task<List<AppUser>> GetAppUsers(Expression<Func<AppUser, bool>> filter=null, bool isPublished=true, bool hasOrderBy = false, bool hasInclude = false, bool isLookingForBride = false,
             int startIndex = 0, int chunkSize = 0)
         {
-            IEnumerable<AppUser> appUsers = new List<AppUser>();
+            IEnumerable<AppUser> appUsers = null;
             if (hasInclude && hasOrderBy)
             {
                 appUsers = await Task.Run(() => _unitOfWork.AppUseRepository.Get(
-                    r => r.LookingForBride == isLookingForBride && r.User.IsPublished == isPublished,
+                    new List<Expression<Func<AppUser, bool>>>
+                    {
+                        r=>r.IsVarified
+                    },
                     orderBy: source => source.OrderBy(r => r.User.BasicInfo.Name),
                     include: s => s
                         .Include(r => r.User)
@@ -56,7 +59,10 @@ namespace GhotokApi.Services
             if (hasInclude)
             {
                 appUsers = await Task.Run(() => _unitOfWork.AppUseRepository.Get(
-                    r => r.LookingForBride == isLookingForBride && r.User.IsPublished == isPublished,
+                    new List<Expression<Func<AppUser, bool>>>
+                    {
+                        r=>r.IsVarified
+                    },
                     null,
                     include: s => s
                         .Include(a => a.User.BasicInfo)
@@ -72,7 +78,10 @@ namespace GhotokApi.Services
             if (hasOrderBy)
             {
                 appUsers = await Task.Run(() => _unitOfWork.AppUseRepository.Get(
-                    r => r.LookingForBride == isLookingForBride && r.User.IsPublished == isPublished,
+                    new List<Expression<Func<AppUser, bool>>>
+                    {
+                        r=>r.IsVarified
+                    },
                     orderBy: source => source.OrderBy(r => r.User.BasicInfo.Name),
                     null,
                     isLookingForBride, startIndex, chunkSize, true));
@@ -81,23 +90,29 @@ namespace GhotokApi.Services
             }
 
             appUsers = await Task.Run(() => _unitOfWork.AppUseRepository.Get(
-                r => r.LookingForBride == isLookingForBride && r.User.IsPublished == isPublished,
+                new List<Expression<Func<AppUser, bool>>>
+                {
+                    r=>r.IsVarified
+                },
                 null, null, isLookingForBride, startIndex, chunkSize, true));
             return appUsers.ToList();
 
         }
 
-        public async Task<AppUser> GetAppUser(Expression<Func<AppUser, bool>> filter, bool hasInclude = false, bool isLookingForBride = false)
+        public async Task<AppUser> GetAppUser(Expression<Func<AppUser, bool>> filter=null, bool hasInclude = false, bool isLookingForBride = false)
         {
 
-            AppUser appUser = new AppUser();
+            AppUser appUser = null;
             IEnumerable<AppUser> appUsers = new List<AppUser>();
 
 
             if (hasInclude)
             {
                 appUsers = await Task.Run(() => _unitOfWork.AppUseRepository.Get(
-                    r => r.LookingForBride == isLookingForBride,
+                    new List<Expression<Func<AppUser, bool>>>
+                    {
+                        r=>r.IsVarified
+                    },
                     null,
                     include: s => s
                         .Include(r => r.User)
@@ -119,7 +134,11 @@ namespace GhotokApi.Services
             else
             {
                 appUsers = await Task.Run(() => _unitOfWork.AppUseRepository.Get(
-                    r => r.LookingForBride == isLookingForBride, null, null, isLookingForBride));
+                    new List<Expression<Func<AppUser, bool>>>
+                    {
+                        r=>r.IsVarified
+                    },
+                    null, null, isLookingForBride));
 
                 if (appUsers.Any())
                 {
@@ -134,7 +153,10 @@ namespace GhotokApi.Services
         {
             IEnumerable<AppUser> appUsers = new List<AppUser>();
             appUsers = await Task.Run(() => _unitOfWork.AppUseRepository.GetRecent(
-                 r => r.LookingForBride == isLookingForBride && r.User.IsPublished,
+                new List<Expression<Func<AppUser, bool>>>
+                {
+                    r=>r.IsVarified
+                },
                  IncludeProperties.UserIncludingAllProperties, isLookingForBride));
             return appUsers.ToList();
         }

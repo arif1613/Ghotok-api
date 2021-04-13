@@ -6,8 +6,11 @@ using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
 using Ghotok.Data.Repo;
 using Ghotok.Data.UnitOfWork;
+using GhotokApi.Common;
 using GhotokApi.MediatR.Handlers;
 using GhotokApi.MediatR.NotificationHandlers;
+using GhotokApi.Models.RequestModels;
+using GhotokApi.Utils.FilterBuilder;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,23 +21,34 @@ namespace GhotokApi.Services
 
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMediator _mediator;
+        private readonly IFilterBuilder _filterBuilder;
 
 
-        public UserService(IUnitOfWork unitOfWork, IMediator mediator)
+
+        public UserService(IUnitOfWork unitOfWork, IMediator mediator, IFilterBuilder filterBuilder)
         {
             _unitOfWork = unitOfWork;
             _mediator = mediator;
+            _filterBuilder = filterBuilder;
         }
 
 
-        public async Task<List<User>> GetUsers(Expression<Func<User, bool>> filter, bool isPublished, bool hasOrderBy = false, bool hasInclude = false, bool isLookingForBride = false,
+        public async Task<List<User>> GetUsers(UserInfosRequestModel model, bool hasOrderBy = false, bool hasInclude = false,
             int startIndex = 0, int chunkSize = 0)
         {
+            var isLookingForBride = false;
+            foreach (var filter in model.Filters)
+            {
+                if (filter.Key == UserFilter.IslookingForBride.ToString())
+                {
+                    isLookingForBride = Convert.ToBoolean(filter.Value);
+                }
+            }
             IEnumerable<User> users;
             if (hasInclude && hasOrderBy)
             {
                 users = await Task.Run(() => _unitOfWork.UserRepository.Get(
-                    r => r.LookingForBride == isLookingForBride && r.IsPublished == isPublished,
+                    _filterBuilder.GetUserFilter(model.Filters),
                     orderBy: source => source.OrderByDescending(r => r.ValidFrom),
                     include: s => s
                         .Include(a => a.BasicInfo)
@@ -48,7 +62,7 @@ namespace GhotokApi.Services
             if (hasInclude)
             {
                 users = await Task.Run(() => _unitOfWork.UserRepository.Get(
-                    r => r.LookingForBride == isLookingForBride && r.IsPublished == isPublished,
+                    _filterBuilder.GetUserFilter(model.Filters),
                     null,
                     include: s => s
                         .Include(a => a.BasicInfo)
@@ -64,7 +78,7 @@ namespace GhotokApi.Services
             if (hasOrderBy)
             {
                 users = await Task.Run(() => _unitOfWork.UserRepository.Get(
-                    r => r.LookingForBride == isLookingForBride && r.IsPublished == isPublished,
+                    _filterBuilder.GetUserFilter(model.Filters),
                     orderBy: source => source.OrderBy(r => r.BasicInfo.Name),
                     null,
                     isLookingForBride, startIndex, chunkSize, true));
@@ -74,21 +88,29 @@ namespace GhotokApi.Services
 
 
             users = await Task.Run(() => _unitOfWork.UserRepository.Get(
-                r => r.LookingForBride == isLookingForBride && r.IsPublished == isPublished,
+                _filterBuilder.GetUserFilter(model.Filters),
                 null, null, isLookingForBride, startIndex, chunkSize, true));
             return users.ToList();
         }
 
-        public async Task<User> GetUser(Expression<Func<User, bool>> filter, bool hasInclude = false, bool isLookingForBride = false)
+        public async Task<User> GetUser(UserInfoRequestModel model, bool hasInclude = false)
         {
             User user = null;
             IEnumerable<User> users;
-
+            var isLookingForBride = false;
+            foreach (var filter in model.Filters)
+            {
+                if (filter.Key == UserFilter.IslookingForBride.ToString())
+                {
+                    isLookingForBride = Convert.ToBoolean(filter.Value);
+                }
+            }
 
             if (hasInclude)
             {
                 users = await Task.Run(() => _unitOfWork.UserRepository.Get(
-                     filter, null,
+                    _filterBuilder.GetUserFilter(model.Filters),
+                     null,
                      include: s => s
                          .Include(a => a.BasicInfo)
                          .Include(a => a.EducationInfo).ThenInclude(b => b.Educations)
@@ -105,7 +127,7 @@ namespace GhotokApi.Services
             else
             {
                 users = await Task.Run(() => _unitOfWork.UserRepository.Get(
-                    r => r.LookingForBride == isLookingForBride, null, null, isLookingForBride));
+                    _filterBuilder.GetUserFilter(model.Filters), null, null, isLookingForBride));
 
                 if (users.Any())
                 {
@@ -116,19 +138,27 @@ namespace GhotokApi.Services
             return user;
         }
 
-        public async Task<List<User>> GetRecentUsers(Expression<Func<User, bool>> filter, bool isLookingForBride = false)
+        public async Task<List<User>> GetRecentUsers(UserInfosRequestModel model)
         {
+            var isLookingForBride = false;
+            foreach (var filter in model.Filters)
+            {
+                if (filter.Key == UserFilter.IslookingForBride.ToString())
+                {
+                    isLookingForBride = Convert.ToBoolean(filter.Value);
+                }
+            }
             var users = await Task.Run(() => _unitOfWork.UserRepository.GetRecent(
-                r => r.LookingForBride == isLookingForBride && r.IsPublished,
+                _filterBuilder.GetUserFilter(model.Filters),
                 IncludeProperties.UserIncludingAllProperties, isLookingForBride));
             return users.ToList();
         }
 
-        public async Task InsertUser(User User)
+        public async Task InsertUser(User user)
         {
             var result = await _mediator.Send(new AddUserInfoRequest
             {
-                UserToAdd = User
+                UserToAdd = user
             });
 
             if (result == "Done")
@@ -137,11 +167,11 @@ namespace GhotokApi.Services
             }
         }
 
-        public async Task InsertUsers(List<User> Users)
+        public async Task InsertUsers(List<User> users)
         {
             var result = await _mediator.Send(new AddUserInfosRequest
             {
-                UsersToAdd = Users
+                UsersToAdd = users
             });
 
             if (result == "Done")
@@ -150,11 +180,11 @@ namespace GhotokApi.Services
             }
         }
 
-        public async Task UpdateUser(User User)
+        public async Task UpdateUser(User user)
         {
             var result = await _mediator.Send(new UpdateUserInfoRequest
             {
-                UserTobeUpdated = User
+                UserTobeUpdated = user
             });
 
             if (result == "Done")
@@ -163,11 +193,11 @@ namespace GhotokApi.Services
             }
         }
 
-        public async Task DeleteUser(User User)
+        public async Task DeleteUser(User user)
         {
             var result = await _mediator.Send(new DeleteUserInfoRequest
             {
-                UserTobeDeleted = User
+                UserTobeDeleted = user
             });
 
             if (result == "Done")
