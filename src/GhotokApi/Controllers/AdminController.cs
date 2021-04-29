@@ -35,7 +35,7 @@ namespace GhotokApi.Controllers
 
         [HttpPost]
         [Route("getappusers")]
-        public async Task<IActionResult> GetGrooms([FromBody] AppUserInfosRequestModel model)
+        public async Task<IActionResult> GetAppUsers([FromBody] AppUserInfosRequestModel model)
         {
             var users = await _appUserService.GetAppUsers(model);
             var appUserResponse = new AppUsersResponseModel

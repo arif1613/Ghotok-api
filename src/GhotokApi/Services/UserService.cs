@@ -50,13 +50,14 @@ namespace GhotokApi.Services
             {
                 users = await Task.Run(() => _unitOfWork.UserRepository.Get(
                     _filterBuilder.GetUserFilter(model.Filters),
+                    isLookingForBride,
                     orderBy: source => source.OrderByDescending(r => r.ValidFrom),
                     include: s => s
                         .Include(a => a.BasicInfo)
                         .Include(a => a.EducationInfo).ThenInclude(b => b.Educations)
                         .Include(a => a.EducationInfo).ThenInclude(b => b.CurrentJob)
                         .Include(a => a.FamilyInfo).ThenInclude(d => d.FamilyMembers),
-                    isLookingForBride, model.StartIndex, model.ChunkSize, true));
+                     model.StartIndex, model.ChunkSize, true));
                 return users.ToList();
             }
 
@@ -64,13 +65,14 @@ namespace GhotokApi.Services
             {
                 users = await Task.Run(() => _unitOfWork.UserRepository.Get(
                     _filterBuilder.GetUserFilter(model.Filters),
-                    null,
+                    
+                    isLookingForBride,null,
                     include: s => s
                         .Include(a => a.BasicInfo)
                         .Include(a => a.EducationInfo).ThenInclude(b => b.Educations)
                         .Include(a => a.EducationInfo).ThenInclude(b => b.CurrentJob)
                         .Include(a => a.FamilyInfo).ThenInclude(d => d.FamilyMembers),
-                    isLookingForBride, model.StartIndex, model.ChunkSize, true));
+                     model.StartIndex, model.ChunkSize, true));
                 return users.ToList();
 
 
@@ -80,17 +82,17 @@ namespace GhotokApi.Services
             {
                 users = await Task.Run(() => _unitOfWork.UserRepository.Get(
                     _filterBuilder.GetUserFilter(model.Filters),
+                    isLookingForBride,
                     orderBy: source => source.OrderBy(r => r.BasicInfo.Name),
-                    null,
-                    isLookingForBride, model.StartIndex, model.ChunkSize, true));
+                    null, model.StartIndex, model.ChunkSize, true));
                 return users.ToList();
 
             }
 
 
             users = await Task.Run(() => _unitOfWork.UserRepository.Get(
-                _filterBuilder.GetUserFilter(model.Filters),
-                null, null, isLookingForBride, model.StartIndex, model.ChunkSize, true));
+                _filterBuilder.GetUserFilter(model.Filters), isLookingForBride,
+                null, null,  model.StartIndex, model.ChunkSize, true));
             return users.ToList();
         }
 
@@ -112,13 +114,13 @@ namespace GhotokApi.Services
             {
                 users = await Task.Run(() => _unitOfWork.UserRepository.Get(
                     _filterBuilder.GetUserFilter(model.Filters),
+                    isLookingForBride,
                      null,
                      include: s => s
                          .Include(a => a.BasicInfo)
                          .Include(a => a.EducationInfo).ThenInclude(b => b.Educations)
                          .Include(a => a.EducationInfo).ThenInclude(b => b.CurrentJob)
-                         .Include(a => a.FamilyInfo).ThenInclude(d => d.FamilyMembers),
-                     isLookingForBride));
+                         .Include(a => a.FamilyInfo).ThenInclude(d => d.FamilyMembers)));
 
                 if (users.Any())
                 {
@@ -129,7 +131,7 @@ namespace GhotokApi.Services
             else
             {
                 users = await Task.Run(() => _unitOfWork.UserRepository.Get(
-                    _filterBuilder.GetUserFilter(model.Filters), null, null, isLookingForBride));
+                    _filterBuilder.GetUserFilter(model.Filters), isLookingForBride, null, null));
 
                 if (users.Any())
                 {

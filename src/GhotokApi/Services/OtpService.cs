@@ -25,7 +25,7 @@ namespace GhotokApi.Services
             return await Task.Run(() =>
             {
                 //Send Otp here
-                var CacheKey = !model.RegisterByMobileNumber ? $"Otp_{ model.Email}" : $"Otp_ {model.MobileNumber}";
+                var CacheKey = !model.RegisterByMobileNumber ? $"Otp_{ model.Email}" : $"Otp_{model.MobileNumber}";
                 if (_cacheHelper.Exists(CacheKey))
                 {
                     return _cacheHelper.Get<OtpResponseModel>(CacheKey);
@@ -38,14 +38,13 @@ namespace GhotokApi.Services
 
                 return new OtpResponseModel { Otp = otp.ToString() };
             });
-            throw new NotImplementedException();
         }
 
         public async Task<bool> IsOtpValidAsync(RegisterRequestModel model)
         {
             return await Task.Run(() =>
             {
-                var cachekey = !model.OtpRequestModel.RegisterByMobileNumber ? $"Otp_{ model.OtpRequestModel.Email}" : $"Otp_ {model.OtpRequestModel.MobileNumber}";
+                var cachekey = !model.OtpRequestModel.RegisterByMobileNumber ? $"Otp_{model.OtpRequestModel.Email}" : $"Otp_{model.OtpRequestModel.MobileNumber}";
                 if (!_cacheHelper.Exists(cachekey))
                 {
                     return false;

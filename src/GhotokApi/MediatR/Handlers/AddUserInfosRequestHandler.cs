@@ -20,7 +20,7 @@ namespace GhotokApi.MediatR.Handlers
 
         public async Task<string> Handle(AddUserInfosRequest request, CancellationToken cancellationToken)
         {
-            return await Task.Run(async () =>
+            return await Task.Run(() =>
             {
                 try
                 {
@@ -32,7 +32,7 @@ namespace GhotokApi.MediatR.Handlers
                     return e.Message;
                 }
                
-            });
+            }, cancellationToken);
         }
     }
 

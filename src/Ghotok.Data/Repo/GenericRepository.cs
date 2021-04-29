@@ -26,25 +26,20 @@ namespace Ghotok.Data.Repo
             _configuration = configuration;
         }
 
-        public IEnumerable<TEntity> Get(IEnumerable<Expression<Func<TEntity, bool>>> filters, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
-            Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null, bool? isLookingForBride=false,
+        public IEnumerable<TEntity> Get(IEnumerable<Expression<Func<TEntity, bool>>> filters, bool? isLookingForBride, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
+            Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null,
             int startIndex = 0, int chunkSize = 0, bool disableTracking = true)
         {
             string cacheKey = null;
-            
-            if (include!=null)
-            {
-                cacheKey = CreateCacheKey(typeof(TEntity), startIndex, chunkSize, isLookingForBride.ToString(), IncludeProperties.AppUserIncludingAllProperties);
-            }
-            else
-            {
-                cacheKey = CreateCacheKey(typeof(TEntity), startIndex, chunkSize, isLookingForBride.ToString(), null);
-            }
+           
+                cacheKey = CreateCacheKey(typeof(TEntity), startIndex, chunkSize, isLookingForBride.ToString(),
+                    include != null ? IncludeProperties.AppUserIncludingAllProperties : null);
 
-            if (_cacheHelper.Exists(cacheKey))
-            {
-                return _cacheHelper.Get<IEnumerable<TEntity>>(cacheKey);
-            }
+
+                if (cacheKey != null && _cacheHelper.Exists(cacheKey))
+                {
+                    return _cacheHelper.Get<IEnumerable<TEntity>>(cacheKey);
+                }
 
             IQueryable<TEntity> query = context.GetDbSet<TEntity>();
             if (disableTracking)
@@ -64,7 +59,7 @@ namespace Ghotok.Data.Repo
                 }
             }
 
-            
+
 
             if (include != null)
             {
@@ -92,6 +87,14 @@ namespace Ghotok.Data.Repo
             }
 
             return query.ToList() ?? null;
+        }
+
+        public IEnumerable<TEntity> Get(Expression<Func<TEntity, bool>> filter)
+        {
+            IQueryable<TEntity> query = context.GetDbSet<TEntity>();
+            query = query.AsNoTracking();
+            query = query.Where(filter);
+            return query.ToList();
         }
 
 
@@ -184,7 +187,7 @@ namespace Ghotok.Data.Repo
             context.DeleteEntry(entity);
         }
 
-        
+
         #region Private methods
 
         private string CreateCacheKey(Type type, in int startIndex, in int chunkSize, in string isLookingForBride, string includeProperties)

@@ -200,7 +200,7 @@ namespace GhotokApi.Controllers
                 return Ok();
 
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return BadRequest(ErrorCodes.RecordNotFound.ToString());
             }

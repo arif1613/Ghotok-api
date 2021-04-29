@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
+using Ghotok.Data.UnitOfWork;
 using Ghotok.Data.Utils.Cache;
 using GhotokApi.MediatR.Handlers;
 using GhotokApi.MediatR.NotificationHandlers;
@@ -11,68 +13,45 @@ namespace GhotokApi.Services
 {
     public class LoginService : ILoginService
     {
-        private readonly IAppUserService _appUserService;
         private readonly IMediator _mediator;
-        private readonly ICacheHelper _cacheHelper;
+        private readonly IUnitOfWork _unitOfWork;
 
 
 
-        public LoginService(IAppUserService appUserService, IMediator mediator, ICacheHelper cacheHelper)
+
+        public LoginService(IMediator mediator, IUnitOfWork unitOfWork)
         {
-            _appUserService = appUserService;
             _mediator = mediator;
-            _cacheHelper = cacheHelper;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<bool> IsUserLoggedInAsync(OtpRequestModel model)
         {
-            AppUser user;
-            if (model.RegisterByMobileNumber)
-            {
-                user = await _appUserService.GetAppUser(r => r.MobileNumber == model.MobileNumber &&
-                                                             r.RegisterByMobileNumber == model.RegisterByMobileNumber &&
-                                                             r.Password == model.Password && r.LoggedInDevices == 3);
-                return user != null;
-            }
 
-            user = await _appUserService.GetAppUser(r => r.Email == model.Email &&
-                                                         r.RegisterByMobileNumber == false && r.Password == model.Password &&
-                                                         r.LoggedInDevices == 3);
-            return user != null;
+            return await Task.Run(() =>
+            {
+                var user = GetAppUser(model);
+                var userLoggedinDevices = user.LoggedInDevices;
+                return userLoggedinDevices >=3;
+            });
+
         }
 
         public async Task<bool> IsUserLoggedOutAsync(OtpRequestModel model)
         {
-            AppUser user;
-            if (model.RegisterByMobileNumber)
+            return await Task.Run(() =>
             {
-                user = await _appUserService.GetAppUser(r => r.MobileNumber == model.MobileNumber &&
-                                                             r.RegisterByMobileNumber == model.RegisterByMobileNumber &&
-                                                             r.Password == model.Password && r.LoggedInDevices == 0);
-                return user != null;
-            }
+                var user = GetAppUser(model);
+                var userLoggedinDevices = user.LoggedInDevices;
+                return userLoggedinDevices == 0;
+            });
 
-            user = await _appUserService.GetAppUser(r => r.Email == model.Email &&
-                                                         r.RegisterByMobileNumber == false && r.Password == model.Password &&
-                                                         r.LoggedInDevices == 0);
-            return user != null;
         }
 
         public async Task<AppUser> LogInUserAsync(OtpRequestModel model)
         {
-            var user = model.RegisterByMobileNumber
-                ? await _appUserService.GetAppUser(
-                    r => r.MobileNumber == model.MobileNumber &&
-                         r.RegisterByMobileNumber == model.RegisterByMobileNumber &&
-                         r.Password == model.Password)
-                : await _appUserService.GetAppUser(
-                    r => r.Email == model.Email && r.RegisterByMobileNumber == model.RegisterByMobileNumber &&
-                         r.Password == model.Password);
-
+            var user = GetAppUser(model);
             if (user == null) return null;
-
-            var cachekey = model.RegisterByMobileNumber ? model.MobileNumber : model.Email;
-
             user.LoggedInDevices = user.LoggedInDevices + 1;
             user.IsLoggedin = user.LoggedInDevices != 0;
             try
@@ -88,10 +67,7 @@ namespace GhotokApi.Services
 
 
                 }
-                if (_cacheHelper.Exists(cachekey))
-                {
-                    _cacheHelper.Update(user, cachekey);
-                }
+
             }
             catch (Exception)
             {
@@ -102,21 +78,10 @@ namespace GhotokApi.Services
 
         public async Task<AppUser> LogOutUserAsync(OtpRequestModel model)
         {
-            var user = model.RegisterByMobileNumber
-                ? await _appUserService.GetAppUser(
-                    r => r.MobileNumber == model.MobileNumber &&
-                         r.RegisterByMobileNumber == model.RegisterByMobileNumber &&
-                         r.Password == model.Password)
-                : await _appUserService.GetAppUser(
-                    r => r.Email == model.Email && r.RegisterByMobileNumber == model.RegisterByMobileNumber &&
-                         r.Password == model.Password);
-
+            var user = GetAppUser(model);
             if (user == null) return null;
-
-            var cachekey = model.RegisterByMobileNumber ? model.MobileNumber : model.Email;
-
             user.LoggedInDevices = user.LoggedInDevices <= 0 ? 0 : user.LoggedInDevices - 1;
-            user.IsLoggedin = user.LoggedInDevices != 0;
+            user.IsLoggedin = user.LoggedInDevices == 0;
             try
             {
                 var response = await _mediator.Send(new UpdateAppUserRequest
@@ -130,15 +95,41 @@ namespace GhotokApi.Services
 
 
                 }
-                if (_cacheHelper.Exists(cachekey))
-                {
-                    _cacheHelper.Update(user, cachekey);
-                }
+
             }
             catch (Exception)
             {
                 return null;
             }
+            return user;
+        }
+
+        private string CreateCacheKey(Type type, in int startIndex, in int chunkSize, in string isLookingForBride, string includeProperties)
+        {
+            var cacheKey = $"{type.Name}_{startIndex}_{chunkSize}_{isLookingForBride}";
+            if (!string.IsNullOrEmpty(includeProperties))
+            {
+                foreach (var includeProperty in includeProperties.Split
+                    (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    cacheKey = $"{cacheKey}_{includeProperty}";
+                }
+            }
+
+            return cacheKey;
+        }
+
+        private AppUser GetAppUser(OtpRequestModel model)
+        {
+            var user = model.RegisterByMobileNumber
+                ? _unitOfWork.AppUseRepository.Get(
+                    r => r.MobileNumber == model.MobileNumber &&
+                         r.RegisterByMobileNumber == model.RegisterByMobileNumber &&
+                         r.Password == model.Password).FirstOrDefault()
+                : _unitOfWork.AppUseRepository.Get(
+                    r => r.Email == model.Email && r.RegisterByMobileNumber == model.RegisterByMobileNumber &&
+                         r.Password == model.Password).FirstOrDefault();
+
             return user;
         }
     }

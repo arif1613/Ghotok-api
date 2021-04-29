@@ -88,7 +88,7 @@ namespace Ghotok.Data.Test.RepositoryTests
             var result = UserRepo.Get(new List<Expression<Func<User, bool>>>
             {
                 r=>r.IsPublished
-            });
+            },null);
             Assert.IsNotNull(result);
             Assert.AreEqual(result.Count(),105);
         }
@@ -101,7 +101,7 @@ namespace Ghotok.Data.Test.RepositoryTests
             var result = UserRepo.Get(new List<Expression<Func<User, bool>>>
             {
                 r=>r.IsPublished
-            },orderBy:source=>source.OrderByDescending(r=>r.Email));
+            }, null,orderBy: source=>source.OrderByDescending(r=>r.Email));
             Assert.IsNotNull(result);
             Assert.AreEqual(result.Count(), 105);
             Assert.AreEqual(result.ToList()[10].Email,"Email 9");
@@ -115,7 +115,7 @@ namespace Ghotok.Data.Test.RepositoryTests
             var result = UserRepo.Get(new List<Expression<Func<User, bool>>>
             {
                 r=>r.IsPublished
-            }, orderBy: null,null,false,10,5);
+            }, null, orderBy: null,null,10,5);
             Assert.IsNotNull(result);
             Assert.AreEqual(result.Count(), 5);
             Assert.AreEqual(result.ToList()[1].MobileNumber, "mobilenumber 11");
@@ -129,10 +129,10 @@ namespace Ghotok.Data.Test.RepositoryTests
             var result = UserRepo.Get(new List<Expression<Func<User, bool>>>
                 {
                     r=>r.IsPublished
-                }, orderBy: null,
+                }, null, orderBy: null,
                 source => source.Include(r => r.BasicInfo).Include(r => r.EducationInfo).ThenInclude(a => a.Educations)
                     .Include(r=>r.EducationInfo).ThenInclude(b=>b.CurrentJob),
-                false, 0, 5);
+                 0, 5);
             Assert.IsNotNull(result);
             Assert.AreEqual(result.Count(), 5);
             Assert.IsNotNull(result.ToList()[0].BasicInfo);

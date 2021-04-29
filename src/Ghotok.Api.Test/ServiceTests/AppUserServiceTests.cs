@@ -41,20 +41,7 @@ namespace Ghotok.Api.Test.ServiceTests
             CacheHelper = CommonTestHelpers.GetCacheHelper();
             Configuration = CommonTestHelpers.GetConfiguration();
 
-            appUsers = Enumerable.Range(0, 100).Select(r => new AppUser
-            {
-                CountryCode = $"CountryCode {r}",
-                Email = $"Email {r}",
-                Id = Guid.NewGuid(),
-                IsLoggedin = true,
-                IsVarified = true,
-                LanguageChoice = Language.English,
-                LoggedInDevices = 0,
-                LookingForBride = false,
-                MobileNumber = $"mobilenumber {r}",
-                Password = $"12345{r}",
-                UserRole = $"role{r}"
-            });
+
         }
 
         [TestMethod]

@@ -18,12 +18,10 @@ namespace GhotokApi.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMediator _mediator;
-        private readonly ICacheHelper _cacheHelper;
-        public RegistrationService(IUnitOfWork unitOfWork, IMediator mediator, ICacheHelper cacheHelper)
+        public RegistrationService(IUnitOfWork unitOfWork, IMediator mediator)
         {
             _unitOfWork = unitOfWork;
             _mediator = mediator;
-            _cacheHelper = cacheHelper;
         }
         public async Task<bool> IsUserRegisteredAsync(OtpRequestModel model)
         {
@@ -31,15 +29,16 @@ namespace GhotokApi.Services
             {
                 if (model.RegisterByMobileNumber)
                 {
-                    return _unitOfWork.AppUseRepository.Get(new List<Expression<Func<AppUser, bool>>>
+                   return _unitOfWork.AppUseRepository.Get(new List<Expression<Func<AppUser, bool>>>
                     {
-                        r=>r.MobileNumber==model.MobileNumber
-                    }).FirstOrDefault() != null;
+                        r=>r.MobileNumber==model.MobileNumber && r.Password==model.Password,
+                    },null).FirstOrDefault() != null;
                 }
+
                 return _unitOfWork.AppUseRepository.Get(new List<Expression<Func<AppUser, bool>>>
                 {
-                    r=>r.Email==model.Email
-                }).FirstOrDefault() != null;
+                    r=>r.Email==model.Email && r.Password==model.Password
+                },null).FirstOrDefault() != null;
             });
         }
         public async Task<AppUser> RegisterUserAsync(RegisterRequestModel inputModel)
@@ -107,14 +106,13 @@ namespace GhotokApi.Services
                     ? _unitOfWork.AppUseRepository.Get(new List<Expression<Func<AppUser, bool>>>
                     {
                         r=>r.MobileNumber==model.MobileNumber
-                    }).FirstOrDefault()
+                    },null).FirstOrDefault()
                     : _unitOfWork.AppUseRepository.Get(new List<Expression<Func<AppUser, bool>>>
                     {
                         r=>r.Email==model.Email
-                    }).FirstOrDefault();
+                    },null).FirstOrDefault();
                 if (user == null) return;
 
-                var cachekey = model.RegisterByMobileNumber ? model.MobileNumber : model.Email;
                 user.LoggedInDevices = 0;
                 user.IsVarified = false;
 
@@ -132,10 +130,7 @@ namespace GhotokApi.Services
                         await _mediator.Publish(new ComitDatabaseNotification());
 
                     }
-                    if (_cacheHelper.Exists(cachekey))
-                    {
-                        _cacheHelper.Update(user, cachekey);
-                    }
+                   
                 }
                 catch (Exception e)
                 {
