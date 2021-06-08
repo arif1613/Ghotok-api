@@ -1,9 +1,0 @@
-C:\Arif_Git\GhotokApi\src\GhotokApi\Ghotok.Data\bin\x64\Release\netcoreapp3.1\Ghotok.Data.deps.json
-C:\Arif_Git\GhotokApi\src\GhotokApi\Ghotok.Data\bin\x64\Release\netcoreapp3.1\Ghotok.Data.dll
-C:\Arif_Git\GhotokApi\src\GhotokApi\Ghotok.Data\bin\x64\Release\netcoreapp3.1\Ghotok.Data.pdb
-C:\Arif_Git\GhotokApi\src\GhotokApi\Ghotok.Data\obj\x64\Release\netcoreapp3.1\Ghotok.Data.csprojAssemblyReference.cache
-C:\Arif_Git\GhotokApi\src\GhotokApi\Ghotok.Data\obj\x64\Release\netcoreapp3.1\Ghotok.Data.AssemblyInfoInputs.cache
-C:\Arif_Git\GhotokApi\src\GhotokApi\Ghotok.Data\obj\x64\Release\netcoreapp3.1\Ghotok.Data.AssemblyInfo.cs
-C:\Arif_Git\GhotokApi\src\GhotokApi\Ghotok.Data\obj\x64\Release\netcoreapp3.1\Ghotok.Data.csproj.CoreCompileInputs.cache
-C:\Arif_Git\GhotokApi\src\GhotokApi\Ghotok.Data\obj\x64\Release\netcoreapp3.1\Ghotok.Data.dll
-C:\Arif_Git\GhotokApi\src\GhotokApi\Ghotok.Data\obj\x64\Release\netcoreapp3.1\Ghotok.Data.pdb

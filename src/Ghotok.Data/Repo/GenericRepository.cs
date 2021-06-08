@@ -30,10 +30,8 @@ namespace Ghotok.Data.Repo
             Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null,
             int startIndex = 0, int chunkSize = 0, bool disableTracking = true)
         {
-            string cacheKey = null;
-           
-                cacheKey = CreateCacheKey(typeof(TEntity), startIndex, chunkSize, isLookingForBride.ToString(),
-                    include != null ? IncludeProperties.AppUserIncludingAllProperties : null);
+            var cacheKey = CreateCacheKey(typeof(TEntity), startIndex, chunkSize, isLookingForBride.ToString(),
+                include != null ? IncludeProperties.AppUserIncludingAllProperties : null);
 
 
                 if (cacheKey != null && _cacheHelper.Exists(cacheKey))
