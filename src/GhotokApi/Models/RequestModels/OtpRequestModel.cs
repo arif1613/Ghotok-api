@@ -14,61 +14,22 @@ namespace GhotokApi.Models.RequestModels
         [Required]
         [EmailAddress]
         public string Email {
-            get
-            {
-                return _email;
-            }
-            set
-            {
-                if (!RegisterByMobileNumber)
-                {
-                    _email = value;
-                }
-                else
-                {
-                    _email = "myemail@ghotok.com";
-                }
-            }
+            get => _email;
+            set { _email = !RegisterByMobileNumber ? value : "myemail@ghotok.com"; }
         }
 
         [Required]
         [Phone]
         public string MobileNumber
         {
-            get
-            {
-                return _mobileNumber;
-            }
-            set
-            {
-                if (RegisterByMobileNumber)
-                {
-                    _mobileNumber = value;
-                }
-                else
-                {
-                    _mobileNumber = "0000000000";
-                }
-            }
+            get => _mobileNumber;
+            set { _mobileNumber = RegisterByMobileNumber ? value : "0000000000"; }
         }
         [Required]
         public string CountryCode
         {
-            get
-            {
-                return _countrycode;
-            }
-            set
-            {
-                if (RegisterByMobileNumber)
-                {
-                    _countrycode = value;
-                }
-                else
-                {
-                    _countrycode = "+00";
-                }
-            }
+            get => _countrycode;
+            set { _countrycode = RegisterByMobileNumber ? value : "+00"; }
         }
         [Required]
         [MinLength(6, ErrorMessage = "Password minimum length is 6")]

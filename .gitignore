@@ -19,7 +19,7 @@ x64/
 x86/
 bld/
 [Bb]in/
-[Oo]bj/
+*.obj/
 [Ll]og/
 
 # Visual Studio 2015 cache/options directory
@@ -259,3 +259,10 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
+/src/GhotokApi/obj
+/src/GhotokApi/bin
+/src/GhotokApi/bin/debug
+/src/Ghotok.Api.Test/obj
+/src/Ghotok.Api.Test/bin
+/src/Ghotok.Data.Test/obj
+/src/Ghotok.Data.Test/bin

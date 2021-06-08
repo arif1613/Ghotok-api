@@ -122,9 +122,10 @@ namespace GhotokApi.Services
                          .Include(a => a.EducationInfo).ThenInclude(b => b.CurrentJob)
                          .Include(a => a.FamilyInfo).ThenInclude(d => d.FamilyMembers)));
 
-                if (users.Any())
+                var enumerable = users as User[] ?? users.ToArray();
+                if (enumerable.Any())
                 {
-                    user = users.FirstOrDefault();
+                    user = enumerable.FirstOrDefault();
                 }
 
             }
@@ -133,9 +134,10 @@ namespace GhotokApi.Services
                 users = await Task.Run(() => _unitOfWork.UserRepository.Get(
                     _filterBuilder.GetUserFilter(model.Filters), isLookingForBride, null, null));
 
-                if (users.Any())
+                var enumerable = users as User[] ?? users.ToArray();
+                if (enumerable.Any())
                 {
-                    user = users.FirstOrDefault();
+                    user = enumerable.FirstOrDefault();
                 }
             }
 
