@@ -1,0 +1,33 @@
+
+Get Users:
+
+{
+  "filters": [
+    {
+      "IslookingForBride": "false",
+      "IsPublished": "true"
+      
+    }
+  ],
+  "startIndex": 0,
+  "chunkSize": 0,
+  "hasOrderBy": true,
+  "hasInclude": true
+}
+
+
+Get Appusers:
+
+{
+  "filters": [
+    {
+      "IslookingForBride": "true",
+      "IsLoggedIn": "false",
+      "UserRole": "User"
+    }
+  ],
+  "startIndex": 0,
+  "chunkSize": 100,
+  "hasOrderBy": true,
+  "hasInclude": true
+}

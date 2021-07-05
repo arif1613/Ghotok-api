@@ -84,7 +84,7 @@ namespace GhotokApi.Services
 
         public async Task<User> GetUser(UserInfoRequestModel model)
         {
-            var result = await _mediator.Send(new GetAppUserRequest
+            var result = await _mediator.Send(new GetUserRequest
             {
                 model = model
             });

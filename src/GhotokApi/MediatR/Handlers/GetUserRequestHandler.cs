@@ -13,18 +13,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GhotokApi.MediatR.Handlers
 {
-    public class GetAppUserRequestHandler : IRequestHandler<GetAppUserRequest, User>
+    public class GetUserRequestHandler : IRequestHandler<GetUserRequest, User>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IFilterBuilder _filterBuilder;
 
-        public GetAppUserRequestHandler(IUnitOfWork unitOfWork, IFilterBuilder filterBuilder)
+        public GetUserRequestHandler(IUnitOfWork unitOfWork, IFilterBuilder filterBuilder)
         {
             _unitOfWork = unitOfWork;
             _filterBuilder = filterBuilder;
         }
 
-        public async Task<User> Handle(GetAppUserRequest request, CancellationToken cancellationToken)
+        public async Task<User> Handle(GetUserRequest request, CancellationToken cancellationToken)
         {
             User user = null;
 
@@ -74,7 +74,7 @@ namespace GhotokApi.MediatR.Handlers
 
     }
 
-    public class GetAppUserRequest : IRequest<User>
+    public class GetUserRequest : IRequest<User>
     {
         public UserInfoRequestModel model { get; set; }
     }

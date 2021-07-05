@@ -79,6 +79,11 @@ namespace GhotokApi
 
         private static IMediator BuildMediator(IServiceCollection services)
         {
+            //Get
+            services.AddMediatR(typeof(GetAppUsersRequest));
+            services.AddMediatR(typeof(GetUserRequest));
+
+
             //add
             services.AddMediatR(typeof(AddAppUserRequest));
             services.AddMediatR(typeof(AddAppUsersRequest));
