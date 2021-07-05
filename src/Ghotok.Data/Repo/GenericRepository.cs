@@ -26,11 +26,11 @@ namespace Ghotok.Data.Repo
             _configuration = configuration;
         }
 
-        public IEnumerable<TEntity> Get(IEnumerable<Expression<Func<TEntity, bool>>> filters, bool? isLookingForBride, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
+        public IEnumerable<TEntity> Get(IEnumerable<Expression<Func<TEntity, bool>>> filters, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
             Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null,
             int startIndex = 0, int chunkSize = 0, bool disableTracking = true)
         {
-            var cacheKey = CreateCacheKey(typeof(TEntity), startIndex, chunkSize, isLookingForBride.ToString(),
+            var cacheKey = CreateCacheKey(typeof(TEntity), startIndex, chunkSize,filters.ToString(),
                 include != null ? IncludeProperties.AppUserIncludingAllProperties : null);
 
 
@@ -72,17 +72,15 @@ namespace Ghotok.Data.Repo
 
             if (query == null) return null;
             //add to cache
-            if (isLookingForBride != null)
-            {
+            
                 if (query.Count() % Convert.ToInt32(_configuration["UserInfoCacheChunkSize"]) == 0)
                 {
                     _cacheHelper.Add(query.ToList(), cacheKey, Convert.ToInt32(_configuration["AppUserCacheMinute"]));
-                    if (_cacheHelper.Exists(CreateRestCacheKey(typeof(TEntity), isLookingForBride.ToString())))
+                    if (_cacheHelper.Exists(CreateRestCacheKey(typeof(TEntity), filters.ToString())))
                     {
-                        _cacheHelper.Clear(CreateRestCacheKey(typeof(TEntity), isLookingForBride.ToString()));
+                        _cacheHelper.Clear(CreateRestCacheKey(typeof(TEntity),filters.ToString()));
                     }
                 }
-            }
 
             return query.ToList() ?? null;
         }
@@ -96,11 +94,11 @@ namespace Ghotok.Data.Repo
         }
 
 
-        public IEnumerable<TEntity> GetRecent(IEnumerable<Expression<Func<TEntity, bool>>> filters, string includeProperties, bool isLookingForBride)
+        public IEnumerable<TEntity> GetRecent(IEnumerable<Expression<Func<TEntity, bool>>> filters, string includeProperties)
         {
-            if (_cacheHelper.Exists(CreateRestCacheKey(typeof(TEntity), isLookingForBride.ToString())))
+            if (_cacheHelper.Exists(CreateRestCacheKey(typeof(TEntity), filters.ToString())))
             {
-                return _cacheHelper.Get<IEnumerable<TEntity>>(CreateRestCacheKey(typeof(TEntity), isLookingForBride.ToString()));
+                return _cacheHelper.Get<IEnumerable<TEntity>>(CreateRestCacheKey(typeof(TEntity), filters.ToString()));
             }
             IQueryable<TEntity> query = context.GetDbSet<TEntity>();
 
@@ -125,10 +123,10 @@ namespace Ghotok.Data.Repo
             if (query == null) return null;
 
             //add to cache
-            if (!_cacheHelper.Exists(CreateRestCacheKey(typeof(TEntity), isLookingForBride.ToString())))
+            if (!_cacheHelper.Exists(CreateRestCacheKey(typeof(TEntity), filters.ToString())))
             {
                 _cacheHelper.Add<IEnumerable<TEntity>>(query.ToList(),
-                    CreateRestCacheKey(typeof(TEntity), isLookingForBride.ToString()),
+                    CreateRestCacheKey(typeof(TEntity), filters.ToString()),
                     Convert.ToInt32(_configuration["RecentUserCacheMinute"]));
             }
 

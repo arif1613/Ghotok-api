@@ -73,7 +73,7 @@ namespace Ghotok.Data.Test.RepositoryTests
             var result = appUserRepo.Get(new List<Expression<Func<AppUser, bool>>>
             {
                 r=>r.IsLoggedin
-            }, null, orderBy:source=>source.OrderByDescending(r=>r.Email));
+            },  orderBy:source=>source.OrderByDescending(r=>r.Email));
             Assert.IsNotNull(result);
             Assert.AreEqual(result.Count(), 100);
             Assert.AreEqual(result.ToList()[10].Email,"Email 9");
@@ -87,7 +87,7 @@ namespace Ghotok.Data.Test.RepositoryTests
             var result = appUserRepo.Get(new List<Expression<Func<AppUser, bool>>>
             {
                 r=>r.IsLoggedin
-            }, null, orderBy: null,null,10,5);
+            },  orderBy: null,null,10,5);
             Assert.IsNotNull(result);
             Assert.AreEqual(result.Count(), 5);
             Assert.AreEqual(result.ToList()[1].MobileNumber, "mobilenumber 11");

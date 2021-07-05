@@ -41,6 +41,8 @@ namespace GhotokApi.Utils.FilterBuilder
                 s.Key switch
                 {
                     UserFilter.IslookingForBride => (ap) =>ap.LookingForBride== Convert.ToBoolean(s.Value),
+                    UserFilter.IsPictureUploaded => (ap) => ap.IsPictureUploaded == Convert.ToBoolean(s.Value),
+                    UserFilter.RegisterByMobileNumber => (ap) => ap.RegisterByMobileNumber == Convert.ToBoolean(s.Value),
                     UserFilter.Email => (ap) => ap.Email == s.Value,
                     UserFilter.IsPublished => (ap) => ap.IsPublished ==Convert.ToBoolean(s.Value),
                     UserFilter.MobileNumber => (ap) => ap.MobileNumber == s.Value,

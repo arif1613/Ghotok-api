@@ -101,7 +101,7 @@ namespace Ghotok.Data.Test.RepositoryTests
             var result = UserRepo.Get(new List<Expression<Func<User, bool>>>
             {
                 r=>r.IsPublished
-            }, null,orderBy: source=>source.OrderByDescending(r=>r.Email));
+            }, orderBy: source=>source.OrderByDescending(r=>r.Email));
             Assert.IsNotNull(result);
             Assert.AreEqual(result.Count(), 105);
             Assert.AreEqual(result.ToList()[10].Email,"Email 9");
@@ -115,7 +115,7 @@ namespace Ghotok.Data.Test.RepositoryTests
             var result = UserRepo.Get(new List<Expression<Func<User, bool>>>
             {
                 r=>r.IsPublished
-            }, null, orderBy: null,null,10,5);
+            },  orderBy: null,null,10,5);
             Assert.IsNotNull(result);
             Assert.AreEqual(result.Count(), 5);
             Assert.AreEqual(result.ToList()[1].MobileNumber, "mobilenumber 11");
@@ -129,7 +129,7 @@ namespace Ghotok.Data.Test.RepositoryTests
             var result = UserRepo.Get(new List<Expression<Func<User, bool>>>
                 {
                     r=>r.IsPublished
-                }, null, orderBy: null,
+                },  orderBy: null,
                 source => source.Include(r => r.BasicInfo).Include(r => r.EducationInfo).ThenInclude(a => a.Educations)
                     .Include(r=>r.EducationInfo).ThenInclude(b=>b.CurrentJob),
                  0, 5);
@@ -153,7 +153,7 @@ namespace Ghotok.Data.Test.RepositoryTests
             var result = UserRepo.GetRecent(new List<Expression<Func<User, bool>>>
             {
                 r=>r.IsPublished
-            }, null,true);
+            }, null);
             Assert.IsNotNull(result);
             Assert.AreEqual(result.Count(), 5);
         }

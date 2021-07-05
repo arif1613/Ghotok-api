@@ -5,6 +5,8 @@
         IslookingForBride,
         IsPublished,
         MobileNumber,
-        Email
+        Email,
+        IsPictureUploaded,
+        RegisterByMobileNumber
     }
 }

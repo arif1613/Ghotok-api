@@ -35,22 +35,11 @@ namespace GhotokApi.Services
 
         public async Task<List<User>> GetUsers(UserInfosRequestModel model)
         {
-            var isLookingForBride = false;
-
-            var constructedFilters = _filterBuilder.ConstructUserFilterCriteria(model.Filters);
-            foreach (var filter in constructedFilters)
-            {
-                if (filter.Key==UserFilter.IslookingForBride)
-                {
-                    isLookingForBride = Convert.ToBoolean(filter.Value);
-                }
-            }
             IEnumerable<User> users;
             if (model.HasInclude && model.HasOrderBy)
             {
                 users = await Task.Run(() => _unitOfWork.UserRepository.Get(
                     _filterBuilder.GetUserFilter(model.Filters),
-                    isLookingForBride,
                     orderBy: source => source.OrderByDescending(r => r.ValidFrom),
                     include: s => s
                         .Include(a => a.BasicInfo)
@@ -65,9 +54,7 @@ namespace GhotokApi.Services
             {
                 users = await Task.Run(() => _unitOfWork.UserRepository.Get(
                     _filterBuilder.GetUserFilter(model.Filters),
-                    
-                    isLookingForBride,null,
-                    include: s => s
+                    null, include: s => s
                         .Include(a => a.BasicInfo)
                         .Include(a => a.EducationInfo).ThenInclude(b => b.Educations)
                         .Include(a => a.EducationInfo).ThenInclude(b => b.CurrentJob)
@@ -82,7 +69,6 @@ namespace GhotokApi.Services
             {
                 users = await Task.Run(() => _unitOfWork.UserRepository.Get(
                     _filterBuilder.GetUserFilter(model.Filters),
-                    isLookingForBride,
                     orderBy: source => source.OrderBy(r => r.BasicInfo.Name),
                     null, model.StartIndex, model.ChunkSize, true));
                 return users.ToList();
@@ -91,73 +77,25 @@ namespace GhotokApi.Services
 
 
             users = await Task.Run(() => _unitOfWork.UserRepository.Get(
-                _filterBuilder.GetUserFilter(model.Filters), isLookingForBride,
+                _filterBuilder.GetUserFilter(model.Filters), 
                 null, null,  model.StartIndex, model.ChunkSize, true));
             return users.ToList();
         }
 
         public async Task<User> GetUser(UserInfoRequestModel model)
         {
-            User user = null;
-            IEnumerable<User> users;
-            var isLookingForBride = false;
-            var constructedFilters = _filterBuilder.ConstructUserFilterCriteria(model.Filters);
-            foreach (var filter in constructedFilters)
+            var result = await _mediator.Send(new GetAppUserRequest
             {
-                if (filter.Key == UserFilter.IslookingForBride)
-                {
-                    isLookingForBride = Convert.ToBoolean(filter.Value);
-                }
-            }
-
-            if (model.HasInclude)
-            {
-                users = await Task.Run(() => _unitOfWork.UserRepository.Get(
-                    _filterBuilder.GetUserFilter(model.Filters),
-                    isLookingForBride,
-                     null,
-                     include: s => s
-                         .Include(a => a.BasicInfo)
-                         .Include(a => a.EducationInfo).ThenInclude(b => b.Educations)
-                         .Include(a => a.EducationInfo).ThenInclude(b => b.CurrentJob)
-                         .Include(a => a.FamilyInfo).ThenInclude(d => d.FamilyMembers)));
-
-                var enumerable = users as User[] ?? users.ToArray();
-                if (enumerable.Any())
-                {
-                    user = enumerable.FirstOrDefault();
-                }
-
-            }
-            else
-            {
-                users = await Task.Run(() => _unitOfWork.UserRepository.Get(
-                    _filterBuilder.GetUserFilter(model.Filters), isLookingForBride, null, null));
-
-                var enumerable = users as User[] ?? users.ToArray();
-                if (enumerable.Any())
-                {
-                    user = enumerable.FirstOrDefault();
-                }
-            }
-
-            return user;
+                model = model
+            });
+            return result;
         }
 
         public async Task<List<User>> GetRecentUsers(UserInfosRequestModel model)
         {
-            var isLookingForBride = false;
-            var constructedFilters = _filterBuilder.ConstructUserFilterCriteria(model.Filters);
-            foreach (var filter in constructedFilters)
-            {
-                if (filter.Key == UserFilter.IslookingForBride)
-                {
-                    isLookingForBride = Convert.ToBoolean(filter.Value);
-                }
-            }
             var users = await Task.Run(() => _unitOfWork.UserRepository.GetRecent(
                 _filterBuilder.GetUserFilter(model.Filters),
-                IncludeProperties.UserIncludingAllProperties, isLookingForBride));
+                IncludeProperties.UserIncludingAllProperties));
             return users.ToList();
         }
 

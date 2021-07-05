@@ -51,7 +51,7 @@ namespace GhotokApi.Services
             if (model.HasInclude && model.HasOrderBy)
             {
                 appUsers = await Task.Run(() => _unitOfWork.AppUseRepository.Get(
-                   _filterBuilder.GetAppUserFilter(model.Filters), isLookingForBride,
+                   _filterBuilder.GetAppUserFilter(model.Filters), 
                     orderBy: source => source.OrderBy(r => r.User.BasicInfo.Name),
                     include: s => s
                         .Include(r => r.User)
@@ -70,7 +70,7 @@ namespace GhotokApi.Services
             if (model.HasInclude)
             {
                 appUsers = await Task.Run(() => _unitOfWork.AppUseRepository.Get(
-                    _filterBuilder.GetAppUserFilter(model.Filters), isLookingForBride,
+                    _filterBuilder.GetAppUserFilter(model.Filters), 
                     null,
                     include: s => s
                         .Include(a => a.User.BasicInfo)
@@ -86,7 +86,7 @@ namespace GhotokApi.Services
             if (model.HasOrderBy)
             {
                 appUsers = await Task.Run(() => _unitOfWork.AppUseRepository.Get(
-                    _filterBuilder.GetAppUserFilter(model.Filters), isLookingForBride,
+                    _filterBuilder.GetAppUserFilter(model.Filters), 
                     orderBy: source => source.OrderBy(r => r.User.BasicInfo.Name),
                     null, model.StartIndex, model.ChunkSize, true));
                 return appUsers.ToList();
@@ -94,7 +94,7 @@ namespace GhotokApi.Services
             }
 
             appUsers = await Task.Run(() => _unitOfWork.AppUseRepository.Get(
-                null, isLookingForBride,
+                null, 
                 null, null, model.StartIndex, model.ChunkSize, true));
             return appUsers.ToList();
 
@@ -106,7 +106,6 @@ namespace GhotokApi.Services
             AppUser appUser = null;
             IEnumerable<AppUser> appUsers = new List<AppUser>();
 
-
             if (hasInclude)
             {
                 appUsers = await Task.Run(() => _unitOfWork.AppUseRepository.Get(
@@ -114,7 +113,7 @@ namespace GhotokApi.Services
                     {
                        filter
                     },
-                    isLookingForBride,
+                    
                     include: s => s
                         .Include(r => r.User)
                         .ThenInclude(a => a.BasicInfo)
@@ -137,7 +136,7 @@ namespace GhotokApi.Services
                     new List<Expression<Func<AppUser, bool>>>
                     {
                         filter
-                    }, isLookingForBride, null, null));
+                    },  null, null));
 
                 if (appUsers.Any())
                 {
@@ -156,7 +155,7 @@ namespace GhotokApi.Services
                 {
                     filter
                 },
-                 IncludeProperties.UserIncludingAllProperties, isLookingForBride));
+                 IncludeProperties.UserIncludingAllProperties));
             return appUsers.ToList();
         }
 

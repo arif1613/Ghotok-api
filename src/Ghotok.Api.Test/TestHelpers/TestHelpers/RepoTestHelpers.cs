@@ -54,10 +54,10 @@ namespace Ghotok.Api.Test.TestHelpers.TestHelpers
             AppUserMockSet = ContextTestHelpers.CreateMockDbSet(brides.AsQueryable());
             GhotokContextMock.Setup(r => r.GetDbSet<AppUser>()).Returns(AppUserMockSet.Object);
             AppUserRepo = new Mock<IRepository<AppUser>>();
-            AppUserRepo.Setup(r => r.Get(It.IsAny<IEnumerable<Expression<Func<AppUser,bool>>>>(), It.IsAny<bool>(), null,null,0,0,true))
+            AppUserRepo.Setup(r => r.Get(It.IsAny<IEnumerable<Expression<Func<AppUser,bool>>>>(),  null,null,0,0,true))
                 .Returns(brides.ToList());
 
-            AppUserRepo.Setup(r => r.Get(It.IsAny<IEnumerable<Expression<Func<AppUser, bool>>>>(), false,null, null,  0, 0, true))
+            AppUserRepo.Setup(r => r.Get(It.IsAny<IEnumerable<Expression<Func<AppUser, bool>>>>(), null, null,  0, 0, true))
                 .Returns(grooms.ToList());
 
             return AppUserRepo;
@@ -129,7 +129,7 @@ namespace Ghotok.Api.Test.TestHelpers.TestHelpers
             var userMockSet = ContextTestHelpers.CreateMockDbSet(users.AsQueryable());
             userContextMock.Setup(r => r.GetDbSet<User>()).Returns(userMockSet.Object);
             var userRepo = new Mock<IRepository<User>>();
-            userRepo.Setup(r => r.Get(null,true, null,null,0,0,true)).Returns(users.ToList());
+            userRepo.Setup(r => r.Get(null, null,null,0,0,true)).Returns(users.ToList());
 
             return userRepo;
         }
