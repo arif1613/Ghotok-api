@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using GhotokApi.Common;
 using static System.Int32;
 
 namespace GhotokApi.Models.RequestModels

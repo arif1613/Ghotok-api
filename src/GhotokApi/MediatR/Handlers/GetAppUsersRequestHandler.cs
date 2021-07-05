@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
 using Ghotok.Data.UnitOfWork;
-using GhotokApi.Common;
 using GhotokApi.Models.RequestModels;
 using GhotokApi.Utils.FilterBuilder;
 using MediatR;
@@ -26,44 +24,56 @@ namespace GhotokApi.MediatR.Handlers
 
         public async Task<List<AppUser>> Handle(GetAppUsersRequest request, CancellationToken cancellationToken)
         {
-            IEnumerable<AppUser> appusers;
-
-            try
+            IEnumerable<AppUser> appUsers = null;
+            if (request.model.HasInclude && request.model.HasOrderBy)
             {
+                appUsers = await Task.Run(() => _unitOfWork.AppUseRepository.Get(
+                   _filterBuilder.GetAppUserFilter(request.model.Filters),
+                    orderBy: source => source.OrderBy(r => r.User.BasicInfo.Name),
+                    include: s => s
+                        .Include(r => r.User)
+                        .ThenInclude(a => a.BasicInfo)
+                        .Include(r => r.User)
+                        .ThenInclude(b => b.EducationInfo).ThenInclude(b => b.Educations)
+                        .Include(r => r.User)
+                        .ThenInclude(b => b.EducationInfo).ThenInclude(b => b.CurrentJob)
+                        .Include(r => r.User)
+                        .ThenInclude(c => c.FamilyInfo).ThenInclude(c => c.FamilyMembers),
+                    request.model.StartIndex, request.model.ChunkSize, true));
+                return appUsers.ToList();
 
-                if (request.model.HasInclude)
-                {
-                    appusers = _unitOfWork.AppUseRepository.Get(
-                        _filterBuilder.GetAppUserFilter(request.model.Filters),
-                        null,
-                        include: s => s
-                            .Include(a => a.User)
-                            .Include(a => a.User.BasicInfo)
-                            .Include(a => a.User.EducationInfo).ThenInclude(b => b.Educations)
-                            .Include(a => a.User.EducationInfo).ThenInclude(b => b.CurrentJob)
-                            .Include(a => a.User.FamilyInfo).ThenInclude(d => d.FamilyMembers));
-
-                    var enumerable = appusers as AppUser[] ?? appusers.ToArray();
-                    
-
-                }
-                else
-                {
-                    appusers = await Task.Run(() => _unitOfWork.AppUseRepository.Get(
-                        _filterBuilder.GetAppUserFilter(request.model.Filters), null, null));
-
-                    var enumerable = appusers as AppUser[] ?? appusers.ToArray();
-                    
-                }
-            }
-            catch (Exception e)
-            {
-                return null;
             }
 
-            List<AppUser> list = new List<AppUser>();
-            foreach (var appuser in appusers) list.Add(appuser);
-            return list;
+            if (request.model.HasInclude)
+            {
+                appUsers = await Task.Run(() => _unitOfWork.AppUseRepository.Get(
+                    _filterBuilder.GetAppUserFilter(request.model.Filters),
+                    null,
+                    include: s => s
+                        .Include(a => a.User.BasicInfo)
+                        .Include(a => a.User.EducationInfo).ThenInclude(b => b.Educations)
+                        .Include(a => a.User.EducationInfo).ThenInclude(b => b.CurrentJob)
+                        .Include(a => a.User.FamilyInfo).ThenInclude(d => d.FamilyMembers),
+                     request.model.StartIndex, request.model.ChunkSize, true));
+                return appUsers.ToList();
+
+
+            }
+
+            if (request.model.HasOrderBy)
+            {
+                appUsers = await Task.Run(() => _unitOfWork.AppUseRepository.Get(
+                    _filterBuilder.GetAppUserFilter(request.model.Filters),
+                    orderBy: source => source.OrderBy(r => r.User.BasicInfo.Name),
+                    null, request.model.StartIndex, request.model.ChunkSize, true));
+                return appUsers.ToList();
+
+            }
+
+            appUsers = await Task.Run(() => _unitOfWork.AppUseRepository.Get(
+                null,
+                null, null, request.model.StartIndex, request.model.ChunkSize, true));
+            return appUsers.ToList();
 
         }
 
@@ -72,7 +82,7 @@ namespace GhotokApi.MediatR.Handlers
 
     public class GetAppUsersRequest : IRequest<List<AppUser>>
     {
-        public AppUserInfosRequestModel model { get; set; }
+        public AppUserInfosRequestModel model  { get; set; }
     }
 
 

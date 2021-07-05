@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
 using Ghotok.Data.Repo;
 using Ghotok.Data.UnitOfWork;
-using GhotokApi.Common;
 using GhotokApi.MediatR.Handlers;
 using GhotokApi.MediatR.NotificationHandlers;
 using GhotokApi.Models.RequestModels;
@@ -37,66 +36,11 @@ namespace GhotokApi.Services
 
         public async Task<List<AppUser>> GetAppUsers(AppUserInfosRequestModel model)
         {
-            var isLookingForBride = false;
-
-            var constructedFilters = _filterBuilder.ConstructAppUserFilterCriteria(model.Filters);
-            foreach (var filter in constructedFilters)
+            var result = await _mediator.Send(new GetAppUsersRequest
             {
-                if (filter.Key == AppUserFilter.IslookingForBride)
-                {
-                    isLookingForBride = Convert.ToBoolean(filter.Value);
-                }
-            }
-            IEnumerable<AppUser> appUsers = null;
-            if (model.HasInclude && model.HasOrderBy)
-            {
-                appUsers = await Task.Run(() => _unitOfWork.AppUseRepository.Get(
-                   _filterBuilder.GetAppUserFilter(model.Filters), 
-                    orderBy: source => source.OrderBy(r => r.User.BasicInfo.Name),
-                    include: s => s
-                        .Include(r => r.User)
-                        .ThenInclude(a => a.BasicInfo)
-                        .Include(r => r.User)
-                        .ThenInclude(b => b.EducationInfo).ThenInclude(b => b.Educations)
-                        .Include(r => r.User)
-                        .ThenInclude(b => b.EducationInfo).ThenInclude(b => b.CurrentJob)
-                        .Include(r => r.User)
-                        .ThenInclude(c => c.FamilyInfo).ThenInclude(c => c.FamilyMembers),
-                    model.StartIndex,model.ChunkSize, true));
-                return appUsers.ToList();
-
-            }
-
-            if (model.HasInclude)
-            {
-                appUsers = await Task.Run(() => _unitOfWork.AppUseRepository.Get(
-                    _filterBuilder.GetAppUserFilter(model.Filters), 
-                    null,
-                    include: s => s
-                        .Include(a => a.User.BasicInfo)
-                        .Include(a => a.User.EducationInfo).ThenInclude(b => b.Educations)
-                        .Include(a => a.User.EducationInfo).ThenInclude(b => b.CurrentJob)
-                        .Include(a => a.User.FamilyInfo).ThenInclude(d => d.FamilyMembers),
-                     model.StartIndex, model.ChunkSize, true));
-                return appUsers.ToList();
-
-
-            }
-
-            if (model.HasOrderBy)
-            {
-                appUsers = await Task.Run(() => _unitOfWork.AppUseRepository.Get(
-                    _filterBuilder.GetAppUserFilter(model.Filters), 
-                    orderBy: source => source.OrderBy(r => r.User.BasicInfo.Name),
-                    null, model.StartIndex, model.ChunkSize, true));
-                return appUsers.ToList();
-
-            }
-
-            appUsers = await Task.Run(() => _unitOfWork.AppUseRepository.Get(
-                null, 
-                null, null, model.StartIndex, model.ChunkSize, true));
-            return appUsers.ToList();
+                model = model
+            });
+            return result;
 
         }
 

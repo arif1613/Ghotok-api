@@ -82,7 +82,7 @@ namespace GhotokApi
             //Get
             services.AddMediatR(typeof(GetAppUsersRequest));
             services.AddMediatR(typeof(GetUserRequest));
-
+            services.AddMediatR(typeof(GetUsersRequest));
 
             //add
             services.AddMediatR(typeof(AddAppUserRequest));

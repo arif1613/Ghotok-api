@@ -3,14 +3,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
-using GhotokApi.Common;
-using GhotokApi.MediatR.Handlers;
-using GhotokApi.MediatR.NotificationHandlers;
 using GhotokApi.Models;
 using GhotokApi.Models.RequestModels;
 using GhotokApi.Models.ResponseModels;
 using GhotokApi.Services;
-using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
