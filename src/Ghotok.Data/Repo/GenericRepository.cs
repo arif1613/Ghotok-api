@@ -28,7 +28,7 @@ namespace Ghotok.Data.Repo
 
         public IEnumerable<TEntity> Get(IEnumerable<Expression<Func<TEntity, bool>>> filters, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
             Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null,
-            int startIndex = 0, int chunkSize = 0, bool disableTracking = true)
+            int startIndex = 0, int chunkSize = 0, bool disableTracking = false)
         {
             var cacheKey = CreateCacheKey(typeof(TEntity), startIndex, chunkSize,filters.ToString(),
                 include != null ? IncludeProperties.AppUserIncludingAllProperties : null);
@@ -94,13 +94,13 @@ namespace Ghotok.Data.Repo
         }
 
 
-        public IEnumerable<TEntity> GetRecent(IEnumerable<Expression<Func<TEntity, bool>>> filters, string includeProperties)
+        public dynamic GetRecent(IEnumerable<Expression<Func<TEntity, bool>>> filters, string includeProperties)
         {
             if (_cacheHelper.Exists(CreateRestCacheKey(typeof(TEntity), filters.ToString())))
             {
                 return _cacheHelper.Get<IEnumerable<TEntity>>(CreateRestCacheKey(typeof(TEntity), filters.ToString()));
             }
-            IQueryable<TEntity> query = context.GetDbSet<TEntity>();
+            IQueryable<TEntity> query = context.Get<TEntity>();
 
             query = query.AndAll(filters);
             var totalRecords = query.Count();
@@ -130,7 +130,7 @@ namespace Ghotok.Data.Repo
                     Convert.ToInt32(_configuration["RecentUserCacheMinute"]));
             }
 
-            return query.ToList() ?? null;
+            return query;
         }
 
         public IQueryable<TEntity> GetWithRawSql(FormattableString query, params object[] parameters)

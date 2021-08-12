@@ -47,12 +47,12 @@ namespace GhotokApi.Services
             });
         }
 
-        public async Task<List<User>> GetRecentUsers(UserInfosRequestModel model)
+        public async Task<dynamic> GetRecentUsers(UserInfosRequestModel model)
         {
             var users = await Task.Run(() => _unitOfWork.UserRepository.GetRecent(
                 _filterBuilder.GetUserFilter(model.Filters),
                 IncludeProperties.UserIncludingAllProperties));
-            return users.ToList();
+            return users;
         }
 
         public async Task InsertUser(User user)

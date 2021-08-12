@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ghotok.Data", "Ghotok.Data\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ghotok.Data.Test", "Ghotok.Data.Test\Ghotok.Data.Test.csproj", "{3D61D581-3D21-41E1-BEA0-9D3ED5D703AE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ghotok.Api.Test", "Ghotok.Api.Test\Ghotok.Api.Test.csproj", "{D9E4300D-7BAB-4DB1-BE23-629D06CB088A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ghotok.Api.Test", "Ghotok.Api.Test\Ghotok.Api.Test.csproj", "{D9E4300D-7BAB-4DB1-BE23-629D06CB088A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QQuery", "QQuery\QQuery.csproj", "{B23B6552-AA45-48DA-A81D-5770D804BFE3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,14 @@ Global
 		{D9E4300D-7BAB-4DB1-BE23-629D06CB088A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D9E4300D-7BAB-4DB1-BE23-629D06CB088A}.Release|x64.ActiveCfg = Release|Any CPU
 		{D9E4300D-7BAB-4DB1-BE23-629D06CB088A}.Release|x64.Build.0 = Release|Any CPU
+		{B23B6552-AA45-48DA-A81D-5770D804BFE3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B23B6552-AA45-48DA-A81D-5770D804BFE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B23B6552-AA45-48DA-A81D-5770D804BFE3}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B23B6552-AA45-48DA-A81D-5770D804BFE3}.Debug|x64.Build.0 = Debug|Any CPU
+		{B23B6552-AA45-48DA-A81D-5770D804BFE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B23B6552-AA45-48DA-A81D-5770D804BFE3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B23B6552-AA45-48DA-A81D-5770D804BFE3}.Release|x64.ActiveCfg = Release|Any CPU
+		{B23B6552-AA45-48DA-A81D-5770D804BFE3}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

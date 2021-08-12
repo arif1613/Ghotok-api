@@ -13,7 +13,7 @@ namespace Ghotok.Data.Repo
             Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy=null, Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null,
              int startIndex = 0, int chunkSize = 0, bool disableTracking = true);
         IEnumerable<TEntity> Get(Expression<Func<TEntity, bool>> filter);
-        IEnumerable<TEntity> GetRecent(IEnumerable<Expression<Func<TEntity, bool>>> filters, string includeProperties);
+        dynamic GetRecent(IEnumerable<Expression<Func<TEntity, bool>>> filters, string includeProperties);
         IQueryable<TEntity> GetWithRawSql(FormattableString query, params object[] parameters);
 
         void Insert(TEntity entity);

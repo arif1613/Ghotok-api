@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -141,16 +142,14 @@ namespace GhotokApi.Controllers
 
             var users = await _userService.GetRecentUsers(model);
 
-            if (!users.Any())
+            if (users==null)
             {
                 return NotFound(ErrorCodes.RecordNotFound.ToString());
             }
 
-            return Ok(JsonConvert.SerializeObject(new RecentUserInfosResponseModel
-            {
-                Count = users.Count(),
-                RecentUsers = users.ToList()
-            }));
+            //var p=new List<User>();
+
+            return Ok(JsonConvert.SerializeObject(users));
         }
     }
 }

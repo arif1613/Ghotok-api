@@ -9,7 +9,7 @@ namespace GhotokApi.Services
     {
         Task<List<User>> GetUsers(UserInfosRequestModel model);
         Task<User> GetUser(UserInfoRequestModel model);
-        Task<List<User>> GetRecentUsers(UserInfosRequestModel model);
+        Task<dynamic> GetRecentUsers(UserInfosRequestModel model);
         Task InsertUser(User user);
         Task InsertUsers(List<User> users);
         Task UpdateUser(User user);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Ghotok.Data.DataModels;
 using Ghotok.Data.DataModels.Views;
 using Microsoft.EntityFrameworkCore;
@@ -38,6 +39,11 @@ namespace Ghotok.Data.Context
         {
             return Entry(entity).State;
 
+        }
+
+        public IQueryable<TEntity> Get<TEntity>() where TEntity : class
+        {
+            return Set<TEntity>();
         }
 
         public void UpdateEntry<TEntity>(TEntity entity) where TEntity : class
