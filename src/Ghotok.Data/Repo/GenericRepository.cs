@@ -39,7 +39,7 @@ namespace Ghotok.Data.Repo
                     return _cacheHelper.Get<IEnumerable<TEntity>>(cacheKey);
                 }
 
-            IQueryable<TEntity> query = context.GetDbSet<TEntity>();
+            IQueryable<TEntity> query = context.GetQueryableSet<TEntity>();
             if (disableTracking)
             {
                 query = query.AsNoTracking();
@@ -87,7 +87,7 @@ namespace Ghotok.Data.Repo
 
         public IEnumerable<TEntity> Get(Expression<Func<TEntity, bool>> filter)
         {
-            IQueryable<TEntity> query = context.GetDbSet<TEntity>();
+            IQueryable<TEntity> query = context.GetQueryableSet<TEntity>();
             query = query.AsNoTracking();
             query = query.Where(filter);
             return query.ToList();
@@ -100,7 +100,7 @@ namespace Ghotok.Data.Repo
             {
                 return _cacheHelper.Get<IEnumerable<TEntity>>(CreateRestCacheKey(typeof(TEntity), filters.ToString()));
             }
-            IQueryable<TEntity> query = context.GetDbSet<TEntity>();
+            IQueryable<TEntity> query = context.GetQueryableSet<TEntity>();
 
             query = query.AndAll(filters);
             var totalRecords = query.Count();
