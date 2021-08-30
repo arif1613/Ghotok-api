@@ -4,20 +4,20 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
-using Ghotok.Data.UnitOfWork;
 using GhotokApi.Models.RequestModels;
 using GhotokApi.Utils.FilterBuilder;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using QQuery.UnitOfWork;
 
 namespace GhotokApi.MediatR.Handlers
 {
     public class GetUserRequestHandler : IRequestHandler<GetUserRequest, User>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IQqService<User> _unitOfWork;
         private readonly IFilterBuilder _filterBuilder;
 
-        public GetUserRequestHandler(IUnitOfWork unitOfWork, IFilterBuilder filterBuilder)
+        public GetUserRequestHandler(IQqService<User> unitOfWork, IFilterBuilder filterBuilder)
         {
             _unitOfWork = unitOfWork;
             _filterBuilder = filterBuilder;
@@ -33,7 +33,7 @@ namespace GhotokApi.MediatR.Handlers
 
                 if (request.model.HasInclude)
                 {
-                    users = _unitOfWork.UserRepository.Get(
+                    users = _unitOfWork.QqRepository.Get(
                         _filterBuilder.GetUserFilter(request.model.Filters),
                         null,
                         include: s => s
@@ -51,7 +51,7 @@ namespace GhotokApi.MediatR.Handlers
                 }
                 else
                 {
-                    users = await Task.Run(() => _unitOfWork.UserRepository.Get(
+                    users = await Task.Run(() => _unitOfWork.QqRepository.Get(
                         _filterBuilder.GetUserFilter(request.model.Filters), null, null));
 
                     var enumerable = users as User[] ?? users.ToArray();

@@ -2,23 +2,23 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
-using Ghotok.Data.UnitOfWork;
 using GhotokApi.MediatR.Handlers;
 using GhotokApi.MediatR.NotificationHandlers;
 using GhotokApi.Models.RequestModels;
 using MediatR;
+using QQuery.UnitOfWork;
 
 namespace GhotokApi.Services
 {
     public class LoginService : ILoginService
     {
         private readonly IMediator _mediator;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IQqService<AppUser> _unitOfWork;
 
 
 
 
-        public LoginService(IMediator mediator, IUnitOfWork unitOfWork)
+        public LoginService(IMediator mediator, IQqService<AppUser> unitOfWork)
         {
             _mediator = mediator;
             _unitOfWork = unitOfWork;
@@ -121,11 +121,11 @@ namespace GhotokApi.Services
         private AppUser GetAppUser(OtpRequestModel model)
         {
             var user = model.RegisterByMobileNumber
-                ? _unitOfWork.AppUseRepository.Get(
+                ? _unitOfWork.QqRepository.Get(
                     r => r.MobileNumber == model.MobileNumber &&
                          r.RegisterByMobileNumber == model.RegisterByMobileNumber &&
                          r.Password == model.Password).FirstOrDefault()
-                : _unitOfWork.AppUseRepository.Get(
+                : _unitOfWork.QqRepository.Get(
                     r => r.Email == model.Email && r.RegisterByMobileNumber == model.RegisterByMobileNumber &&
                          r.Password == model.Password).FirstOrDefault();
 

@@ -5,13 +5,13 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
 using Ghotok.Data.Repo;
-using Ghotok.Data.UnitOfWork;
 using GhotokApi.MediatR.Handlers;
 using GhotokApi.MediatR.NotificationHandlers;
 using GhotokApi.Models.RequestModels;
 using GhotokApi.Utils.FilterBuilder;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using QQuery.UnitOfWork;
 
 namespace GhotokApi.Services
 {
@@ -21,12 +21,12 @@ namespace GhotokApi.Services
     public class AppUserService : IAppUserService
     {
 
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IQqService<AppUser> _unitOfWork;
         private readonly IMediator _mediator;
         private readonly IFilterBuilder _filterBuilder;
 
 
-        public AppUserService(IUnitOfWork unitOfWork, IMediator mediator, IFilterBuilder filterBuilder)
+        public AppUserService(IQqService<AppUser> unitOfWork, IMediator mediator, IFilterBuilder filterBuilder)
         {
             _unitOfWork = unitOfWork;
             _mediator = mediator;
@@ -52,7 +52,7 @@ namespace GhotokApi.Services
 
             if (hasInclude)
             {
-                appUsers = await Task.Run(() => _unitOfWork.AppUseRepository.Get(
+                appUsers = await Task.Run(() => _unitOfWork.QqRepository.Get(
                     new List<Expression<Func<AppUser, bool>>>
                     {
                        filter
@@ -76,7 +76,7 @@ namespace GhotokApi.Services
             }
             else
             {
-                appUsers = await Task.Run(() => _unitOfWork.AppUseRepository.Get(
+                appUsers = await Task.Run(() => _unitOfWork.QqRepository.Get(
                     new List<Expression<Func<AppUser, bool>>>
                     {
                         filter
@@ -94,7 +94,7 @@ namespace GhotokApi.Services
         public async Task<List<AppUser>> GetRecentAppUsers(Expression<Func<AppUser, bool>> filter, bool hasOrderBy = false, bool hasInclude = false, bool isLookingForBride = false)
         {
             IEnumerable<AppUser> appUsers = new List<AppUser>();
-            appUsers = await Task.Run(() => _unitOfWork.AppUseRepository.GetRecent(
+            appUsers = await Task.Run(() => _unitOfWork.QqRepository.GetRecent(
                 new List<Expression<Func<AppUser, bool>>>
                 {
                     filter

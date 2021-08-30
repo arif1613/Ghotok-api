@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
-using Ghotok.Data.UnitOfWork;
 using GhotokApi.MediatR.NotificationHandlers;
 using GhotokApi.Models.RequestModels;
 using GhotokApi.Models.ResponseModels;
@@ -13,6 +12,7 @@ using GhotokApi.Services;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using QQuery.UnitOfWork;
 
 namespace GhotokApi.Controllers
 {
@@ -20,13 +20,13 @@ namespace GhotokApi.Controllers
     [ApiController]
     public class AdminController : ControllerBase
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IQqService<AppUser> _unitOfWork;
         private readonly IAppUserService _appUserService;
 
         private readonly IMediator _mediator;
 
 
-        public AdminController(IUnitOfWork unitOfWork, IMediator mediator, IAppUserService appUserService)
+        public AdminController(IQqService<AppUser> unitOfWork, IMediator mediator, IAppUserService appUserService)
         {
             _unitOfWork = unitOfWork;
             _mediator = mediator;
@@ -175,7 +175,7 @@ namespace GhotokApi.Controllers
                 };
 
                 appuser.User = user;
-                _unitOfWork.AppUseRepository.Insert(appuser);
+                _unitOfWork.QqRepository.Insert(appuser);
                 //_unitOfWork.UserRepository.Insert(user);
 
 
@@ -316,7 +316,7 @@ namespace GhotokApi.Controllers
                 };
 
                 appuser.User = user;
-                _unitOfWork.AppUseRepository.Insert(appuser);
+                _unitOfWork.QqRepository.Insert(appuser);
                 //_unitOfWork.UserRepository.Insert(user);
 
 

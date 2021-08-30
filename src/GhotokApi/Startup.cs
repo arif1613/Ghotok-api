@@ -1,10 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Ghotok.Data.Context;
-using Ghotok.Data.Repo;
-using Ghotok.Data.UnitOfWork;
-using Ghotok.Data.Utils.Cache;
 using GhotokApi.JwtTokenGenerator;
 using GhotokApi.MediatR.Handlers;
 using GhotokApi.MediatR.NotificationHandlers;
@@ -16,12 +12,13 @@ using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using QQuery.Context;
+using QQuery.UnitOfWork;
 
 namespace GhotokApi
 {
@@ -49,14 +46,17 @@ namespace GhotokApi
             {
                 options.AutomaticAuthentication = false;
             });
-            AddDbContext(services);
 
-            services.AddMemoryCache();
-            services.AddScoped<ICacheHelper, CacheHelper>();
-            //Register Repos
-            services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
-            //Register UnitOfWork
-            services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+           
+            //AddDbContext(services);
+
+            //services.AddMemoryCache();
+            //services.AddScoped<ICacheHelper, CacheHelper>();
+            ////Register Repos
+            //services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
+            ////Register UnitOfWork
+            //services.AddScoped<IQqService<AppUser>, UnitOfWork>();
             //register services
             services.AddScoped<IAppUserService, AppUserService>();
             services.AddScoped<IUserService,UserService>();
@@ -71,7 +71,12 @@ namespace GhotokApi
 
             //MediatR
             BuildMediator(services);
-            
+
+            //Quick Query
+            services.AddScoped<IQqContext,QqContext>();
+            services.AddScoped(typeof(IQqService<>), typeof(QqService<>));
+
+            //Swagger
             AddSwagger(services);
             AddAuthentication(services);
             services.AddControllers();
@@ -103,12 +108,15 @@ namespace GhotokApi
 
         private void AddDbContext(IServiceCollection services)
         {
-            services.AddScoped<IGhotokDbContext>((options) =>
-            {
-                return new GhotokDbContext(new DbContextOptionsBuilder<GhotokDbContext>()
-                    .UseSqlServer(Configuration["GhotokDbConnectionString"],
-                        x => x.EnableRetryOnFailure(5)).Options);
-            });
+            //services.AddScoped<IGhotokDbContext>((options) =>
+            //{
+            //    return new GhotokDbContext(new DbContextOptionsBuilder<GhotokDbContext>()
+            //        .UseSqlServer(Configuration["GhotokDbConnectionString"],
+            //            x => x.EnableRetryOnFailure(5)).Options);
+            //});
+
+            //services.AddScoped<IGhotokDbContext, GhotokDbContext>();
+
 
 
             //services.AddDbContext<GhotokDbContext>(options =>

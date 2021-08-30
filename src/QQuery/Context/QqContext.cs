@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace QQuery.Context
 {
-    public class QqContext : DbContext, IQqContext
+    public sealed class QqContext : DbContext, IQqContext
     {
 
         public QqContext()
@@ -22,11 +22,13 @@ namespace QQuery.Context
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(@"Server=(LocalDb)\MSSQLLocalDB;Database=ArvatoTaskDB;Trusted_Connection=True;");
+            optionsBuilder.UseSqlServer(@"Server=.\\MSSQLSERVER01;Database=GhotokApiDb_Guid;Trusted_Connection=True;MultipleActiveResultSets=true");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             //modelBuilder.Entity<UserShortInfo>(entity =>
             //{
             //    entity.HasNoKey();

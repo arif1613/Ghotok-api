@@ -2,16 +2,16 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
-using Ghotok.Data.UnitOfWork;
 using MediatR;
+using QQuery.UnitOfWork;
 
 namespace GhotokApi.MediatR.Handlers
 {
     public class DeleteAppUserRequestHandler : IRequestHandler<DeleteAppUserRequest, string>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IQqService<AppUser> _unitOfWork;
 
-        public DeleteAppUserRequestHandler(IUnitOfWork unitOfWork)
+        public DeleteAppUserRequestHandler(IQqService<AppUser> unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
@@ -22,7 +22,7 @@ namespace GhotokApi.MediatR.Handlers
             {
                 try
                 {
-                    _unitOfWork.AppUseRepository.Delete(request.AppUserTobeDeleted);
+                    _unitOfWork.QqRepository.Delete(request.AppUserTobeDeleted);
                     return "Done";
                 }
                 catch (Exception e)

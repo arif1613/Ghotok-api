@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
 using Ghotok.Api.Test.TestHelpers;
 using Ghotok.Api.Test.TestHelpers.TestHelpers;
-using Ghotok.Data.Context;
 using Ghotok.Data.DataModels;
-using Ghotok.Data.Repo;
-using Ghotok.Data.UnitOfWork;
 using Ghotok.Data.Utils.Cache;
 using GhotokApi.Models.RequestModels;
 using GhotokApi.Services;
@@ -17,13 +11,14 @@ using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using QQuery.UnitOfWork;
 
 namespace Ghotok.Api.Test.ServiceTests
 {
     [TestClass]
     public class AppUserServiceTests
     {
-        private Mock<IUnitOfWork> _unitOfWorkMock;
+        private Mock<IQqService<AppUser>> _unitOfWorkMock;
         private Mock<IMediator> _mediatorMock;
         private Mock<IFilterBuilder> _filterBuilderMock;
 
@@ -94,8 +89,10 @@ namespace Ghotok.Api.Test.ServiceTests
         [TestCategory("AppUser service")]
         public void AppUser_Repo_Will_Return_Valid_AppUser()
         {
-           var appUserService = new AppUserService(_unitOfWorkMock.Object,_mediatorMock.Object, _filterBuilderMock.Object);
-            var result = appUserService.GetAppUser().GetAwaiter().GetResult();
+            var dic = new Dictionary<string, string>();
+            dic.Add("IsLookingForBride", "false");
+            var appUserService = new AppUserService(_unitOfWorkMock.Object,_mediatorMock.Object, _filterBuilderMock.Object);
+            var result = appUserService.GetAppUser(r=>r.LookingForBride).GetAwaiter().GetResult();
             Assert.IsNotNull(result);
             Assert.AreEqual(result.MobileNumber, "mobilenumber 0");
         }

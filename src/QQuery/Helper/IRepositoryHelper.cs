@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-
-namespace QQuery.Helper
+﻿namespace QQuery.Helper
 {
     public interface IRepositoryHelper<TEntity> where TEntity : class
     {

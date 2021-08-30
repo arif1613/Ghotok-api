@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Ghotok.Data.UnitOfWork;
 using Ghotok.Data.Utils.Cache;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;

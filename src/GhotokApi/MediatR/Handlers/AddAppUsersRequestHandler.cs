@@ -3,18 +3,18 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
-using Ghotok.Data.UnitOfWork;
 using MediatR;
+using QQuery.UnitOfWork;
 
 namespace GhotokApi.MediatR.Handlers
 {
     public class AddAppUsersRequestHandler : IRequestHandler<AddAppUsersRequest, string>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IQqService<AppUser> _qqService;
 
-        public AddAppUsersRequestHandler(IUnitOfWork unitOfWork)
+        public AddAppUsersRequestHandler(IQqService<AppUser> unitOfWork)
         {
-            _unitOfWork = unitOfWork;
+            _qqService = unitOfWork;
         }
 
         public async Task<string> Handle(AddAppUsersRequest request, CancellationToken cancellationToken)
@@ -23,7 +23,7 @@ namespace GhotokApi.MediatR.Handlers
             {
                 try
                 {
-                    _unitOfWork.AppUseRepository.Insert(request.AppUsersToAdd);
+                    _qqService.QqRepository.Insert(request.AppUsersToAdd);
                     return "Done";
                 }
                 catch (Exception e)

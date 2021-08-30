@@ -6,8 +6,22 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Context\**" />
+    <Compile Remove="Migrations\**" />
+    <Compile Remove="UnitOfWork\**" />
+    <EmbeddedResource Remove="Context\**" />
+    <EmbeddedResource Remove="Migrations\**" />
+    <EmbeddedResource Remove="UnitOfWork\**" />
+    <None Remove="Context\**" />
+    <None Remove="Migrations\**" />
+    <None Remove="UnitOfWork\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Remove="GhotokDbContext.cs" />
     <Compile Remove="IGhotokDbContext.cs" />
+    <Compile Remove="Repo\GenericRepository.cs" />
+    <Compile Remove="Repo\IRepository.cs" />
     <Compile Remove="Sql\Create\UserDetailInfoView.Designer.cs" />
     <Compile Remove="Sql\Create\UserDetailsView - Copy.Designer.cs" />
   </ItemGroup>

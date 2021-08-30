@@ -2,18 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using Ghotok.Data.Context;
 using Ghotok.Data.DataModels;
-using Ghotok.Data.Repo;
 using Ghotok.Data.Test.TestHelpers;
 using Ghotok.Data.Utils.Cache;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using QQuery.Context;
+using QQuery.Repo;
 
 namespace Ghotok.Data.Test.RepositoryTests
 {
@@ -21,7 +18,7 @@ namespace Ghotok.Data.Test.RepositoryTests
     public class UserRepoTests
     {
 
-        private Mock<IGhotokDbContext> _mockDbContext;
+        private Mock<IQqContext> _mockDbContext;
         private IConfiguration Configuration;
         private CacheHelper CacheHelper;
 
@@ -31,7 +28,7 @@ namespace Ghotok.Data.Test.RepositoryTests
         {
             CacheHelper = CommonTestHelpers.GetCacheHelper();
             Configuration = CommonTestHelpers.GetConfiguration();
-            _mockDbContext = RepositoryTestHelper.MockContext<IGhotokDbContext>();
+            _mockDbContext = RepositoryTestHelper.MockContext<IQqContext>();
 
             var Users = Enumerable.Range(0, 105).Select(r => new User
             {
@@ -84,7 +81,7 @@ namespace Ghotok.Data.Test.RepositoryTests
         [TestCategory("User repo")]
         public void User_Repo_Will_Return_Valid_Users()
         {
-            var UserRepo=new GenericRepository<User>(_mockDbContext.Object,CacheHelper,Configuration);
+            var UserRepo=new QuickQueryRepository<User>(_mockDbContext.Object);
             var result = UserRepo.Get(new List<Expression<Func<User, bool>>>
             {
                 r=>r.IsPublished
@@ -97,7 +94,7 @@ namespace Ghotok.Data.Test.RepositoryTests
         [TestCategory("User repo")]
         public void User_Repo_Will_Return_Valid_Ordered_Users()
         {
-            var UserRepo = new GenericRepository<User>(_mockDbContext.Object, CacheHelper, Configuration);
+            var UserRepo = new QuickQueryRepository<User>(_mockDbContext.Object);
             var result = UserRepo.Get(new List<Expression<Func<User, bool>>>
             {
                 r=>r.IsPublished
@@ -111,7 +108,7 @@ namespace Ghotok.Data.Test.RepositoryTests
         [TestCategory("User repo")]
         public void User_Repo_Will_Return_Valid_Total_Users()
         {
-            var UserRepo = new GenericRepository<User>(_mockDbContext.Object, CacheHelper, Configuration);
+            var UserRepo = new QuickQueryRepository<User>(_mockDbContext.Object);
             var result = UserRepo.Get(new List<Expression<Func<User, bool>>>
             {
                 r=>r.IsPublished
@@ -125,7 +122,7 @@ namespace Ghotok.Data.Test.RepositoryTests
         [TestCategory("User repo")]
         public void User_Repo_Will_Return_Valid_Users_With_Included_Properties()
         {
-            var UserRepo = new GenericRepository<User>(_mockDbContext.Object, CacheHelper, Configuration);
+            var UserRepo = new QuickQueryRepository<User>(_mockDbContext.Object);
             var result = UserRepo.Get(new List<Expression<Func<User, bool>>>
                 {
                     r=>r.IsPublished
@@ -149,7 +146,7 @@ namespace Ghotok.Data.Test.RepositoryTests
         [TestCategory("User repo")]
         public void User_Repo_Will_Return_Valid_Recent_Users()
         {
-            var UserRepo = new GenericRepository<User>(_mockDbContext.Object, CacheHelper, Configuration);
+            var UserRepo = new QuickQueryRepository<User>(_mockDbContext.Object);
             var result = UserRepo.GetRecent(new List<Expression<Func<User, bool>>>
             {
                 r=>r.IsPublished

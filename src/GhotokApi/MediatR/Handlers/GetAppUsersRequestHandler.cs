@@ -3,20 +3,20 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
-using Ghotok.Data.UnitOfWork;
 using GhotokApi.Models.RequestModels;
 using GhotokApi.Utils.FilterBuilder;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using QQuery.UnitOfWork;
 
 namespace GhotokApi.MediatR.Handlers
 {
     public class GetAppUsersRequestHandler : IRequestHandler<GetAppUsersRequest, List<AppUser>>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IQqService<AppUser> _unitOfWork;
         private readonly IFilterBuilder _filterBuilder;
 
-        public GetAppUsersRequestHandler(IUnitOfWork unitOfWork, IFilterBuilder filterBuilder)
+        public GetAppUsersRequestHandler(IQqService<AppUser> unitOfWork, IFilterBuilder filterBuilder)
         {
             _unitOfWork = unitOfWork;
             _filterBuilder = filterBuilder;
@@ -27,7 +27,7 @@ namespace GhotokApi.MediatR.Handlers
             IEnumerable<AppUser> appUsers = null;
             if (request.model.HasInclude && request.model.HasOrderBy)
             {
-                appUsers = await Task.Run(() => _unitOfWork.AppUseRepository.Get(
+                appUsers = await Task.Run(() => _unitOfWork.QqRepository.Get(
                    _filterBuilder.GetAppUserFilter(request.model.Filters),
                     orderBy: source => source.OrderBy(r => r.User.BasicInfo.Name),
                     include: s => s
@@ -46,7 +46,7 @@ namespace GhotokApi.MediatR.Handlers
 
             if (request.model.HasInclude)
             {
-                appUsers = await Task.Run(() => _unitOfWork.AppUseRepository.Get(
+                appUsers = await Task.Run(() => _unitOfWork.QqRepository.Get(
                     _filterBuilder.GetAppUserFilter(request.model.Filters),
                     null,
                     include: s => s
@@ -62,7 +62,7 @@ namespace GhotokApi.MediatR.Handlers
 
             if (request.model.HasOrderBy)
             {
-                appUsers = await Task.Run(() => _unitOfWork.AppUseRepository.Get(
+                appUsers = await Task.Run(() => _unitOfWork.QqRepository.Get(
                     _filterBuilder.GetAppUserFilter(request.model.Filters),
                     orderBy: source => source.OrderBy(r => r.User.BasicInfo.Name),
                     null, request.model.StartIndex, request.model.ChunkSize, true));
@@ -70,7 +70,7 @@ namespace GhotokApi.MediatR.Handlers
 
             }
 
-            appUsers = await Task.Run(() => _unitOfWork.AppUseRepository.Get(
+            appUsers = await Task.Run(() => _unitOfWork.QqRepository.Get(
                 null,
                 null, null, request.model.StartIndex, request.model.ChunkSize, true));
             return appUsers.ToList();

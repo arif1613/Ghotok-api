@@ -14,10 +14,25 @@ namespace Ghotok.Data.Context
 
         public GhotokDbContext(DbContextOptions<GhotokDbContext> options) : base(options)
         {
+            try
+            {
+                Database.EnsureCreated();
+
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseSqlServer(@"Server=.\\MSSQLSERVER01;Database=GhotokApiDb_Guid;uid=LASEUP0062\Arif; password=Arvato2021!");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
             //modelBuilder.Entity<UserShortInfo>(entity =>
             //{
             //    entity.HasNoKey();

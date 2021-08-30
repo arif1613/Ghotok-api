@@ -2,22 +2,24 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Ghotok.Data.Context;
 using Ghotok.Data.DataModels;
-using Ghotok.Data.Repo;
 using Microsoft.EntityFrameworkCore;
 using Moq;
+using QQuery.Context;
+using QQuery.Repo;
 
 namespace Ghotok.Api.Test.TestHelpers.TestHelpers
 {
     public class RepoTestHelpers
     {
-        public static Mock<IGhotokDbContext> GhotokContextMock;
+        public static Mock<IQqContext> GhotokContextMock;
         public static Mock<DbSet<AppUser>> AppUserMockSet;
-        public static Mock<IRepository<AppUser>> AppUserRepo;
+        public static Mock<IQuickQueryRepository<AppUser>> AppUserRepo;
+        public static Mock<IQuickQueryRepository<User>> UserRepo;
 
 
-        public static Mock<IRepository<AppUser>> AppuserMockRepo()
+
+        public static Mock<IQuickQueryRepository<AppUser>> AppuserMockRepo()
         {
             var brides = Enumerable.Range(0, 50).Select(r => new AppUser
             {
@@ -50,10 +52,10 @@ namespace Ghotok.Api.Test.TestHelpers.TestHelpers
             });
 
 
-            GhotokContextMock = ContextTestHelpers.MockContext<IGhotokDbContext>();
+            GhotokContextMock = ContextTestHelpers.MockContext<IQqContext>();
             AppUserMockSet = ContextTestHelpers.CreateMockDbSet(brides.AsQueryable());
             GhotokContextMock.Setup(r => r.GetDbSet<AppUser>()).Returns(AppUserMockSet.Object);
-            AppUserRepo = new Mock<IRepository<AppUser>>();
+            AppUserRepo = new Mock<IQuickQueryRepository<AppUser>>();
             AppUserRepo.Setup(r => r.Get(It.IsAny<IEnumerable<Expression<Func<AppUser,bool>>>>(),  null,null,0,0,true))
                 .Returns(brides.ToList());
 
@@ -63,7 +65,7 @@ namespace Ghotok.Api.Test.TestHelpers.TestHelpers
             return AppUserRepo;
         }
 
-        public static Mock<IRepository<User>> UserMockRepo()
+        public static Mock<IQuickQueryRepository<User>> UserMockRepo()
         {
             var users = Enumerable.Range(0, 100).Select(r => new User
             {
@@ -125,13 +127,13 @@ namespace Ghotok.Api.Test.TestHelpers.TestHelpers
                 
             });
 
-            var userContextMock = ContextTestHelpers.MockContext<IGhotokDbContext>();
+            var userContextMock = ContextTestHelpers.MockContext<IQqContext>();
             var userMockSet = ContextTestHelpers.CreateMockDbSet(users.AsQueryable());
             userContextMock.Setup(r => r.GetDbSet<User>()).Returns(userMockSet.Object);
-            var userRepo = new Mock<IRepository<User>>();
-            userRepo.Setup(r => r.Get(null, null,null,0,0,true)).Returns(users.ToList());
+            UserRepo = new Mock<IQuickQueryRepository<User>>();
+            UserRepo.Setup(r => r.Get(null, null,null,0,0,true)).Returns(users.ToList());
 
-            return userRepo;
+            return UserRepo;
         }
     }
 }

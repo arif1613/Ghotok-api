@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Ghotok.Data.UnitOfWork;
+using Ghotok.Data.DataModels;
 using MediatR;
+using QQuery.UnitOfWork;
 
 namespace GhotokApi.MediatR.NotificationHandlers
 {
     public class ComitDatabaseNotificationHandler : INotificationHandler<ComitDatabaseNotification>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IQqService<AppUser> _unitOfWork;
 
-        public ComitDatabaseNotificationHandler(IUnitOfWork unitOfWork)
+        public ComitDatabaseNotificationHandler(IQqService<AppUser> unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }

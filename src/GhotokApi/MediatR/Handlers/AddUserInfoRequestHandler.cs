@@ -2,17 +2,17 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
-using Ghotok.Data.UnitOfWork;
 using MediatR;
+using QQuery.UnitOfWork;
 
 namespace GhotokApi.MediatR.Handlers
 {
     public class AddUserInfoRequestHandler : IRequestHandler<AddUserInfoRequest, string>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IQqService<User> _unitOfWork;
 
 
-        public AddUserInfoRequestHandler(IUnitOfWork unitOfWork)
+        public AddUserInfoRequestHandler(IQqService<User> unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
@@ -23,7 +23,7 @@ namespace GhotokApi.MediatR.Handlers
             {
                 try
                 {
-                    _unitOfWork.UserRepository.Insert(request.UserToAdd);
+                    _unitOfWork.QqRepository.Insert(request.UserToAdd);
                     return "Done";
                 }
                 catch (Exception e)

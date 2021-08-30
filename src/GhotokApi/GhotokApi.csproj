@@ -48,6 +48,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Ghotok.Data\Ghotok.Data.csproj" />
+    <ProjectReference Include="..\QQuery\QQuery.csproj" />
   </ItemGroup>
 
 

@@ -3,25 +3,25 @@ using System.Linq;
 using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
 using Ghotok.Data.Repo;
-using Ghotok.Data.UnitOfWork;
 using GhotokApi.MediatR.Handlers;
 using GhotokApi.MediatR.NotificationHandlers;
 using GhotokApi.Models.RequestModels;
 using GhotokApi.Utils.FilterBuilder;
 using MediatR;
+using QQuery.UnitOfWork;
 
 namespace GhotokApi.Services
 {
     public class UserService : IUserService
     {
 
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IQqService<User> _unitOfWork;
         private readonly IMediator _mediator;
         private readonly IFilterBuilder _filterBuilder;
 
 
 
-        public UserService(IUnitOfWork unitOfWork, IMediator mediator, IFilterBuilder filterBuilder)
+        public UserService(IQqService<User> unitOfWork, IMediator mediator, IFilterBuilder filterBuilder)
         {
             _unitOfWork = unitOfWork;
             _mediator = mediator;
@@ -49,7 +49,7 @@ namespace GhotokApi.Services
 
         public async Task<List<User>> GetRecentUsers(UserInfosRequestModel model)
         {
-            var users = await Task.Run(() => _unitOfWork.UserRepository.GetRecent(
+            var users = await Task.Run(() => _unitOfWork.QqRepository.GetRecent(
                 _filterBuilder.GetUserFilter(model.Filters),
                 IncludeProperties.UserIncludingAllProperties));
             return users.ToList();

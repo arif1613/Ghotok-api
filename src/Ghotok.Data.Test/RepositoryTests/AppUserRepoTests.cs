@@ -2,17 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using Ghotok.Data.Context;
 using Ghotok.Data.DataModels;
-using Ghotok.Data.Repo;
 using Ghotok.Data.Test.TestHelpers;
 using Ghotok.Data.Utils.Cache;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using QQuery.Context;
+using QQuery.Repo;
 
 namespace Ghotok.Data.Test.RepositoryTests
 {
@@ -20,7 +17,7 @@ namespace Ghotok.Data.Test.RepositoryTests
     public class AppUserRepoTests
     {
 
-        private Mock<IGhotokDbContext> _mockDbContext;
+        private Mock<IQqContext> _mockDbContext;
         private IConfiguration Configuration;
         private CacheHelper CacheHelper;
 
@@ -30,7 +27,7 @@ namespace Ghotok.Data.Test.RepositoryTests
         {
             CacheHelper = CommonTestHelpers.GetCacheHelper();
             Configuration = CommonTestHelpers.GetConfiguration();
-            _mockDbContext = RepositoryTestHelper.MockContext<IGhotokDbContext>();
+            _mockDbContext = RepositoryTestHelper.MockContext<IQqContext>();
 
             var AppUsers = Enumerable.Range(0, 100).Select(r => new AppUser
             {
@@ -56,7 +53,7 @@ namespace Ghotok.Data.Test.RepositoryTests
         [TestCategory("AppUser repo")]
         public void AppUser_Repo_Will_Return_Valid_AppUsers()
         {
-            var appUserRepo=new GenericRepository<AppUser>(_mockDbContext.Object,CacheHelper,Configuration);
+            var appUserRepo=new QuickQueryRepository<AppUser>(_mockDbContext.Object);
             var result = appUserRepo.Get(new List<Expression<Func<AppUser, bool>>>
             {
                 r=>r.IsLoggedin
@@ -69,7 +66,7 @@ namespace Ghotok.Data.Test.RepositoryTests
         [TestCategory("AppUser repo")]
         public void AppUser_Repo_Will_Return_Valid_Ordered_AppUsers()
         {
-            var appUserRepo = new GenericRepository<AppUser>(_mockDbContext.Object, CacheHelper, Configuration);
+            var appUserRepo = new QuickQueryRepository<AppUser>(_mockDbContext.Object);
             var result = appUserRepo.Get(new List<Expression<Func<AppUser, bool>>>
             {
                 r=>r.IsLoggedin
@@ -83,7 +80,7 @@ namespace Ghotok.Data.Test.RepositoryTests
         [TestCategory("AppUser repo")]
         public void AppUser_Repo_Will_Return_Valid_Total_AppUsers()
         {
-            var appUserRepo = new GenericRepository<AppUser>(_mockDbContext.Object, CacheHelper, Configuration);
+            var appUserRepo = new QuickQueryRepository<AppUser>(_mockDbContext.Object);
             var result = appUserRepo.Get(new List<Expression<Func<AppUser, bool>>>
             {
                 r=>r.IsLoggedin

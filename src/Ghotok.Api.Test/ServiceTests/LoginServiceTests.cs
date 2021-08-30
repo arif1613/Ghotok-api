@@ -1,20 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Ghotok.Api.Test.TestHelpers;
 using Ghotok.Api.Test.TestHelpers.TestHelpers;
 using Ghotok.Data.DataModels;
-using Ghotok.Data.UnitOfWork;
 using Ghotok.Data.Utils.Cache;
 using GhotokApi.Models.RequestModels;
 using GhotokApi.Services;
-using GhotokApi.Utils.FilterBuilder;
 using MediatR;
-using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using QQuery.UnitOfWork;
 
 namespace Ghotok.Api.Test.ServiceTests
 {
@@ -23,7 +19,7 @@ namespace Ghotok.Api.Test.ServiceTests
     {
 
         private Mock<IMediator> _mediatorMock;
-        private Mock<IUnitOfWork> _unitOfWorkMock;
+        private Mock<IQqService<AppUser>> _unitOfWorkMock;
         private CacheHelper CacheHelper;
         private IEnumerable<AppUser> appUsers1;
         private IEnumerable<AppUser> appUsers2;

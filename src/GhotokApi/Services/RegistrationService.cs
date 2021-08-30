@@ -4,20 +4,20 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
-using Ghotok.Data.UnitOfWork;
 using GhotokApi.MediatR.Handlers;
 using GhotokApi.MediatR.NotificationHandlers;
 using GhotokApi.Models.RequestModels;
 using GhotokApi.Models.SharedModels;
 using MediatR;
+using QQuery.UnitOfWork;
 
 namespace GhotokApi.Services
 {
     public class RegistrationService : IRegistrationService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IQqService<AppUser> _unitOfWork;
         private readonly IMediator _mediator;
-        public RegistrationService(IUnitOfWork unitOfWork, IMediator mediator)
+        public RegistrationService(IQqService<AppUser> unitOfWork, IMediator mediator)
         {
             _unitOfWork = unitOfWork;
             _mediator = mediator;
@@ -28,13 +28,13 @@ namespace GhotokApi.Services
             {
                 if (model.RegisterByMobileNumber)
                 {
-                   return _unitOfWork.AppUseRepository.Get(new List<Expression<Func<AppUser, bool>>>
+                   return _unitOfWork.QqRepository.Get(new List<Expression<Func<AppUser, bool>>>
                     {
                         r=>r.MobileNumber==model.MobileNumber && r.Password==model.Password,
                     },null).FirstOrDefault() != null;
                 }
 
-                return _unitOfWork.AppUseRepository.Get(new List<Expression<Func<AppUser, bool>>>
+                return _unitOfWork.QqRepository.Get(new List<Expression<Func<AppUser, bool>>>
                 {
                     r=>r.Email==model.Email && r.Password==model.Password
                 },null).FirstOrDefault() != null;
@@ -102,11 +102,11 @@ namespace GhotokApi.Services
             {
                
                 var user = model.RegisterByMobileNumber
-                    ? _unitOfWork.AppUseRepository.Get(new List<Expression<Func<AppUser, bool>>>
+                    ? _unitOfWork.QqRepository.Get(new List<Expression<Func<AppUser, bool>>>
                     {
                         r=>r.MobileNumber==model.MobileNumber
                     },null).FirstOrDefault()
-                    : _unitOfWork.AppUseRepository.Get(new List<Expression<Func<AppUser, bool>>>
+                    : _unitOfWork.QqRepository.Get(new List<Expression<Func<AppUser, bool>>>
                     {
                         r=>r.Email==model.Email
                     },null).FirstOrDefault();
