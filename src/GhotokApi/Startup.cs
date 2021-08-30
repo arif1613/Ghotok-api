@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Ghotok.Data.Utils.Cache;
 using GhotokApi.JwtTokenGenerator;
 using GhotokApi.MediatR.Handlers;
 using GhotokApi.MediatR.NotificationHandlers;
@@ -51,8 +52,8 @@ namespace GhotokApi
            
             //AddDbContext(services);
 
-            //services.AddMemoryCache();
-            //services.AddScoped<ICacheHelper, CacheHelper>();
+            services.AddMemoryCache();
+            services.AddScoped<ICacheHelper, CacheHelper>();
             ////Register Repos
             //services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
             ////Register UnitOfWork
