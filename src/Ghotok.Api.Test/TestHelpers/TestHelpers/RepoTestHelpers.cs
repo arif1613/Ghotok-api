@@ -34,7 +34,7 @@ namespace Ghotok.Api.Test.TestHelpers.TestHelpers
                 MobileNumber = $"mobilenumber {r}",
                 Password = $"12345{r}",
                 UserRole = $"role{r}"
-            });
+            }).AsQueryable();
 
             var grooms = Enumerable.Range(0, 30).Select(r => new AppUser
             {
@@ -49,7 +49,7 @@ namespace Ghotok.Api.Test.TestHelpers.TestHelpers
                 MobileNumber = $"mobilenumber {r}",
                 Password = $"12345{r}",
                 UserRole = $"role{r}"
-            });
+            }).AsQueryable();
 
 
             GhotokContextMock = ContextTestHelpers.MockContext<IQqContext>();
@@ -57,10 +57,10 @@ namespace Ghotok.Api.Test.TestHelpers.TestHelpers
             GhotokContextMock.Setup(r => r.GetDbSet<AppUser>()).Returns(AppUserMockSet.Object);
             AppUserRepo = new Mock<IQuickQueryRepository<AppUser>>();
             AppUserRepo.Setup(r => r.Get(It.IsAny<IEnumerable<Expression<Func<AppUser,bool>>>>(),  null,null,0,0,true))
-                .Returns(brides.ToList());
+                .Returns(brides);
 
             AppUserRepo.Setup(r => r.Get(It.IsAny<IEnumerable<Expression<Func<AppUser, bool>>>>(), null, null,  0, 0, true))
-                .Returns(grooms.ToList());
+                .Returns(grooms);
 
             return AppUserRepo;
         }
@@ -125,13 +125,13 @@ namespace Ghotok.Api.Test.TestHelpers.TestHelpers
                 LanguageChoice = Language.English,
                 LookingForBride = false
                 
-            });
+            }).AsQueryable();
 
             var userContextMock = ContextTestHelpers.MockContext<IQqContext>();
             var userMockSet = ContextTestHelpers.CreateMockDbSet(users.AsQueryable());
             userContextMock.Setup(r => r.GetDbSet<User>()).Returns(userMockSet.Object);
             UserRepo = new Mock<IQuickQueryRepository<User>>();
-            UserRepo.Setup(r => r.Get(null, null,null,0,0,true)).Returns(users.ToList());
+            UserRepo.Setup(r => r.Get(null, null,null,0,0,true)).Returns(users);
 
             return UserRepo;
         }

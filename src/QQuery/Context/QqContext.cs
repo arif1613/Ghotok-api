@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
 
 namespace QQuery.Context
@@ -9,6 +10,7 @@ namespace QQuery.Context
         public QqContext()
         {
             //Create database if not exist
+            if (Database.CanConnect()) return;
             try
             {
                 Database.EnsureCreated();
@@ -50,6 +52,11 @@ namespace QQuery.Context
         {
             return Entry(entity).State;
 
+        }
+
+        public IQueryable<TEntity> GetQuerybleDbSet<TEntity>() where TEntity : class
+        {
+            return Set<TEntity>();
         }
 
         public void UpdateEntry<TEntity>(TEntity entity) where TEntity : class

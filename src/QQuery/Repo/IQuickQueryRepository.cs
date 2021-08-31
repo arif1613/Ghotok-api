@@ -9,7 +9,7 @@ namespace QQuery.Repo
     public interface IQuickQueryRepository<TEntity> where TEntity : class
     {
 
-        IEnumerable<TEntity> Get(IEnumerable<Expression<Func<TEntity, bool>>> filters,
+        IQueryable<TEntity> Get(IEnumerable<Expression<Func<TEntity, bool>>> filters,
             Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null, Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null,
             int startIndex = 0, int chunkSize = 0, bool disableTracking = true);
         IEnumerable<TEntity> Get(Expression<Func<TEntity, bool>> filter);

@@ -19,12 +19,12 @@ namespace QQuery.Repo
             _context = context;
         }
 
-        public IEnumerable<TEntity> Get(IEnumerable<Expression<Func<TEntity, bool>>> filters, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
+        public IQueryable<TEntity> Get(IEnumerable<Expression<Func<TEntity, bool>>> filters, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
             Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null,
             int startIndex = 0, int chunkSize = 0, bool disableTracking = true)
         {
            
-            IQueryable<TEntity> query = _context.GetDbSet<TEntity>();
+            IQueryable<TEntity> query = _context.GetQuerybleDbSet<TEntity>();
             if (disableTracking)
             {
                 query = query.AsNoTracking();
@@ -44,18 +44,17 @@ namespace QQuery.Repo
 
 
 
-            if (include != null)
+            if (include != null && query!=null)
             {
                 query = include(query);
             }
 
-            if (orderBy != null)
+            if (orderBy != null && query != null)
             {
                 query = orderBy(query);
-                if (query == null) return null;
             }
 
-            if (query == null) return null;
+            return query ?? null;
             //add to cache
 
             //if (query.Count() % Convert.ToInt32(_configuration["UserInfoCacheChunkSize"]) == 0)
@@ -66,13 +65,11 @@ namespace QQuery.Repo
             //        _cacheHelper.Clear(CreateRestCacheKey(typeof(TEntity), filters.ToString()));
             //    }
             //}
-
-            return query.ToList() ?? null;
         }
 
         public IEnumerable<TEntity> Get(Expression<Func<TEntity, bool>> filter)
         {
-            IQueryable<TEntity> query = _context.GetDbSet<TEntity>();
+            IQueryable<TEntity> query = _context.GetQuerybleDbSet<TEntity>();
             query = query.AsNoTracking();
             query = query.Where(filter);
             return query.ToList();
@@ -85,7 +82,7 @@ namespace QQuery.Repo
             //{
             //    return _cacheHelper.Get<IEnumerable<TEntity>>(CreateRestCacheKey(typeof(TEntity), filters.ToString()));
             //}
-            IQueryable<TEntity> query = _context.GetDbSet<TEntity>();
+            IQueryable<TEntity> query = _context.GetQuerybleDbSet<TEntity>();
 
             query = query.AndAll(filters);
             var totalRecords = query.Count();
