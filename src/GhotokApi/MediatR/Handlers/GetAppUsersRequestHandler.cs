@@ -39,7 +39,7 @@ namespace GhotokApi.MediatR.Handlers
                         .ThenInclude(b => b.EducationInfo).ThenInclude(b => b.CurrentJob)
                         .Include(r => r.User)
                         .ThenInclude(c => c.FamilyInfo).ThenInclude(c => c.FamilyMembers),
-                    request.model.StartIndex, request.model.ChunkSize, true));
+                    request.model.StartIndex, request.model.ChunkSize));
                 return appUsers.ToList();
 
             }
@@ -54,7 +54,7 @@ namespace GhotokApi.MediatR.Handlers
                         .Include(a => a.User.EducationInfo).ThenInclude(b => b.Educations)
                         .Include(a => a.User.EducationInfo).ThenInclude(b => b.CurrentJob)
                         .Include(a => a.User.FamilyInfo).ThenInclude(d => d.FamilyMembers),
-                     request.model.StartIndex, request.model.ChunkSize, true));
+                     request.model.StartIndex, request.model.ChunkSize));
                 return appUsers.ToList();
 
 
@@ -65,14 +65,14 @@ namespace GhotokApi.MediatR.Handlers
                 appUsers = await Task.Run(() => _unitOfWork.QqRepository.Get(
                     _filterBuilder.GetAppUserFilter(request.model.Filters),
                     orderBy: source => source.OrderBy(r => r.User.BasicInfo.Name),
-                    null, request.model.StartIndex, request.model.ChunkSize, true));
+                    null, request.model.StartIndex, request.model.ChunkSize));
                 return appUsers.ToList();
 
             }
 
             appUsers = await Task.Run(() => _unitOfWork.QqRepository.Get(
                 null,
-                null, null, request.model.StartIndex, request.model.ChunkSize, true));
+                null, null, request.model.StartIndex, request.model.ChunkSize));
             return appUsers.ToList();
 
         }

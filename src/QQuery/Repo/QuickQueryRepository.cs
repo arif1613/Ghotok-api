@@ -21,7 +21,7 @@ namespace QQuery.Repo
 
         public IQueryable<TEntity> Get(IEnumerable<Expression<Func<TEntity, bool>>> filters, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
             Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null,
-            int startIndex = 0, int chunkSize = 0, bool disableTracking = true)
+            int startIndex = 0, int chunkSize = 0, bool disableTracking = false)
         {
            
             IQueryable<TEntity> query = _context.GetQuerybleDbSet<TEntity>();
