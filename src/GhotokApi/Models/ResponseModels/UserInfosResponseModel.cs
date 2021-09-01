@@ -5,6 +5,6 @@ namespace GhotokApi.Models.ResponseModels
 {
     public class UserInfosResponseModel: BaseResponseModel
     {
-        public List<User> Users { get; set; }
+        public IEnumerable<User> Users { get; set; }
     }
 }

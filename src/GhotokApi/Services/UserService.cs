@@ -29,7 +29,7 @@ namespace GhotokApi.Services
         }
 
 
-        public async Task<List<User>> GetUsers(UserInfosRequestModel model)
+        public async Task<IQueryable<User>> GetUsers(UserInfosRequestModel model)
         {
             return await _mediator.Send(new GetUsersRequest
             {

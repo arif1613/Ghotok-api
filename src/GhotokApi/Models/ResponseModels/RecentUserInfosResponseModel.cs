@@ -5,7 +5,7 @@ namespace GhotokApi.Models.ResponseModels
 {
     public class RecentUserInfosResponseModel:BaseResponseModel
     {
-        public List<User> RecentUsers { get; set; }
+        public LinkedList<User> RecentUsers { get; set; }
 
     }
 }

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,6 +10,7 @@ using GhotokApi.Models.RequestModels;
 using GhotokApi.Models.ResponseModels;
 using GhotokApi.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
 namespace GhotokApi.Controllers
@@ -119,14 +122,22 @@ namespace GhotokApi.Controllers
 
             var users =await _userService.GetUsers(model);
 
-            if (!users.Any())
+            var linkedlist = new LinkedList<User>();
+            var e = users.GetEnumerator();
+            while (e.MoveNext())
+            {
+                linkedlist.AddLast(e.Current);
+            }
+
+            if (!linkedlist.Any())
             {
                 return NotFound(ErrorCodes.RecordNotFound.ToString());
             }
-            return Ok(JsonConvert.SerializeObject(new UserInfosResponseModel
+
+            return Ok(JsonConvert.SerializeObject(new RecentUserInfosResponseModel
             {
-                Count = users.Count(),
-                Users = users
+                Count = linkedlist.Count(),
+                RecentUsers = linkedlist
             }));
         }
 
@@ -140,16 +151,23 @@ namespace GhotokApi.Controllers
             }
 
             var users = await _userService.GetRecentUsers(model);
+            var linkedlist = new LinkedList<User>();
+            var e = users.GetEnumerator();
+            while (e.MoveNext())
+            {
+                linkedlist.AddLast(e.Current);
+            }
 
-            if (!users.Any())
+            if (!linkedlist.Any())
             {
                 return NotFound(ErrorCodes.RecordNotFound.ToString());
             }
+           
 
             return Ok(JsonConvert.SerializeObject(new RecentUserInfosResponseModel
             {
-                Count = users.Count(),
-                RecentUsers = users.ToList()
+                Count = linkedlist.Count(),
+                RecentUsers = linkedlist
             }));
         }
     }
