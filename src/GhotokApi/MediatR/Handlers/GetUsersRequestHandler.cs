@@ -34,8 +34,7 @@ namespace GhotokApi.MediatR.Handlers
                         .Include(a => a.BasicInfo)
                         .Include(a => a.EducationInfo).ThenInclude(b => b.Educations)
                         .Include(a => a.EducationInfo).ThenInclude(b => b.CurrentJob)
-                        .Include(a => a.FamilyInfo).ThenInclude(d => d.FamilyMembers),
-                     request.model.StartIndex, request.model.ChunkSize));
+                        .Include(a => a.FamilyInfo).ThenInclude(d => d.FamilyMembers)));
                 return users.ToList();
             }
 

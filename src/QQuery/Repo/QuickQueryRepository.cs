@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Configuration;
 using QQuery.Context;
+using QQuery.Helper;
 
 namespace QQuery.Repo
 {
@@ -23,7 +24,8 @@ namespace QQuery.Repo
             Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null,
             int startIndex = 0, int chunkSize = 0, bool disableTracking = false)
         {
-           
+         
+
             IQueryable<TEntity> query = _context.GetQuerybleDbSet<TEntity>();
             if (disableTracking)
             {
@@ -54,7 +56,10 @@ namespace QQuery.Repo
                 query = orderBy(query);
             }
 
-            return query ?? null;
+           
+
+
+            return query.AsSplitQuery()?? null;
             //add to cache
 
             //if (query.Count() % Convert.ToInt32(_configuration["UserInfoCacheChunkSize"]) == 0)
@@ -65,6 +70,17 @@ namespace QQuery.Repo
             //        _cacheHelper.Clear(CreateRestCacheKey(typeof(TEntity), filters.ToString()));
             //    }
             //}
+        }
+
+        public IQueryable<TEntity> Get(IEnumerable<Expression<Func<TEntity, bool>>> filters, Expression<Func<TEntity, bool>> orderBy, Expression<Func<TEntity, bool>> include)
+        {
+            var translator = new QueryTranslator();
+            string whereClause = translator.Translate(filters.FirstOrDefault());
+            string orderbyClause = translator.Translate(orderBy);
+
+            var f = whereClause + " " + orderbyClause;
+            IQueryable<TEntity> query = _context.GetQuerybleDbSet<TEntity>();
+            return query;
         }
 
         public IEnumerable<TEntity> Get(Expression<Func<TEntity, bool>> filter)
