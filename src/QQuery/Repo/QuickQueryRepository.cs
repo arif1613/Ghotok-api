@@ -59,7 +59,7 @@ namespace QQuery.Repo
            
 
 
-            return query.AsSplitQuery()?? null;
+            return query?? null;
             //add to cache
 
             //if (query.Count() % Convert.ToInt32(_configuration["UserInfoCacheChunkSize"]) == 0)

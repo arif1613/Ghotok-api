@@ -56,7 +56,7 @@ namespace QQuery.Context
 
         public IQueryable<TEntity> GetQuerybleDbSet<TEntity>() where TEntity : class
         {
-            return Set<TEntity>();
+            return Set<TEntity>().AsSplitQuery();
         }
 
         public void UpdateEntry<TEntity>(TEntity entity) where TEntity : class
