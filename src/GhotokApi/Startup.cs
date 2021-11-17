@@ -78,10 +78,12 @@ namespace GhotokApi
             services.AddTransient<IQqContext,GhotokDbContext>();
             services.AddScoped(typeof(IQqService<>), typeof(QqService<>));
 
+
+            services.AddControllers();
+
             //Swagger
             AddSwagger(services);
             AddAuthentication(services);
-            services.AddControllers();
         }
 
         private static IMediator BuildMediator(IServiceCollection services)

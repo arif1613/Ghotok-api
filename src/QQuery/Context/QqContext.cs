@@ -4,8 +4,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace QQuery.Context
 {
-    public abstract class QqContext : DbContext, IQqContext
+
+    //public class CustomStorageMAppingItemCollection:
+    //{
+
+    //}
+    public abstract class QqContext : DbContext, IQqContext//, IObjectContextAdapter
     {
+        //public ObjectContext ObjectContext { get; }
 
         public QqContext()
         {
@@ -20,12 +26,17 @@ namespace QQuery.Context
             {
                 throw e;
             }
+
+
+            //Pre generated view
+            //ObjectContext = ObjectContext;
+            //var mappingCollection = this.MetadataWorkspace
+            //    .GetItemCollection(DataSpace.CSSpace);
+
+            //Database.SetCommandTimeout(30);
         }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseSqlServer(@"Server=.\MSSQLSERVER01;Database=GhotokApiDb_Guid;Trusted_Connection=True;MultipleActiveResultSets=true");
-        }
+        
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -85,5 +96,6 @@ namespace QQuery.Context
         {
             return Set<TEntity>();
         }
+
     }
 }

@@ -8,10 +8,9 @@ namespace QQuery.Repo
 {
     public interface IQuickQueryRepository<TEntity> where TEntity : class
     {
-
-        IQueryable<TEntity> Get(IEnumerable<Expression<Func<TEntity, bool>>> filters,
+        IQueryable<TEntity> Get(IEnumerable<Expression<Func<TEntity, bool>>> filters=null,
             Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null, Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null,
-            int startIndex = 0, int chunkSize = 0, bool disableTracking = false);
+            int startIndex = 0, int chunkSize = 0, bool disableTracking = true);
 
         IQueryable<TEntity> Get(IEnumerable<Expression<Func<TEntity, bool>>> filters,
             Expression<Func<TEntity, bool>> orderBy, Expression<Func<TEntity, bool>> include);

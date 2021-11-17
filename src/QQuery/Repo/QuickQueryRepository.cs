@@ -20,11 +20,13 @@ namespace QQuery.Repo
             _context = context;
         }
 
-        public IQueryable<TEntity> Get(IEnumerable<Expression<Func<TEntity, bool>>> filters, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
+
+        public IQueryable<TEntity> Get(IEnumerable<Expression<Func<TEntity, bool>>> filters=null, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
             Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null,
-            int startIndex = 0, int chunkSize = 0, bool disableTracking = false)
+            int startIndex = 0, int chunkSize = 0, bool disableTracking = true)
         {
-         
+
+
 
             IQueryable<TEntity> query = _context.GetQuerybleDbSet<TEntity>();
             if (disableTracking)
@@ -32,21 +34,17 @@ namespace QQuery.Repo
                 query = query.AsNoTracking();
             }
 
-            if (filters != null)
+            if (filters != null && filters.Any())
             {
-                if (startIndex == 0 && chunkSize == 0)
-                {
-                    query = query.AndAll(filters);
-                }
-                else
-                {
-                    query = query.AndAll(filters).Skip(startIndex).Take(chunkSize);
-                }
+                query = query.AndAll(filters);
             }
 
+            if (startIndex != 0 || chunkSize != 0)
+            {
+                query = query.Skip(startIndex).Take(chunkSize);
+            }
 
-
-            if (include != null && query!=null)
+            if (include != null && query != null)
             {
                 query = include(query);
             }
@@ -56,20 +54,8 @@ namespace QQuery.Repo
                 query = orderBy(query);
             }
 
-           
-
-
-            return query?? null;
-            //add to cache
-
-            //if (query.Count() % Convert.ToInt32(_configuration["UserInfoCacheChunkSize"]) == 0)
-            //{
-            //    _cacheHelper.Add(query.ToList(), cacheKey, Convert.ToInt32(_configuration["AppUserCacheMinute"]));
-            //    if (_cacheHelper.Exists(CreateRestCacheKey(typeof(TEntity), filters.ToString())))
-            //    {
-            //        _cacheHelper.Clear(CreateRestCacheKey(typeof(TEntity), filters.ToString()));
-            //    }
-            //}
+            return query ?? null;
+            
         }
 
         public IQueryable<TEntity> Get(IEnumerable<Expression<Func<TEntity, bool>>> filters, Expression<Func<TEntity, bool>> orderBy, Expression<Func<TEntity, bool>> include)

@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Ghotok.Data.DataModels;
@@ -24,7 +26,6 @@ namespace GhotokApi.MediatR.Handlers
 
         public async Task<IQueryable<User>> Handle(GetUsersRequest request, CancellationToken cancellationToken)
         {
-            IEnumerable<User> users;
             if (request.model.HasInclude && request.model.HasOrderBy)
             {
                 return await Task.Run(() => _unitOfWork.QqRepository.Get(
@@ -34,7 +35,8 @@ namespace GhotokApi.MediatR.Handlers
                         .Include(a => a.BasicInfo)
                         .Include(a => a.EducationInfo).ThenInclude(b => b.Educations)
                         .Include(a => a.EducationInfo).ThenInclude(b => b.CurrentJob)
-                        .Include(a => a.FamilyInfo).ThenInclude(d => d.FamilyMembers)));
+                        .Include(a => a.FamilyInfo).ThenInclude(d => d.FamilyMembers),
+                    request.model.StartIndex, request.model.ChunkSize,true), cancellationToken);
             }
 
             if (request.model.HasInclude)
@@ -46,7 +48,7 @@ namespace GhotokApi.MediatR.Handlers
                         .Include(a => a.EducationInfo).ThenInclude(b => b.Educations)
                         .Include(a => a.EducationInfo).ThenInclude(b => b.CurrentJob)
                         .Include(a => a.FamilyInfo).ThenInclude(d => d.FamilyMembers),
-                     request.model.StartIndex, request.model.ChunkSize));
+                     request.model.StartIndex, request.model.ChunkSize, true), cancellationToken);
 
 
             }
@@ -56,14 +58,17 @@ namespace GhotokApi.MediatR.Handlers
                 return await Task.Run(() => _unitOfWork.QqRepository.Get(
                     _filterBuilder.GetUserFilter(request.model.Filters),
                     orderBy: source => source.OrderBy(r => r.BasicInfo.Name),
-                    null, request.model.StartIndex, request.model.ChunkSize));
+                    null, request.model.StartIndex, request.model.ChunkSize, true), cancellationToken);
 
             }
 
 
             return await Task.Run(() => _unitOfWork.QqRepository.Get(
-                _filterBuilder.GetUserFilter(request.model.Filters),
-                null, null, request.model.StartIndex, request.model.ChunkSize));
+                new List<Expression<Func<User, bool>>>
+                {
+                    r=>r.IsPictureUploaded==true,r=>r.IsPublished==false
+                },
+                null, null, request.model.StartIndex, request.model.ChunkSize, true), cancellationToken);
 
         }
 
@@ -72,7 +77,7 @@ namespace GhotokApi.MediatR.Handlers
 
     public class GetUsersRequest : IRequest<IQueryable<User>>
     {
-        public UserInfosRequestModel model  { get; set; }
+        public UserInfosRequestModel model { get; set; }
     }
 
 

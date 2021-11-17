@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -123,7 +122,7 @@ namespace GhotokApi.Controllers
             var users =await _userService.GetUsers(model);
 
             var linkedlist = new LinkedList<User>();
-            var e = users.GetEnumerator();
+            using var e = users.AsNoTracking().AsSplitQuery().GetEnumerator();
             while (e.MoveNext())
             {
                 linkedlist.AddLast(e.Current);
