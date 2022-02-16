@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Ghotok.Data.Test": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}
