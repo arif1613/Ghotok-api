@@ -75,7 +75,8 @@ namespace GhotokApi
             BuildMediator(services);
 
             //Quick Query
-            services.AddTransient<IQqContext,GhotokDbContext>();
+            //services.AddTransient<IQqContext,GhotokDbContext>();
+            AddDbContext(services);
             services.AddScoped(typeof(IQqService<>), typeof(QqService<>));
 
 
@@ -112,12 +113,10 @@ namespace GhotokApi
 
         private void AddDbContext(IServiceCollection services)
         {
-            //services.AddScoped<IGhotokDbContext>((options) =>
-            //{
-            //    return new GhotokDbContext(new DbContextOptionsBuilder<GhotokDbContext>()
-            //        .UseSqlServer(Configuration["GhotokDbConnectionString"],
-            //            x => x.EnableRetryOnFailure(5)).Options);
-            //});
+            services.AddScoped<IQqContext>((options) =>
+            {
+                return new GhotokDbContext(Configuration["GhotokDbConnectionString"]);
+            });
 
             //services.AddScoped<IGhotokDbContext, GhotokDbContext>();
 

@@ -1,20 +1,18 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace QQuery.Context
 {
 
-    //public class CustomStorageMAppingItemCollection:
-    //{
-
-    //}
     public abstract class QqContext : DbContext, IQqContext//, IObjectContextAdapter
     {
         //public ObjectContext ObjectContext { get; }
-
-        public QqContext()
+        public string dbConnectionString { get;set; }
+        public QqContext(string DbConnectionString)
         {
+            dbConnectionString = DbConnectionString;
             //Create database if not exist
             if (Database.CanConnect()) return;
             try
@@ -36,7 +34,12 @@ namespace QQuery.Context
             //Database.SetCommandTimeout(30);
         }
 
-        
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.EnableDetailedErrors();
+            optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.TrackAll);
+            optionsBuilder.UseSqlServer($"{dbConnectionString}");
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

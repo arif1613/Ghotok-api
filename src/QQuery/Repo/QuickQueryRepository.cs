@@ -6,11 +6,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Configuration;
 using QQuery.Context;
+using QQuery.DbOperation;
 using QQuery.Helper;
 
 namespace QQuery.Repo
 {
-    public class QuickQueryRepository<TEntity> : IQuickQueryRepository<TEntity> where TEntity : class
+    public class QuickQueryRepository<TEntity> : SqlView, IQuickQueryRepository<TEntity> where TEntity : class
     {
         private readonly IQqContext _context;
 
@@ -26,12 +27,16 @@ namespace QQuery.Repo
             int startIndex = 0, int chunkSize = 0, bool disableTracking = true)
         {
 
-
-
             IQueryable<TEntity> query = _context.GetQuerybleDbSet<TEntity>();
             if (disableTracking)
             {
                 query = query.AsNoTracking();
+            }
+
+            if (include != null && query != null)
+            {
+                var p = CreateViewFromSqlString(query.ToQueryString());
+                Console.WriteLine(p);
             }
 
             if (filters != null && filters.Any())
@@ -53,7 +58,8 @@ namespace QQuery.Repo
             {
                 query = orderBy(query);
             }
-
+            var p1 = CreateViewFromSqlString(query.ToQueryString());
+            Console.WriteLine(p1);
             return query ?? null;
             
         }
