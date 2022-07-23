@@ -6,16 +6,19 @@ using System.Threading.Tasks;
 
 namespace QQuery.DbOperation
 {
-    internal class SqlStoreProcedure: CommonOperations
+    public abstract class SqlStoreProcedure : CommonOperations
     {
-        internal static string CreateViewFromSqlString(string sqlQueryString)
+        internal const string CreateProcedureHeader = "CREATE OR ALTER procedure ";
+        protected static string CreateStoreProcedureFromSqlString(string procedureName,string sqlQueryString)
         {
-            return RemoveSpecialCharacters(sqlQueryString);
+            sqlQueryString = RemoveSpecialCharacters(sqlQueryString);
+            sqlQueryString = CreateStoreProcedureBody(procedureName, sqlQueryString);
+            //sqlQueryString = AddHeader(sqlQueryString);
+            return AddFooter(sqlQueryString);
         }
-
-        private static string CreateProcedure(string procedurename,string sqlstring)
+        private static string CreateStoreProcedureBody(string procedurename, string sqlstring)
         {
-            return $"CREATE OR ALTER procedure {procedurename} as {sqlstring} GO";
+            return CreateProcedureHeader+procedurename+ " as "+ sqlstring;
         }
     }
 }

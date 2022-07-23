@@ -7,6 +7,7 @@ using GhotokApi.Models.RequestModels;
 using GhotokApi.Utils.FilterBuilder;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using QQuery.Helper;
 using QQuery.UnitOfWork;
 
 namespace GhotokApi.MediatR.Handlers

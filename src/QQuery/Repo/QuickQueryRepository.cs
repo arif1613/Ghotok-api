@@ -4,14 +4,13 @@ using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.Extensions.Configuration;
 using QQuery.Context;
 using QQuery.DbOperation;
 using QQuery.Helper;
 
 namespace QQuery.Repo
 {
-    public class QuickQueryRepository<TEntity> : SqlView, IQuickQueryRepository<TEntity> where TEntity : class
+    public class QuickQueryRepository<TEntity> :  SqlStoreProcedure, IQuickQueryRepository<TEntity> where TEntity : class
     {
         private readonly IQqContext _context;
 
@@ -35,7 +34,7 @@ namespace QQuery.Repo
 
             if (include != null && query != null)
             {
-                var p = CreateViewFromSqlString(query.ToQueryString());
+                var p = CreateStoreProcedureFromSqlString("test",query.ToQueryString());
                 Console.WriteLine(p);
             }
 
@@ -58,7 +57,7 @@ namespace QQuery.Repo
             {
                 query = orderBy(query);
             }
-            var p1 = CreateViewFromSqlString(query.ToQueryString());
+            var p1 = CreateStoreProcedureFromSqlString("test2",query.ToQueryString());
             Console.WriteLine(p1);
             return query ?? null;
             

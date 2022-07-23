@@ -8,6 +8,9 @@ namespace QQuery.DbOperation
 {
     public abstract class CommonOperations
     {
+        public static string Header = "SET ANSI_NULLS ON GO SET QUOTED_IDENTIFIER ON GO ";
+        public static string Footer = " GO";
+        public static string GoString = " GO";
         public static string RemoveSpecialCharacters(string sqlQueryString)
         {
             if (sqlQueryString.Contains("\n"))
@@ -30,6 +33,17 @@ namespace QQuery.DbOperation
                 sqlQueryString = sqlQueryString.Split("This LINQ query").FirstOrDefault();
             }
             return sqlQueryString;
+        }
+
+        public static string AddHeader(string sqlQueryString)
+        {
+            
+            return Header + sqlQueryString;
+        }
+
+        public static string AddFooter(string sqlQueryString)
+        {
+            return sqlQueryString + Footer;
         }
     }
 }

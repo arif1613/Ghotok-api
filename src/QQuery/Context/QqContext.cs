@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -62,6 +63,9 @@ namespace QQuery.Context
             //    entity.Property(e => e.email).HasColumnName("email");
             //});
         }
+
+
+       
         public EntityState GetEntityState<TEntity>(TEntity entity) where TEntity : class
         {
             return Entry(entity).State;
