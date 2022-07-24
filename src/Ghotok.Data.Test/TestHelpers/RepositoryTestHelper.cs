@@ -1,12 +1,16 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Ghotok.Data.DataModels;
 using Microsoft.EntityFrameworkCore;
 using Moq;
+using QQuery.Context;
 
 namespace Ghotok.Data.Test.TestHelpers
 {
     public class RepositoryTestHelper
     {
+        public static Mock<IQqContext> GhotokContextMock;
+        public static Mock<DbSet<AppUser>> AppUserMockSet;
         public static Mock<T> MockContext<T>() where T : class
         {
             return new Mock<T>();

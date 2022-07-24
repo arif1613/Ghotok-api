@@ -18,15 +18,11 @@ namespace Ghotok.Data.Test.RepositoryTests
     {
 
         private Mock<IQqContext> _mockDbContext;
-        private IConfiguration Configuration;
-        private CacheHelper CacheHelper;
 
 
         [TestInitialize]
         public void Setup()
         {
-            CacheHelper = CommonTestHelpers.GetCacheHelper();
-            Configuration = CommonTestHelpers.GetConfiguration();
             _mockDbContext = RepositoryTestHelper.MockContext<IQqContext>();
 
             var AppUsers = Enumerable.Range(0, 100).Select(r => new AppUser
@@ -42,9 +38,9 @@ namespace Ghotok.Data.Test.RepositoryTests
                 MobileNumber = $"mobilenumber {r}",
                 Password = $"12345{r}",
                 UserRole = $"role{r}"
-            });
+            }).AsQueryable();
 
-            var AppUserDbSet = RepositoryTestHelper.CreateMockDbSet(AppUsers.AsQueryable());
+            var AppUserDbSet = RepositoryTestHelper.CreateMockDbSet(AppUsers);
             _mockDbContext.Setup(r => r.GetDbSet<AppUser>()).Returns(AppUserDbSet.Object);
 
         }
@@ -56,8 +52,8 @@ namespace Ghotok.Data.Test.RepositoryTests
             var appUserRepo=new QuickQueryRepository<AppUser>(_mockDbContext.Object);
             var result = appUserRepo.Get(new List<Expression<Func<AppUser, bool>>>
             {
-                r=>r.IsLoggedin
-            }, null);
+                r=>r.IsLoggedin==true
+            }, null, null, 0, 0, true);
             Assert.IsNotNull(result);
             Assert.AreEqual(result.Count(),100);
         }
@@ -69,7 +65,7 @@ namespace Ghotok.Data.Test.RepositoryTests
             var appUserRepo = new QuickQueryRepository<AppUser>(_mockDbContext.Object);
             var result = appUserRepo.Get(new List<Expression<Func<AppUser, bool>>>
             {
-                r=>r.IsLoggedin
+                r=>r.IsLoggedin==true
             },  orderBy:source=>source.OrderByDescending(r=>r.Email));
             Assert.IsNotNull(result);
             Assert.AreEqual(result.Count(), 100);
@@ -83,7 +79,7 @@ namespace Ghotok.Data.Test.RepositoryTests
             var appUserRepo = new QuickQueryRepository<AppUser>(_mockDbContext.Object);
             var result = appUserRepo.Get(new List<Expression<Func<AppUser, bool>>>
             {
-                r=>r.IsLoggedin
+                r=>r.IsLoggedin==true
             },  orderBy: null,null,10,5);
             Assert.IsNotNull(result);
             Assert.AreEqual(result.Count(), 5);

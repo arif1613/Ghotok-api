@@ -58,8 +58,8 @@ namespace QQuery.Repo
             {
                 query = orderBy(query);
             }
-            var p1 = CreateViewFromSqlString(query.ToQueryString());
-            Console.WriteLine(p1);
+            //var p1 = CreateViewFromSqlString(query.ToQueryString());
+            //Console.WriteLine(p1);
             return query ?? null;
             
         }
@@ -70,7 +70,7 @@ namespace QQuery.Repo
             string whereClause = translator.Translate(filters.FirstOrDefault());
             string orderbyClause = translator.Translate(orderBy);
 
-            var f = whereClause + " " + orderbyClause;
+            //var f = whereClause + " " + orderbyClause;
             IQueryable<TEntity> query = _context.GetQuerybleDbSet<TEntity>();
             return query;
         }

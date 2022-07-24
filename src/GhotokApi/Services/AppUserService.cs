@@ -80,7 +80,7 @@ namespace GhotokApi.Services
                     new List<Expression<Func<AppUser, bool>>>
                     {
                         filter
-                    },  null, null));
+                    },  null, null,0, 0, true));
 
                 if (appUsers.Any())
                 {
