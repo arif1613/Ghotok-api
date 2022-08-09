@@ -49,7 +49,12 @@ namespace GhotokApi
             {
                 options.AutomaticAuthentication = false;
             });
-            AddDbContext(services);
+            //AddDbContext(services);
+
+
+            //Register database
+            services.AddScoped<IGhotokDbContext,GhotokDbContext>();
+
 
             services.AddMemoryCache();
             services.AddScoped<ICacheHelper, CacheHelper>();
@@ -103,12 +108,12 @@ namespace GhotokApi
 
         private void AddDbContext(IServiceCollection services)
         {
-            services.AddScoped<IGhotokDbContext>((options) =>
-            {
-                return new GhotokDbContext(new DbContextOptionsBuilder<GhotokDbContext>()
-                    .UseSqlServer(Configuration["GhotokDbConnectionString"],
-                        x => x.EnableRetryOnFailure(5)).Options);
-            });
+            //services.AddScoped<IGhotokDbContext>((options) =>
+            //{
+            //    return new GhotokDbContext(new DbContextOptionsBuilder<GhotokDbContext>()
+            //        .UseSqlServer(Configuration["GhotokDbConnectionString"],
+            //            x => x.EnableRetryOnFailure(5)).Options);
+            //});
 
 
             //services.AddDbContext<GhotokDbContext>(options =>

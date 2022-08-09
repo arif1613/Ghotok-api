@@ -12,12 +12,38 @@ namespace Ghotok.Data.Context
         public DbSet<User> Users { get; set; }
         //public virtual DbSet<UserShortInfo> UserShortInfos { get; set; }
 
-        public GhotokDbContext(DbContextOptions<GhotokDbContext> options) : base(options)
+        //public GhotokDbContext(DbContextOptions<GhotokDbContext> options) : base(options)
+        //{
+        //}
+
+        public GhotokDbContext()
         {
+            //Create database if not exist
+            try
+            {
+                Database.EnsureCreated();
+
+            } catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseSqlServer(@"Server=.\\MSSQLSERVER;Database=GhotokApiDb_Guid;Trusted_Connection=True;MultipleActiveResultSets=true");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<AppUser>(entity =>
+            {
+                //Indexing for query optimization
+                entity.HasIndex(p => p.Id).IsUnique();
+            });
+
             //modelBuilder.Entity<UserShortInfo>(entity =>
             //{
             //    entity.HasNoKey();
